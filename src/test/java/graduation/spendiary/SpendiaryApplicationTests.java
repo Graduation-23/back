@@ -1,13 +1,13 @@
-package com.graduation23.accountdiary;
+package graduation.spendiary;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AccountdiaryApplicationTests {
+class SpendiaryApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
