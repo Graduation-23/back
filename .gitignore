@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### db ###
-application-db.yml
+application*.yml
