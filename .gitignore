@@ -37,4 +37,8 @@ out/
 .vscode/
 
 ### db ###
+<<<<<<< HEAD
+application-db.yml
+=======
 application*.yml
+>>>>>>> 3098245fef41b1838d86ab9f4171ffa1bf1d8233
