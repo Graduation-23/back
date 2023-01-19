@@ -2,7 +2,9 @@ package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.diary.Diary;
 import graduation.spendiary.domain.diary.DiaryRepository;
+import graduation.spendiary.domain.diary.DiaryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,25 +15,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DiaryController {
 
-    private final DiaryRepository diaryRepository;
+    @Autowired
+    private DiaryService diaryService;
 
     @GetMapping
-    public String diarys(Model model) {
-        List<Diary> diarys = diaryRepository.findAll();
+    public List<Diary> diarys(Model model) {
+        List<Diary> diarys = diaryService.getAll();
         model.addAttribute("diarys", diarys);
-        return "전체 조회";
+        return diarys;
     }
 
     @GetMapping("/{diaryId}")
-    public String  diary(@PathVariable Long diaryId, Model model) {
-        Diary diary = diaryRepository.findById(diaryId);
+    public Diary  diary(@PathVariable Long diaryId, Model model) {
+        Diary diary = diaryService.getById(diaryId);
         model.addAttribute("diary", diary);
-        return "상세 조회";
+        return diary;
     }
 
     @PostMapping("/add")
-    public String addDiary(Diary diary) {
-        diaryRepository.save(diary);
+    public String addDiary(@RequestBody Diary diary) {
+        diaryService.save(diary);
         return "생성";
     }
 }

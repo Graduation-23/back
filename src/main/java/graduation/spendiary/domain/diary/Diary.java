@@ -1,31 +1,28 @@
 package graduation.spendiary.domain.diary;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Document(collection = "DiaryContents")
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //기본 생성자 생성
 public class Diary {
 
-    private Long diaryId;
+    private Long diary_id;
 
-    private String diaryTitle;
+    private String diary_title;
 
-    private String diaryContent;
+    private String diary_content;
 
-    private LocalDate diaryCreate;
+    @CreatedDate
+    private LocalDate diary_create;
 
-    private List<String> diaryImage;;
+    private List<String> diary_image;;
 
-    private String diaryWeather;
-
-    public Diary(String diaryTitle, String diaryContent, LocalDate diaryCreate, List<String> diaryImage, String diaryWeather) {
-        this.diaryTitle = diaryTitle;
-        this.diaryContent = diaryContent;
-        this.diaryCreate = diaryCreate;
-        this.diaryImage = diaryImage;
-        this.diaryWeather = diaryWeather;
-    }
+    private String diary_weather;
 }
