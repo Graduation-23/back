@@ -1,8 +1,7 @@
 package graduation.spendiary.controller;
 
-import graduation.spendiary.domain.diary.Diary;
-import graduation.spendiary.domain.diary.DiaryRepository;
-import graduation.spendiary.domain.diary.DiaryService;
+import graduation.spendiary.domain.Diary;
+import graduation.spendiary.service.DiaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
