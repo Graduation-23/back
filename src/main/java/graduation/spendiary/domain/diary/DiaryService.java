@@ -1,13 +1,11 @@
-package graduation.spendiary.service;
+package graduation.spendiary.domain.diary;
 
-import graduation.spendiary.domain.Diary;
-import graduation.spendiary.repository.DiaryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
+@Service
 public class DiaryService {
     @Autowired
     private DiaryRepository repo;

@@ -1,6 +1,5 @@
-package graduation.spendiary.repository;
+package graduation.spendiary.domain.diary;
 
-import graduation.spendiary.domain.Diary;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

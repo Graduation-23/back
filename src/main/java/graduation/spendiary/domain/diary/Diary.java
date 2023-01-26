@@ -1,4 +1,4 @@
-package graduation.spendiary.domain;
+package graduation.spendiary.domain.diary;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
