@@ -18,8 +18,8 @@ class SpendiaryApplicationTests {
                 "/test",
                 true,
                 "Hello Test!",
-                new Token("testaccesstoken"),
-                new Token("testrefreshtoken")
+                "testaccesstoken",
+                "testrefreshtoken"
         );
 
         ObjectMapper mapper = new ObjectMapper();

@@ -19,15 +19,15 @@ public class ResponseFormat<T> {
     }
 
     public static <T> ResponseFormat<T> from(
-            ServiceType serviceType, String path, boolean ok, T value, Token accessToken
+            ServiceType serviceType, String path, boolean ok, T value, String accessToken
     ) {
-        return new ResponseFormat<T>(serviceType, path, ok, value, Map.of("access-token", accessToken.getToken()));
+        return new ResponseFormat<T>(serviceType, path, ok, value, Map.of("access-token", accessToken));
     }
 
     public static <T> ResponseFormat<T> from(
-            ServiceType serviceType, String path, boolean ok, T value, Token accessToken, Token refreshToken
+            ServiceType serviceType, String path, boolean ok, T value, String accessToken, String refreshToken
     ) {
         return new ResponseFormat<T>(serviceType, path, ok, value,
-                Map.of("access-token", accessToken.getToken(), "refresh-token", refreshToken.getToken()));
+                Map.of("access-token", accessToken, "refresh-token", refreshToken));
     }
 }
