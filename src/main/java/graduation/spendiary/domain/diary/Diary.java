@@ -4,25 +4,33 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Document(collection = "DiaryContents")
 @Getter @Setter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //기본 생성자 생성
 public class Diary {
 
-    private Long diary_id;
+    @Field("diary_id")
+    private Long id;
+    
+    @Field("diary_title")
+    private String title;
 
-    private String diary_title;
-
-    private String diary_content;
+    @Field("diary_content")
+    private String content;
 
     @CreatedDate
-    private LocalDate diary_create;
+    @Field("diary_create")
+    private LocalDate created;
 
-    private List<String> diary_image;;
+    @Field("diary_image")
+    private List<String> images;
 
-    private String diary_weather;
+    @Field("diary_weather")
+    private String weather;
 }
