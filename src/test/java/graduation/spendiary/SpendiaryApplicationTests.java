@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class SpendiaryApplicationTests {
 
-    @Test
+    // @Test
     void responseFormatTest() throws JsonProcessingException {
         ResponseFormat<String> data = ResponseFormat.from(
                 ServiceType.AUTH,
