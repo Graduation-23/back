@@ -1,32 +1,30 @@
 package graduation.spendiary;
 
-import graduation.spendiary.domain.diary.Diary;
-import graduation.spendiary.domain.user.User;
-import graduation.spendiary.domain.diary.DiaryService;
-import graduation.spendiary.domain.user.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import graduation.spendiary.security.jwt.Token;
+import graduation.spendiary.util.responseFormat.ResponseFormat;
+import graduation.spendiary.util.responseFormat.ServiceType;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 @SpringBootTest
 class SpendiaryApplicationTests {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private DiaryService diaryService;
 
     @Test
-    void userServiceTest() {
-        List<User> users = userService.getAll();
-        System.out.println(users);
-    }
+    void responseFormatTest() throws JsonProcessingException {
+        ResponseFormat<String> data = ResponseFormat.from(
+                ServiceType.AUTH,
+                "/test",
+                true,
+                "Hello Test!",
+                new Token("testaccesstoken"),
+                new Token("testrefreshtoken")
+        );
 
-    @Test
-    void diaryServiceTest() {
-        List<Diary> diaries = diaryService.getAll();
-        System.out.println(diaries);
+        ObjectMapper mapper = new ObjectMapper();
+
+        System.out.println(mapper.writeValueAsString(data));
     }
 
 }
