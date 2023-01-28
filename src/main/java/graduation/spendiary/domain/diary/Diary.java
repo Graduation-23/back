@@ -2,6 +2,7 @@ package graduation.spendiary.domain.diary;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -14,6 +15,9 @@ import java.util.List;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //기본 생성자 생성
 public class Diary {
+
+    @Transient
+    public static final String SEQUENCE_NAME = "diary_sequence";
 
     @Field("diary_id")
     private Long id;
