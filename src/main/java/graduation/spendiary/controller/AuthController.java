@@ -36,6 +36,13 @@ public class AuthController {
     @Autowired
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    @PostMapping("/signup")
+    public String signUp(@RequestBody User user) {
+        boolean success = userService.signUp(user);
+
+        return success ? "성공" : "이미 있는 사용자";
+    }
+
     @PostMapping("/authenticate")
     public String authenticate(@RequestBody Authorization authorization) {
 
