@@ -1,28 +1,29 @@
 package graduation.spendiary.response;
 
 import graduation.spendiary.security.jwt.JwtAuthenticationFilter;
+import org.aopalliance.aop.Advice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.util.List;
 
-@RestControllerAdvice
+@ControllerAdvice
 public class FormatHttpResponseAdvice implements ResponseBodyAdvice<Object> {
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
 
-        String className = returnType.getContainingClass().toString();
-        if (className.contains("Controller") && !returnType.getMethod().getReturnType().getSimpleName().contains("String")) {
+        if (returnType.getContainingClass().toString().contains("Controller")
+                && converterType != StringHttpMessageConverter.class) {
             return true;
         }
         return false;
@@ -30,11 +31,8 @@ public class FormatHttpResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-//        body.put("message", "Hi! This is Response Body Advice modifying the response");
-
         List access = response.getHeaders().get(JwtAuthenticationFilter.ACCESS_HEADER_KEY),
             refresh = response.getHeaders().get(JwtAuthenticationFilter.REFRESH_HEADER_KEY);
-
         return new FormattedResponseBuilder()
                 .setResponse(response)
                 .setRequest(request)
