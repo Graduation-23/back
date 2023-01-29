@@ -8,6 +8,7 @@ import graduation.spendiary.security.jwt.Authorization;
 import graduation.spendiary.security.jwt.JwtAuthenticationFilter;
 import graduation.spendiary.security.jwt.JwtProvider;
 import graduation.spendiary.security.jwt.Token;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -39,24 +40,23 @@ public class AuthController {
     @PostMapping("/signup")
     public String signUp(@RequestBody User user) {
         boolean success = userService.signUp(user);
-
         return success ? "성공" : "이미 있는 사용자";
     }
 
     @PostMapping("/authenticate")
-    public String authenticate(@RequestBody Authorization authorization) {
+    public Token authenticate(@RequestBody Authorization authorization) {
 
         User user = userService.authorize(authorization.getId(), authorization.getPassword());
 
-        if(user == null) return "Error";
+        if(user != null) {
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getId(), null, null);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user.getId(), null, null);
 
-        String jwt = jwtProvider.issueAccessToken(authentication);
-
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER_KEY, "Bearer " + jwt);
-
-        return jwt;
+            return new Token(
+                    jwtProvider.issueAccessToken(authentication),
+                    jwtProvider.issueRefreshToken(authentication)
+            );
+        }
+        return null;
     }
 }
