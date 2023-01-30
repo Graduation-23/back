@@ -1,4 +1,4 @@
-package graduation.spendiary.security.config;
+package graduation.spendiary.security.jwt.config;
 
 import graduation.spendiary.security.jwt.JwtAccessDeniedHandler;
 import graduation.spendiary.security.jwt.JwtAuthenticationEntryPoint;
