@@ -20,27 +20,60 @@ import java.util.stream.Collectors;
 @Component
 public class JwtProvider implements InitializingBean {
 
-    private final Long expiryTimeMs;
+    private final Long refreshExpiryTimeMs, accessExpiryTimeMs;
 
-    private final String secretKey;
-
-    private Key key;
+    private final Key accessTokenKey, refreshTokenKey;
 
     private final String AUTHORITIES_KEY = "userId";
 
-    public JwtProvider(@Value("${jwt.secretKey}") String secretKey, @Value("${jwt.expiryTimeMs}") Long expiryTimeMs){
-        this.secretKey = secretKey;
-        this.expiryTimeMs = expiryTimeMs;
+    public JwtProvider(
+            @Value("${jwt.accessSecretKey}") String accessSecretKey,
+            @Value("${jwt.accessExpiryTimeMs}") Long accessExpiryTimeMs,
+            @Value("${jwt.refreshSecretKey}") String refreshSecretKey,
+            @Value("${jwt.refreshExpiryTimeMs}") Long refreshExpiryTimeMs
+    ){
+        this.accessExpiryTimeMs = accessExpiryTimeMs;
+        this.refreshExpiryTimeMs = refreshExpiryTimeMs;
+
+        this.accessTokenKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(accessSecretKey));
+        this.refreshTokenKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(refreshSecretKey));
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+
+    }
+
+    public Authentication makeAuthentication(String id) {
+        return new UsernamePasswordAuthenticationToken(id, null, null);
     }
 
     // JWT Access 토큰 생성
     public String issueAccessToken(Authentication authentication) {
+        return this.issueToken(authentication, accessTokenKey, accessExpiryTimeMs);
+    }
+
+    public String issueRefreshToken(Authentication authentication) {
+        return this.issueToken(authentication, refreshTokenKey, refreshExpiryTimeMs);
+    }
+
+    public Authentication getAccessAuthentication(String token) {
+        return this.getAuthentication(token, accessTokenKey);
+    }
+
+    public Authentication getRefreshAuthentication(String token) {
+        return this.getAuthentication(token, refreshTokenKey);
+    }
+
+    public boolean validateAccessToken(String token){
+        return this.validateToken(token, accessTokenKey);
+    }
+
+    public boolean validateRefreshToken(String token){
+        return this.validateToken(token, refreshTokenKey);
+    }
+
+    private String issueToken(Authentication authentication, Key key, Long expiryTimeMs) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -52,7 +85,7 @@ public class JwtProvider implements InitializingBean {
     }
 
     /**인증 정보 조회 */
-    public Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String token, Key key) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -63,11 +96,11 @@ public class JwtProvider implements InitializingBean {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        return new UsernamePasswordAuthenticationToken(claims.get("userId"), token, authorities);
+        return new UsernamePasswordAuthenticationToken(claims.get(AUTHORITIES_KEY), token, authorities);
     }
 
     /**token 유효성 검증 */
-    public boolean validateToken(String token){
+    public boolean validateToken(String token, Key key){
         try{
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
