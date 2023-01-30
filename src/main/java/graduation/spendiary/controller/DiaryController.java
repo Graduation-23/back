@@ -6,6 +6,7 @@ import graduation.spendiary.domain.diary.DiarySaveVo;
 import graduation.spendiary.domain.diary.DiaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +34,8 @@ public class DiaryController {
         return diary;
     }
 
-    @PostMapping("/add")
-    public boolean addDiary(@ModelAttribute DiarySaveVo vo) {
+    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public boolean addDiary(@RequestBody DiarySaveVo vo) {
         return diaryService.save(vo).isPresent();
     }
 }
