@@ -36,7 +36,7 @@ public class SecurityConfiguration {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().mvcMatchers("/auth/login", "/favicon.ico");
+       return (web) -> web.ignoring().mvcMatchers("/auth/login", "/favicon.ico");
     }
 
     @Bean
