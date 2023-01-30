@@ -36,7 +36,15 @@ public class SecurityConfiguration {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-       return (web) -> web.ignoring().mvcMatchers("/auth/login", "/favicon.ico");
+       return (web) -> web.ignoring().antMatchers(
+            "/swagger*/**",
+               "/auth/**",
+               "/favicon.ico",
+               "/swagger-resources/**",
+               "/swagger-ui.html",
+               "/v2/api-docs",
+               "/webjars/**"
+       );
     }
 
     @Bean
@@ -58,8 +66,6 @@ public class SecurityConfiguration {
                 .and()
                 // 인증 요청 설정, swagger Path
                 .authorizeRequests()
-                .antMatchers("/api/**","/auth/**", "/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**")
-                .permitAll()
                 .antMatchers("/**")
                 .authenticated()
                 .and()

@@ -3,13 +3,10 @@ spring:
     include:
       - db
       - jwt
-<<<<<<< HEAD
+      - oauth
   security:
     user:
       password: 1234
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-=======
-      - oauth
->>>>>>> 4fb49f6fceb6d07f5daa82cb3a324ab6285dd45d

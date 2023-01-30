@@ -2,6 +2,7 @@ package graduation.spendiary.security.config;
 
 import graduation.spendiary.security.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -19,8 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 
+@ComponentScan
 @Configuration
-@EnableSwagger2
 public class SwaggerConfiguration {
 
     @Bean
@@ -28,11 +29,11 @@ public class SwaggerConfiguration {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
+                .paths(PathSelectors.ant("/api/**")) //PathSelectors.any()
                 .build()
-                .apiInfo(apiInfo());
-                //.securityContexts(Arrays.asList(securityContext()))
-                //.securitySchemes(Arrays.asList(apiKey()));
+                .apiInfo(apiInfo())
+                .securityContexts(Arrays.asList(securityContext()))
+                .securitySchemes(Arrays.asList(apiKey()));
     }
 
     private ApiInfo apiInfo() {
@@ -42,7 +43,7 @@ public class SwaggerConfiguration {
                 .build();
     }
 
-    /**
+
     private ApiKey apiKey() {
         return new ApiKey("jwt", JwtAuthenticationFilter.ACCESS_HEADER_KEY, "header");
     }
@@ -63,5 +64,5 @@ public class SwaggerConfiguration {
         authorizationScopes[0] = authorizationScope;
         return Arrays.asList(new SecurityReference("jwt", authorizationScopes));
     }
-     */
+
 }
