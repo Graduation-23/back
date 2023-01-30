@@ -1,26 +1,50 @@
 package graduation.spendiary.domain.cdn;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Map;
 
-@Service
+@Component
 public class CloudinaryService {
-    @Value("${cloudinary.cloudName}")
-    private static String CLOUD_NAME;
-    @Value("${cloudinary.apiKey}")
-    private static String API_KEY;
-    @Value("${cloudinary.apiSecret}")
-    private static String API_SECRET;
+    private static Cloudinary cloudinary = null;
 
-    protected CloudinaryService() {
-        Map config = Map.of(
-                "cloud_name", CLOUD_NAME,
-                "api_key", API_KEY,
-                "api_secret", API_SECRET
+    public CloudinaryService(
+            @Value("${cloudinary.cloudName}")   final String CLOUD_NAME,
+            @Value("${cloudinary.apiKey}")      final String API_KEY,
+            @Value("${cloudinary.apiSecret}")   final String API_SECRET
+    ) {
+        try {
+            System.out.println(CLOUD_NAME + ", " + API_KEY + ", " + API_SECRET);
+            Map config = ObjectUtils.asMap(
+                    "cloud_name", CLOUD_NAME,
+                    "api_key", API_KEY,
+                    "api_secret", API_SECRET
+            );
+            cloudinary = new Cloudinary(config);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean upload(Path path) {
+        Map options = ObjectUtils.asMap(
+                "use_filename", true,
+                "unique_filename", false
         );
-        Cloudinary cloudinary = new Cloudinary(config);
+        try {
+            cloudinary.uploader().upload(new File(path.toString()), options);
+        }
+        catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 }

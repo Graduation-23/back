@@ -1,9 +1,10 @@
 spring:
   servlet:
     multipart:
-      - enabled: true
-        max-file-size: 1MB
-        max-request-size: 10MB
+      location: C:\Temp\Paiary
+      enabled: true
+      max-file-size: 1MB
+      max-request-size: 10MB
   profiles:
     include:
       - db

@@ -27,6 +27,8 @@ public class TemporalFileUtil {
         Path filePath;
         List<Path> saveFilePaths = Collections.emptyList();
 
+        Files.createDirectories(Path.of(PATH_TEMP_FILES_DIR));
+
         // 새 이름은 "(UUID).(기존 확장자)" 형식
         oldName = file.getOriginalFilename();
         newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."));
@@ -36,21 +38,5 @@ public class TemporalFileUtil {
         file.transferTo(filePath);
 
         return filePath;
-    }
-
-    /**
-     * 지정된 임시 폴더에 전송받은 파일들을 임시 저장한다.
-     * @param files 전송받은 MultipartFile 리스트
-     * @return 성공적으로 저장된 임시 파일 경로 리스트.
-     */
-    public static List<Path> save(List<MultipartFile> files) {
-        List<Path> filePaths = new ArrayList<>();
-        for (MultipartFile file: files) {
-            try {
-                filePaths.add(save(file));
-            }
-            catch (IOException ignored) {}
-        }
-        return filePaths;
     }
 }

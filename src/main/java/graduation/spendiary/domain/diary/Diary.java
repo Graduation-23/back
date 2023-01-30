@@ -11,9 +11,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Document(collection = "DiaryContents")
-@Getter @Setter
-@ToString
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //기본 생성자 생성
+@AllArgsConstructor
+@Builder
 public class Diary {
 
     @Transient

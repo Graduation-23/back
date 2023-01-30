@@ -2,6 +2,7 @@ package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.diary.Diary;
+import graduation.spendiary.domain.diary.DiarySaveVo;
 import graduation.spendiary.domain.diary.DiaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,7 @@ public class DiaryController {
     }
 
     @PostMapping("/add")
-    public String addDiary(@RequestBody Diary diary) {
-        diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
-        diaryService.save(diary);
-        return "생성";
+    public boolean addDiary(@ModelAttribute DiarySaveVo vo) {
+        return diaryService.save(vo).isPresent();
     }
 }

@@ -1,26 +1,24 @@
 package graduation.spendiary.domain.diary;
 
+import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
+import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class DiaryService {
-    @Value("${path.tempFilesDir}")
-    private String PATH_TEMP_FILES_DIR;
-
     @Autowired
     private DiaryRepository repo;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public List<Diary> getAll() {
         return repo.findAll();
@@ -34,7 +32,30 @@ public class DiaryService {
         repo.save(diary);
     }
 
-    public boolean save(DiarySaveVo vo)  {
-        List<Path> paths = TemporalFileUtil.save(vo.getImages());
+    public Optional<Diary> save(DiarySaveVo vo)  {
+        Path path;
+        List<String> fileNames = new ArrayList<>();
+        for (MultipartFile file: vo.getImages()) {
+            try {
+                path = TemporalFileUtil.save(file);
+                cloudinaryService.upload(path);
+                fileNames.add(path.getFileName().toString());
+            }
+            catch (IOException e) {
+                return Optional.empty();
+            }
+        }
+
+        Diary diary = Diary.builder()
+                .title(vo.getTitle())
+                .content(vo.getContent())
+                .images(fileNames)
+                .weather(vo.getWeather())
+                .build();
+        diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
+
+        repo.save(diary);
+
+        return Optional.of(diary);
     }
 }
