@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.websocket.server.PathParam;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired

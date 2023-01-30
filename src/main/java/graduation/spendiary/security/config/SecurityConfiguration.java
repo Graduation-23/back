@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
 @Configuration
@@ -55,9 +56,9 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
-                // 인증 요청 설정
+                // 인증 요청 설정, swagger Path
                 .authorizeRequests()
-                .antMatchers("/auth/**")
+                .antMatchers("/api/**","/auth/**", "/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**")
                 .permitAll()
                 .antMatchers("/**")
                 .authenticated()
