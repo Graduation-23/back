@@ -48,6 +48,14 @@ public class JwtProvider implements InitializingBean {
         return new UsernamePasswordAuthenticationToken(id, null, null);
     }
 
+    public Token getToken(String id) {
+        Authentication auth = makeAuthentication(id);
+        return new Token(
+                issueAccessToken(auth),
+                issueRefreshToken(auth)
+        );
+    }
+
     // JWT Access 토큰 생성
     public String issueAccessToken(Authentication authentication) {
         return this.issueToken(authentication, accessTokenKey, accessExpiryTimeMs);

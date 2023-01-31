@@ -1,4 +1,4 @@
-package graduation.spendiary.security.config;
+package graduation.spendiary.security.jwt.config;
 
 import graduation.spendiary.security.jwt.JwtAccessDeniedHandler;
 import graduation.spendiary.security.jwt.JwtAuthenticationEntryPoint;
@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
 @Configuration
@@ -35,7 +36,15 @@ public class SecurityConfiguration {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().mvcMatchers("/auth/login", "/favicon.ico");
+       return (web) -> web.ignoring().antMatchers(
+            "/swagger*/**",
+               "/api/auth/**",
+               "/favicon.ico",
+               "/swagger-resources/**",
+               "/swagger-ui.html",
+               "/v2/api-docs",
+               "/webjars/**"
+       );
     }
 
     @Bean
@@ -55,10 +64,8 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
-                // 인증 요청 설정
+                // 인증 요청 설정, swagger Path
                 .authorizeRequests()
-                .antMatchers("/auth/**")
-                .permitAll()
                 .antMatchers("/**")
                 .authenticated()
                 .and()

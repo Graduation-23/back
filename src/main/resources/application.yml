@@ -11,3 +11,10 @@ spring:
       - jwt
       - path
       - cloudinary
+      - oauth
+  security:
+    user:
+      password: 1234
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher

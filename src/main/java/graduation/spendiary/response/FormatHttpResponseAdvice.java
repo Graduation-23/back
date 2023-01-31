@@ -21,8 +21,7 @@ public class FormatHttpResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-
-        if (returnType.getContainingClass().toString().contains("Controller")
+        if (returnType.getContainingClass().getPackageName().contains("graduation.spendiary")
                 && converterType != StringHttpMessageConverter.class) {
             return true;
         }

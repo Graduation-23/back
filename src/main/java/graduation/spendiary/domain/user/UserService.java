@@ -1,5 +1,6 @@
 package graduation.spendiary.domain.user;
 
+import graduation.spendiary.security.google.GoogleUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,16 +29,28 @@ public class UserService {
         return repo.findByIdAndPw(id, password);
     }
 
-    public boolean signUp(User user) {
+    public boolean signUpRaw(User user) {
 
         if(isExist(user.getId())) return false;
-
-        user.setAccessToken("");
-        user.setRefreshToken("");
 
         repo.save(user);
 
         return true;
+    }
+
+    public boolean signUpUsingGoogle(GoogleUser googleUser) {
+
+        User user = new User();
+
+        user.setAccessType("google");
+        user.setId(googleUser.getEmail());
+        user.setNickname(googleUser.getName());
+
+        if(repo.findByNotGoogleId(user.getId()) == null){
+            signUpRaw(user);
+            return true;
+        }
+        return false;
     }
 
 }
