@@ -38,7 +38,7 @@ public class SecurityConfiguration {
     public WebSecurityCustomizer webSecurityCustomizer() {
        return (web) -> web.ignoring().antMatchers(
             "/swagger*/**",
-               "/auth/**",
+               "/api/auth/**",
                "/favicon.ico",
                "/swagger-resources/**",
                "/swagger-ui.html",
