@@ -22,7 +22,6 @@ public class CloudinaryService {
             @Value("${cloudinary.apiSecret}")   final String API_SECRET
     ) {
         try {
-            System.out.println(CLOUD_NAME + ", " + API_KEY + ", " + API_SECRET);
             Map config = ObjectUtils.asMap(
                     "cloud_name", CLOUD_NAME,
                     "api_key", API_KEY,

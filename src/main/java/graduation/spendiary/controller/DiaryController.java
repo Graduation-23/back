@@ -35,7 +35,7 @@ public class DiaryController {
     }
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public boolean addDiary(@ModelAttribute DiarySaveVo vo) {
-        return diaryService.save(vo).isPresent();
+    public Diary addDiary(@ModelAttribute DiarySaveVo vo) {
+        return diaryService.save(vo).orElse(null);
     }
 }

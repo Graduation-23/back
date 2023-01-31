@@ -19,6 +19,8 @@ public class DiaryService {
     private DiaryRepository repo;
     @Autowired
     private CloudinaryService cloudinaryService;
+    @Autowired
+    private TemporalFileUtil temporalFileUtil;
 
     public List<Diary> getAll() {
         return repo.findAll();
@@ -37,7 +39,7 @@ public class DiaryService {
         List<String> fileNames = new ArrayList<>();
         for (MultipartFile file: vo.getImages()) {
             try {
-                path = TemporalFileUtil.save(file);
+                path = temporalFileUtil.save(file);
                 cloudinaryService.upload(path);
                 fileNames.add(path.getFileName().toString());
             }
