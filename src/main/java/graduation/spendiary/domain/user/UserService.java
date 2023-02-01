@@ -20,7 +20,7 @@ public class UserService {
     }
 
     public boolean isExistNotGoogle(String id) {
-        return repo.findByGoogleId(id) == null;
+        return repo.findByNotGoogleId(id) != null;
     }
 
     public boolean isValid(String id, String password) {

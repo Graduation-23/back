@@ -66,7 +66,6 @@ public class AuthController {
             GoogleUser googleUser = googleOAuthHelper.requestProfile(loginResponse.getAccessToken(), loginResponse.getIdToken());
 
             HttpHeaders redirectHeader = new HttpHeaders();
-
             if(userService.isExistNotGoogle(googleUser.getEmail()))
                 redirectHeader.setLocation(new URI(String.format("%s?error=true&code=%d",
                         GOOGLE_APP_AUTH_URL,
