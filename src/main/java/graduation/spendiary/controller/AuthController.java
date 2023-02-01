@@ -68,9 +68,9 @@ public class AuthController {
             HttpHeaders redirectHeader = new HttpHeaders();
 
             if(userService.isExistNotGoogle(googleUser.getEmail()))
-                redirectHeader.setLocation(new URI(String.format("%s?error=true&msg=%s",
+                redirectHeader.setLocation(new URI(String.format("%s?error=true&code=%d",
                         GOOGLE_APP_AUTH_URL,
-                        "Already There is User."
+                        0 // already user exist
                 )));
             else{
                 Token token = jwtProvider.getToken(googleUser.getEmail());
