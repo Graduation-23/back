@@ -6,6 +6,7 @@ import graduation.spendiary.security.google.GoogleOAuthHelper;
 import graduation.spendiary.security.google.GoogleOAuthLoginResponse;
 import graduation.spendiary.security.google.GoogleUser;
 import graduation.spendiary.security.jwt.Authorization;
+import graduation.spendiary.security.jwt.JwtAuthenticationFilter;
 import graduation.spendiary.security.jwt.JwtProvider;
 import graduation.spendiary.security.jwt.Token;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -100,6 +102,20 @@ public class AuthController {
             return jwtProvider.getToken(user.getId());
         }
         return null;
+    }
+
+    @PostMapping("/revoke")
+    public ResponseEntity<Token> revoke(@RequestHeader(value = JwtAuthenticationFilter.REFRESH_HEADER_KEY) String refreshToken){
+        try{
+            if(StringUtils.hasText(refreshToken) && jwtProvider.validateRefreshToken(refreshToken)){
+                return ResponseEntity.ok(jwtProvider.getToken(
+                        (String) jwtProvider.getRefreshAuthentication(refreshToken).getPrincipal()
+                ));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.badRequest().build();
     }
 
 }
