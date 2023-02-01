@@ -64,23 +64,27 @@ public class AuthController {
             GoogleUser googleUser = googleOAuthHelper.requestProfile(loginResponse.getAccessToken(), loginResponse.getIdToken());
 
             HttpHeaders redirectHeader = new HttpHeaders();
-            // 가입되지 않는 사용자의 경우 서비스에 가입
-            if(userService.signUpUsingGoogle(googleUser)){
+
+            if(userService.isExistNotGoogle(googleUser.getEmail()))
+                redirectHeader.setLocation(new URI(String.format("%s?error=true&msg=%s",
+                        GOOGLE_APP_AUTH_URL,
+                        "Already There is User."
+                )));
+            else{
                 Token token = jwtProvider.getToken(googleUser.getEmail());
-                redirectHeader.setLocation(new URI(String.format("%s?error=false&access=%s&refresh=%s",
+                boolean isNew = userService.signUpUsingGoogle(googleUser);
+                redirectHeader.setLocation(new URI(String.format("%s?error=false&access=%s&refresh=%s&fresh=%s",
                         GOOGLE_APP_AUTH_URL,
                         token.getAccess(),
-                        token.getRefresh()
+                        token.getRefresh(),
+                        isNew
                 )));
-            }else {
-                redirectHeader.setLocation(new URI(String.format("%s?error=true", GOOGLE_APP_AUTH_URL)));
             }
             return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(redirectHeader).build();
         }catch (Exception e){
             e.printStackTrace();
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
 

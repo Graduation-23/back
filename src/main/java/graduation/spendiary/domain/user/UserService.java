@@ -19,6 +19,10 @@ public class UserService {
         return repo.existsById(id);
     }
 
+    public boolean isExistNotGoogle(String id) {
+        return repo.findByGoogleId(id) == null;
+    }
+
     public boolean isValid(String id, String password) {
         User user = repo.findByIdAndPw(id, password);
 
@@ -46,8 +50,8 @@ public class UserService {
         user.setId(googleUser.getEmail());
         user.setNickname(googleUser.getName());
 
-        if(repo.findByNotGoogleId(user.getId()) == null){
-            signUpRaw(user);
+        if(repo.findByGoogleId(user.getId()) == null){
+            repo.save(user);
             return true;
         }
         return false;
