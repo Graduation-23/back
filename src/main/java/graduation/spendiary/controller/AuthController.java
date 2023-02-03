@@ -109,10 +109,13 @@ public class AuthController {
     @PostMapping("/revoke")
     public ResponseEntity<Token> revoke(@RequestHeader(value = JwtAuthenticationFilter.REFRESH_HEADER_KEY) String refreshToken){
         try{
-            if(StringUtils.hasText(refreshToken) && jwtProvider.validateRefreshToken(refreshToken)){
-                return ResponseEntity.ok(jwtProvider.getToken(
-                        (String) jwtProvider.getRefreshAuthentication(refreshToken).getPrincipal()
-                ));
+            if(StringUtils.hasText(refreshToken) && refreshToken.startsWith("Bearer ")){
+                String token = refreshToken.substring(7);
+                if(jwtProvider.validateRefreshToken(token)){
+                    return ResponseEntity.ok(jwtProvider.getToken(
+                            (String) jwtProvider.getRefreshAuthentication(token).getPrincipal()
+                    ));
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
