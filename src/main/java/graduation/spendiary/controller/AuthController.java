@@ -96,14 +96,14 @@ public class AuthController {
     /// endregion
 
     @PostMapping("/authenticate")
-    public Token authenticate(@RequestBody Authorization authorization) {
+    public ResponseEntity<Token> authenticate(@RequestBody Authorization authorization) {
 
         User user = userService.authorize(authorization.getId(), authorization.getPassword());
 
         if(user != null) {
-            return jwtProvider.getToken(user.getId());
+            return ResponseEntity.ok().body(jwtProvider.getToken(user.getId()));
         }
-        return null;
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/revoke")
