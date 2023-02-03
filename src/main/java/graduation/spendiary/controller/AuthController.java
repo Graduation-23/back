@@ -36,9 +36,14 @@ public class AuthController {
 
     /// region Login based Application
     @PostMapping("/signup")
-    public String signUp(@RequestBody User user) {
-        boolean success = userService.signUpRaw(user);
-        return success ? "성공" : "이미 있는 사용자";
+    public ResponseEntity<Token> signUp(@RequestBody User user) {
+        boolean isMember = userService.signUpRaw(user);
+
+        if(isMember) {
+            return ResponseEntity.ok().body(jwtProvider.getToken(user.getId()));
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
     /// endregion

@@ -37,14 +37,14 @@ public class UserService {
 
         if(isExist(user.getId())) return false;
 
-        repo.save(User.builder()
+         User member = repo.save(User.builder()
                         .nickname(user.getNickname())
                         .id(user.getId())
                         .accessType("none")
                         .password(user.getPassword())
                 .build());
 
-        return true;
+        return member != null;
     }
 
     public boolean signUpUsingGoogle(GoogleUser googleUser) {
