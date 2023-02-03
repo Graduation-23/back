@@ -37,24 +37,34 @@ public class UserService {
 
         if(isExist(user.getId())) return false;
 
-        repo.save(user);
+        repo.save(User.builder()
+                        .nickname(user.getNickname())
+                        .id(user.getId())
+                        .accessType("none")
+                        .password(user.getPassword())
+                .build());
 
         return true;
     }
 
     public boolean signUpUsingGoogle(GoogleUser googleUser) {
 
-        User user = new User();
-
-        user.setAccessType("google");
-        user.setId(googleUser.getEmail());
-        user.setNickname(googleUser.getName());
+        User user = User.builder()
+                .accessType("google")
+                .id(googleUser.getEmail())
+                .nickname(googleUser.getName())
+                .password("")
+                .build();
 
         if(repo.findByGoogleId(user.getId()) == null){
             repo.save(user);
             return true;
         }
         return false;
+    }
+
+    public User getUser(String userId) {
+        return repo.findById(userId).get();
     }
 
 }
