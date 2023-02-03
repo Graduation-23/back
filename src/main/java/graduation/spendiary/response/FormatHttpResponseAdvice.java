@@ -39,7 +39,7 @@ public class FormatHttpResponseAdvice implements ResponseBodyAdvice<Object> {
         return new FormattedResponseBuilder()
                 .setResponse(response)
                 .setRequest(request)
-                .setBody(body.getClass() == Token.class ? null : body)
+                .setBody(body)
                 .setAccessToken(token.getAccess())
                 .setRefreshToken(token.getRefresh())
                 .setService(returnType.getContainingClass().getSimpleName())
