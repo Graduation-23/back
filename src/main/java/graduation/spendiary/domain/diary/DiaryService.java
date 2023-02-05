@@ -4,6 +4,8 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,7 +68,7 @@ public class DiaryService {
     }
 
     public List<Diary> getByCreatedDateRange(String userId, LocalDate start, LocalDate end) {
-        return Collections.emptyList(); // todo
+        return repo.findByUserAndCreatedBetween(userId, start, end);
     }
 
     public List<Diary> getOfLastWeek(String userId) {
