@@ -1,5 +1,6 @@
 package graduation.spendiary.domain.finance;
 
+import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,9 @@ public class FinanceService {
         return repo.findById(id).get();
     }
 
-    public void save(Finance finance) {
+    public void save(Finance finance, String userId) {
+        finance.setId(SequenceGeneratorService.generateSequence(Finance.SEQUENCE_NAME));
+        finance.setUser(userId);
         repo.save(finance);
     }
 }

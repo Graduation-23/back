@@ -19,6 +19,9 @@ public class Finance {
     @Field("finance_id")
     private Long id;
 
+    @Field("user_id")
+    private String user;
+
     @Field("finance_type")
     private String type;
 
