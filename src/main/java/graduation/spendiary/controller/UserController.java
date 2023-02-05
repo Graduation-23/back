@@ -15,10 +15,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/")
+    @GetMapping
     public User getInformation(@AuthenticationPrincipal String userId) {
         return userService.getUser(userId);
     }
-
 
 }
