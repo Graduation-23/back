@@ -42,7 +42,7 @@ public class UserService {
                         .id(user.getId())
                         .accessType("none")
                         .password(user.getPassword())
-                         .birth((user.getBirth()))
+                        .birth((user.getBirth()))
                 .build());
 
         return member != null;
