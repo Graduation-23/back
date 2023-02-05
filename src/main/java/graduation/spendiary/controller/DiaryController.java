@@ -32,14 +32,41 @@ public class DiaryController {
     }
 
     @GetMapping("/{diaryId}")
-    public Diary  diary(@PathVariable Long diaryId, Model model) {
+    public Diary getDiaryById(@PathVariable Long diaryId, Model model) {
         Diary diary = diaryService.getById(diaryId);
         model.addAttribute("diary", diary);
         return diary;
     }
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary addDiary(@ModelAttribute DiarySaveVo vo, @AuthenticationPrincipal String userId) {
+    public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo) {
         return diaryService.save(vo, userId).orElse(null);
+    }
+
+    @GetMapping("/last-week")
+    public List<Diary> getOfLastWeek(@AuthenticationPrincipal String userId) {
+        return diaryService.getOfLastWeek(userId);
+    }
+
+    @GetMapping("/last-month")
+    public List<Diary> getOfLastMonth(@AuthenticationPrincipal String userId) {
+        return diaryService.getOfLastMonth(userId);
+    }
+
+    @GetMapping("/date/{year}")
+    public List<Diary> getOfYear(
+            @AuthenticationPrincipal String userId,
+            @PathVariable int year
+    ) {
+        return diaryService.getOfYear(userId, year);
+    }
+
+    @GetMapping("/date/{year}/{month}")
+    public List<Diary> getOfMonth(
+            @AuthenticationPrincipal String userId,
+            @PathVariable int year,
+            @PathVariable int month
+    ) {
+        return diaryService.getOfMonth(userId, year, month);
     }
 }
