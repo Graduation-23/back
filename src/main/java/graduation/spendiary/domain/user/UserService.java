@@ -37,11 +37,11 @@ public class UserService {
 
         if(isExist(user.getId())) return false;
 
-         User member = repo.save(User.builder()
-                        .nickname(user.getNickname())
-                        .id(user.getId())
-                        .accessType("none")
-                        .password(user.getPassword())
+        User member = repo.save(User.builder()
+                .nickname(user.getNickname()).id(user.getId())
+                .accessType("none")
+                .password(user.getPassword())
+                .birth((user.getBirth()))
                 .build());
 
         return member != null;
