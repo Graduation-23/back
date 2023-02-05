@@ -5,6 +5,7 @@ import graduation.spendiary.domain.finance.Finance;
 import graduation.spendiary.domain.finance.FinanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,9 +34,8 @@ public class FinanceController {
     }
 
     @PostMapping("/add")
-    public String addFinance(@RequestBody Finance finance) {
-        finance.setId(SequenceGeneratorService.generateSequence(Finance.SEQUENCE_NAME));
-        financeService.save(finance);
+    public String addFinance(@RequestBody Finance finance, @AuthenticationPrincipal String userId) {
+        financeService.save(finance, userId);
         return "생성";
     }
 }

@@ -2,6 +2,8 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
+import graduation.spendiary.domain.user.User;
+import graduation.spendiary.security.jwt.Authorization;
 import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,7 @@ public class DiaryService {
         repo.save(diary);
     }
 
-    public Optional<Diary> save(DiarySaveVo vo)  {
+    public Optional<Diary> save(DiarySaveVo vo, String userId)  {
         Path path;
         List<String> fileNames = new ArrayList<>();
         for (MultipartFile file: vo.getImages()) {
@@ -51,6 +53,7 @@ public class DiaryService {
         Diary diary = Diary.builder()
                 .title(vo.getTitle())
                 .content(vo.getContent())
+                .user(userId)
                 .images(fileNames)
                 .weather(vo.getWeather())
                 .build();

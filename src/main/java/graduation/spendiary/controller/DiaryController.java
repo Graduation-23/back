@@ -4,9 +4,13 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.diary.Diary;
 import graduation.spendiary.domain.diary.DiarySaveVo;
 import graduation.spendiary.domain.diary.DiaryService;
+import graduation.spendiary.domain.user.User;
+import graduation.spendiary.security.jwt.Authorization;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +39,7 @@ public class DiaryController {
     }
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary addDiary(@ModelAttribute DiarySaveVo vo) {
-        return diaryService.save(vo).orElse(null);
+    public Diary addDiary(@ModelAttribute DiarySaveVo vo, @AuthenticationPrincipal String userId) {
+        return diaryService.save(vo, userId).orElse(null);
     }
 }

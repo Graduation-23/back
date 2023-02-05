@@ -22,7 +22,10 @@ public class Diary {
 
     @Field("diary_id")
     private Long id;
-    
+
+    @Field("user_id")
+    private String user;
+
     @Field("diary_title")
     private String title;
 
