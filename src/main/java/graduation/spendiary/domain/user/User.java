@@ -31,6 +31,8 @@ public class User {
     @Field("user_create")
     @CreatedDate
     private LocalDate created;
+    @Field("user_birth")
+    private LocalDate birth;
     @Version
     private Integer version;
 }
