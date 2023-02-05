@@ -2,16 +2,19 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
-import graduation.spendiary.domain.user.User;
-import graduation.spendiary.security.jwt.Authorization;
 import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,5 +65,45 @@ public class DiaryService {
         repo.save(diary);
 
         return Optional.of(diary);
+    }
+
+    public List<Diary> getByCreatedDateRange(String userId, LocalDate start, LocalDate end) {
+        return repo.findByUserAndCreatedBetween(userId, start, end);
+    }
+
+    public List<Diary> getOfLastWeek(String userId) {
+        LocalDate now = LocalDate.now();
+        LocalDate lastWeek = now.minusWeeks(1);
+        return getByCreatedDateRange(userId, lastWeek, now);
+    }
+
+    public List<Diary> getOfLastMonth(String userId) {
+        LocalDate now = LocalDate.now();
+        LocalDate lastMonth = now.minusMonths(1);
+        return getByCreatedDateRange(userId, lastMonth, now);
+    }
+
+    public List<Diary> getOfYear(String userId, int year) {
+        LocalDate firstDay, lastDay;
+        try {
+            firstDay = LocalDate.of(year, 1, 1);
+            lastDay = LocalDate.of(year, 12, 31);
+        }
+        catch (DateTimeException e) {
+            return Collections.emptyList();
+        }
+        return getByCreatedDateRange(userId, firstDay, lastDay);
+    }
+
+    public List<Diary> getOfMonth(String userId, int year, int month) {
+        LocalDate firstDay, lastDay;
+        try {
+            firstDay = LocalDate.of(year, month, 1);
+            lastDay = LocalDate.of(year, month + 1, 1).minusDays(1);
+        }
+        catch (DateTimeException e) {
+            return Collections.emptyList();
+        }
+        return getByCreatedDateRange(userId, firstDay, lastDay);
     }
 }
