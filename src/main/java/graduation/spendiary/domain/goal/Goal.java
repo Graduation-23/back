@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDate;
+
 @Document(collection = "Goal")
 @AllArgsConstructor
 @Data
@@ -29,4 +31,7 @@ public class Goal {
 
     @Field("goal_state")
     private String state;
+
+    @Field("goal_date")
+    private LocalDate date;
 }
