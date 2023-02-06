@@ -4,10 +4,8 @@ import graduation.spendiary.domain.goal.Goal;
 import graduation.spendiary.domain.goal.GoalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,5 +24,10 @@ public class GoalController {
     @GetMapping("/{goalId}")
     public Goal getById(@PathVariable long goalId) {
         return goalService.getById(goalId);
+    }
+
+    @PostMapping
+    public Goal add(@RequestBody Goal goal, @AuthenticationPrincipal String userId) {
+        return goalService.save(goal, userId);
     }
 }

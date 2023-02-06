@@ -19,9 +19,9 @@ public class GoalService {
         return repo.findById(id).get();
     }
 
-    public void save(Goal goal, String userId) {
+    public Goal save(Goal goal, String userId) {
         goal.setId(SequenceGeneratorService.generateSequence(Goal.SEQUENCE_NAME));
         goal.setUser(userId);
-        repo.save(goal);
+        return repo.save(goal);
     }
 }
