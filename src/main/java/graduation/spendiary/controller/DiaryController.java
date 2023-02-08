@@ -2,6 +2,7 @@ package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.diary.Diary;
+import graduation.spendiary.domain.diary.DiaryEditVo;
 import graduation.spendiary.domain.diary.DiarySaveVo;
 import graduation.spendiary.domain.diary.DiaryService;
 import graduation.spendiary.domain.user.User;
@@ -68,5 +69,14 @@ public class DiaryController {
             @PathVariable int month
     ) {
         return diaryService.getOfMonth(userId, year, month);
+    }
+
+    @PutMapping(value = "/{diaryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Diary put(
+            @AuthenticationPrincipal String userId,
+            @PathVariable long diaryId,
+            @ModelAttribute DiaryEditVo vo
+    ) {
+            return diaryService.edit(diaryId, vo, userId).orElse(null);
     }
 }
