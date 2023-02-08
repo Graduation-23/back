@@ -38,10 +38,6 @@ public class DiaryService {
         return repo.findById(id).get();
     }
 
-    public void save(Diary diary) {
-        repo.save(diary);
-    }
-
     public Optional<Diary> save(DiarySaveVo vo, String userId)  {
         List<String> fileNames = uploadImages(vo.getImages());
 

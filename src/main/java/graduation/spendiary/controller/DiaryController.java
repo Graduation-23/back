@@ -39,7 +39,7 @@ public class DiaryController {
         return diary;
     }
 
-    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo) {
         return diaryService.save(vo, userId).orElse(null);
     }
