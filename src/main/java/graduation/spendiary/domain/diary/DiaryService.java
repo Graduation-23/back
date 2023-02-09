@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.DateTimeException;
@@ -15,13 +14,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class DiaryService {
-    private static final Pattern NEW_IMAGE_ID_PLACEHOLDER_PATTERN = Pattern.compile("^(\\$\\d+)$");
+    private static final Pattern NEW_IMAGE_ID_PLACEHOLDER_PATTERN = Pattern.compile("^\\$(\\d+)$");
 
     @Autowired
     private DiaryRepository repo;
@@ -110,8 +108,10 @@ public class DiaryService {
             throws NumberFormatException, IndexOutOfBoundsException, IOException {
         List<String> fileNames = uploadImages(vo.getNewImages());
 
+        List<String> newImageIds = new ArrayList<>(vo.getImageIds());
+
         // vo.images()의 "$i"를 fileNames로 대체
-        for (String id: vo.getImageIds()) {
+        for (String id: newImageIds) {
             Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
             if (matcher.find()) {
                 int value = Integer.parseInt(matcher.group(1));
@@ -124,7 +124,7 @@ public class DiaryService {
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .user(userId)
-                .images(fileNames)
+                .images(newImageIds)
                 .build();
 
         repo.save(diary);
