@@ -2,6 +2,8 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
+import graduation.spendiary.exception.DiaryUneditableException;
+import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,10 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -107,8 +112,14 @@ public class DiaryService {
      */
     public Diary edit(long diaryId, DiaryEditVo vo, String userId)
             throws NumberFormatException, IndexOutOfBoundsException, IOException {
-        if (!repo.existsById(diaryId))
-            throws NoSuch
+        Optional<Diary> diaryOrNot = repo.findById(diaryId);
+        if (diaryOrNot.isEmpty())
+            throw new NoSuchContentException();
+        Diary oldDiary = diaryOrNot.get();
+
+        // 생성된 시간보다 3일 초과해서 지났다면 안됨
+        if (Period.between(oldDiary.getCreated(), LocalDate.now()).minusDays(3).isNegative())
+            throw new DiaryUneditableException();
 
         // 새 이미지들을 업로드
         List<String> fileNames = uploadImages(vo.getNewImages());
@@ -125,7 +136,7 @@ public class DiaryService {
                 })
                 .collect(Collectors.toList());
 
-        Diary diary = Diary.builder()
+        Diary newDiary = Diary.builder()
                 .id(diaryId)
                 .title(vo.getTitle())
                 .content(vo.getContent())
@@ -134,9 +145,9 @@ public class DiaryService {
                 .weather(vo.getWeather())
                 .build();
 
-        repo.save(diary);
+        repo.save(newDiary);
 
-        return diary;
+        return newDiary;
     }
 
     /**
