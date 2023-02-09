@@ -1,5 +1,6 @@
 package graduation.spendiary.domain.diary;
 
+import graduation.spendiary.domain.spendingWidget.SpendingWidget;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
