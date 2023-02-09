@@ -107,6 +107,9 @@ public class DiaryService {
      */
     public Diary edit(long diaryId, DiaryEditVo vo, String userId)
             throws NumberFormatException, IndexOutOfBoundsException, IOException {
+        if (!repo.existsById(diaryId))
+            throws NoSuch
+
         // 새 이미지들을 업로드
         List<String> fileNames = uploadImages(vo.getNewImages());
 
