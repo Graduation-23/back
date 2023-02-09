@@ -16,6 +16,12 @@ public class SpendingWidgetService {
     @Autowired
     private SpendingWidgetItemService itemService;
 
+    public List<SpendingWidgetDto> getAll() {
+        return repo.findAll().stream()
+                .map(this::getDto)
+                .collect(Collectors.toList());
+    }
+
     public SpendingWidgetDto getDto(SpendingWidget widget) {
         List<SpendingWidgetItem> items = widget.getItemIds().stream()
                 .map(itemService::getById)
@@ -35,14 +41,22 @@ public class SpendingWidgetService {
     }
 
     public SpendingWidget save(SpendingWidgetDto dto) {
-        List<Long> itemIds = dto.getItems().stream()
+        List<SpendingWidgetItem> items = dto.getItems().stream()
                 .map(itemService::save)
+                .collect(Collectors.toList());
+        // totalCost 계산
+        long totalCost = items.stream()
+                .map(SpendingWidgetItem::getAmount)
+                .mapToLong(Long::longValue).sum();
+        // id 가져오기
+        List<Long> itemIds = items.stream()
                 .map(SpendingWidgetItem::getId)
                 .collect(Collectors.toList());
 
         SpendingWidget widget = SpendingWidget.builder()
                 .diaryId(dto.getDiaryId())
                 .itemIds(itemIds)
+                .totalCost(totalCost)
                 .build();
         widget.setId(SequenceGeneratorService.generateSequence(SpendingWidget.SEQUENCE_NAME));
 
