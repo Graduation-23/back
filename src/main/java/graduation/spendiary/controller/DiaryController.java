@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -40,8 +41,10 @@ public class DiaryController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo) {
-        return diaryService.save(vo, userId).orElse(null);
+    public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
+            throws IOException
+    {
+        return diaryService.save(vo, userId);
     }
 
     @GetMapping("/last-week")
@@ -76,7 +79,8 @@ public class DiaryController {
             @AuthenticationPrincipal String userId,
             @PathVariable long diaryId,
             @ModelAttribute DiaryEditVo vo
-    ) {
-            return diaryService.edit(diaryId, vo, userId).orElse(null);
+    ) throws IOException
+    {
+        return diaryService.edit(diaryId, vo, userId);
     }
 }

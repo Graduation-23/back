@@ -38,7 +38,9 @@ public class DiaryService {
         return repo.findById(id).get();
     }
 
-    public Optional<Diary> save(DiarySaveVo vo, String userId)  {
+    public Diary save(DiarySaveVo vo, String userId)
+        throws IOException
+    {
         List<String> fileNames = uploadImages(vo.getImages());
 
         Diary diary = Diary.builder()
@@ -51,8 +53,7 @@ public class DiaryService {
         diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
 
         repo.save(diary);
-
-        return Optional.of(diary);
+        return diary;
     }
 
     public List<Diary> getByCreatedDateRange(String userId, LocalDate start, LocalDate end) {
@@ -95,22 +96,27 @@ public class DiaryService {
         return getByCreatedDateRange(userId, firstDay, lastDay);
     }
 
-    public Optional<Diary> edit(long diaryId, DiaryEditVo vo, String userId) {
+    /**
+     * diary를 수정합니다.
+     * @param diaryId 수정할 diary ID
+     * @param vo diary 수정 정보
+     * @param userId 사용자 ID
+     * @return 수정된 diary
+     * @throws NumberFormatException
+     * @throws IndexOutOfBoundsException
+     * @throws IOException
+     */
+    public Diary edit(long diaryId, DiaryEditVo vo, String userId)
+            throws NumberFormatException, IndexOutOfBoundsException, IOException {
         List<String> fileNames = uploadImages(vo.getNewImages());
 
         // vo.images()의 "$i"를 fileNames로 대체
-        try {
-            for (String id: vo.getImageIds()) {
-                Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
-                if (matcher.find()) {
-                    int value = Integer.parseInt(matcher.group(1));
-                    id = fileNames.get(value);
-                }
+        for (String id: vo.getImageIds()) {
+            Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
+            if (matcher.find()) {
+                int value = Integer.parseInt(matcher.group(1));
+                id = fileNames.get(value);
             }
-        }
-        catch (NumberFormatException | IndexOutOfBoundsException e) {
-            // todo: exception handling
-            return Optional.empty();
         }
 
         Diary diary = Diary.builder()
@@ -123,26 +129,24 @@ public class DiaryService {
 
         repo.save(diary);
 
-        return Optional.of(diary);
+        return diary;
     }
 
     /**
      * 이미지 파일들을 임의의 이름으로 CDN 서버에 업로드합니다.
      * @param images 업로드할 이미지 파일들
-     * @return 모든 이미지 업로드에 성공 시 재설정된 파일의 이름 리스트, 실패 시 빈 리스트.
+     * @return 모든 이미지 업로드에 성공 시 재설정된 파일의 이름 리스트
+     * @throws IOException 임시 폴더 또는 CDN 서버에 파일 저장 실패
      */
-    private List<String> uploadImages(List<MultipartFile> images) {
+    private List<String> uploadImages(List<MultipartFile> images)
+        throws IOException
+    {
         Path path;
         List<String> fileNames = new ArrayList<>();
         for (MultipartFile file: images) {
-            try {
-                path = temporalFileUtil.save(file);
-                cloudinaryService.upload(path);
-                fileNames.add(path.getFileName().toString());
-            }
-            catch (IOException ignored) {
-                return Collections.emptyList();
-            }
+            path = temporalFileUtil.save(file);
+            cloudinaryService.upload(path);
+            fileNames.add(path.getFileName().toString());
         }
         return fileNames;
     }
