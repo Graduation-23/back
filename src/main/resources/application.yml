@@ -1,0 +1,20 @@
+spring:
+  servlet:
+    multipart:
+      location: C:\Temp\Paiary
+      enabled: true
+      max-file-size: 1MB
+      max-request-size: 10MB
+  profiles:
+    include:
+      - db
+      - jwt
+      - path
+      - cloudinary
+      - oauth
+  security:
+    user:
+      password: 1234
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
