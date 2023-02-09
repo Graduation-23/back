@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class DiaryService {
@@ -106,18 +107,20 @@ public class DiaryService {
      */
     public Diary edit(long diaryId, DiaryEditVo vo, String userId)
             throws NumberFormatException, IndexOutOfBoundsException, IOException {
+        // 새 이미지들을 업로드
         List<String> fileNames = uploadImages(vo.getNewImages());
 
-        List<String> newImageIds = new ArrayList<>(vo.getImageIds());
-
         // vo.images()의 "$i"를 fileNames로 대체
-        for (String id: newImageIds) {
-            Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
-            if (matcher.find()) {
-                int value = Integer.parseInt(matcher.group(1));
-                id = fileNames.get(value);
-            }
-        }
+        List<String> newImageIds = vo.getImageIds().stream()
+                .map(id -> {
+                    Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
+                    if (matcher.find()) {
+                        int idx = Integer.parseInt(matcher.group(1));
+                        return fileNames.get(idx);
+                    }
+                    return id;
+                })
+                .collect(Collectors.toList());
 
         Diary diary = Diary.builder()
                 .id(diaryId)
@@ -125,6 +128,7 @@ public class DiaryService {
                 .content(vo.getContent())
                 .user(userId)
                 .images(newImageIds)
+                .weather(vo.getWeather())
                 .build();
 
         repo.save(diary);
