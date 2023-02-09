@@ -33,17 +33,11 @@ public class CloudinaryService {
         }
     }
 
-    public boolean upload(Path path) {
+    public void upload(Path path) throws IOException {
         Map options = ObjectUtils.asMap(
                 "use_filename", true,
                 "unique_filename", false
         );
-        try {
-            cloudinary.uploader().upload(new File(path.toString()), options);
-        }
-        catch (IOException e) {
-            return false;
-        }
-        return true;
+        cloudinary.uploader().upload(new File(path.toString()), options);
     }
 }

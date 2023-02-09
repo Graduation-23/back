@@ -2,6 +2,7 @@ package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.diary.Diary;
+import graduation.spendiary.domain.diary.DiaryEditVo;
 import graduation.spendiary.domain.diary.DiarySaveVo;
 import graduation.spendiary.domain.diary.DiaryService;
 import graduation.spendiary.domain.user.User;
@@ -14,10 +15,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/diarys")
+@RequestMapping("/api/diary")
 @RequiredArgsConstructor
 public class DiaryController {
 
@@ -38,9 +40,11 @@ public class DiaryController {
         return diary;
     }
 
-    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo) {
-        return diaryService.save(vo, userId).orElse(null);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
+            throws IOException
+    {
+        return diaryService.save(vo, userId);
     }
 
     @GetMapping("/last-week")
@@ -68,5 +72,15 @@ public class DiaryController {
             @PathVariable int month
     ) {
         return diaryService.getOfMonth(userId, year, month);
+    }
+
+    @PutMapping(value = "/{diaryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Diary put(
+            @AuthenticationPrincipal String userId,
+            @PathVariable long diaryId,
+            @ModelAttribute DiaryEditVo vo
+    ) throws IOException
+    {
+        return diaryService.edit(diaryId, vo, userId);
     }
 }
