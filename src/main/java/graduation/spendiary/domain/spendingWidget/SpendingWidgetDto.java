@@ -13,4 +13,5 @@ public class SpendingWidgetDto {
     private Long id;
     private Long diaryId;
     private List<SpendingWidgetItem> items;
+    private long totalCost;
 }
