@@ -111,7 +111,7 @@ public class DiaryService {
         List<String> fileNames = uploadImages(vo.getNewImages());
 
         // vo.images()의 "$i"를 fileNames로 대체
-        List<String> newImageIds = vo.getImageIds().stream()
+        List<String> newImageNames = vo.getImageNames().stream()
                 .map(id -> {
                     Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
                     if (matcher.find()) {
@@ -127,7 +127,7 @@ public class DiaryService {
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .user(userId)
-                .images(newImageIds)
+                .images(newImageNames)
                 .weather(vo.getWeather())
                 .build();
 
