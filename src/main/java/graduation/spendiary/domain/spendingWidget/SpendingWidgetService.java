@@ -28,6 +28,7 @@ public class SpendingWidgetService {
                 .collect(Collectors.toList());
         return SpendingWidgetDto.builder()
                 .id(widget.getId())
+                .diaryId(widget.getDiaryId())
                 .items(items)
                 .totalCost(widget.getTotalCost())
                 .build();
