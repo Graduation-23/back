@@ -182,8 +182,10 @@ public class DiaryService {
 
         // 위젯 저장
         SpendingWidgetDto widgetDto = vo.getWidget();
-        widgetDto.setDiaryId(newDiary.getId());
-        widgetService.save(widgetDto);
+        if (widgetDto != null) {
+            widgetDto.setDiaryId(newDiary.getId());
+            widgetService.save(widgetDto);
+        }
 
         // 다이어리 저장
         repo.save(newDiary);
