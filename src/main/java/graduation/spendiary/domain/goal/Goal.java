@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Goal {
-
     @Transient
     public static final String SEQUENCE_NAME = "goal_sequence";
 

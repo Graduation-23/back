@@ -22,7 +22,6 @@ public class Diary {
     public static final String SEQUENCE_NAME = "diary_sequence";
 
     @Id
-    @Field("diary_id")
     private Long id;
 
     @Field("user_id")

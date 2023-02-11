@@ -13,12 +13,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @Builder
 public class Finance {
-
-    @Id
     @Transient
     public static final String SEQUENCE_NAME = "finance_sequence";
 
-    @Field("finance_id")
+    @Id
     private Long id;
 
     @Field("user_id")
