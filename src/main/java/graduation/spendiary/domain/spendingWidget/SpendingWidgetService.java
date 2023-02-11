@@ -21,16 +21,6 @@ public class SpendingWidgetService {
     private SpendingWidgetItemService itemService;
 
     /**
-     * 모든 SpendingWidget의 내용을 가져옵니다.
-     * @return 발견된 SpendingWidget 리스트
-     */
-    public List<SpendingWidgetDto> getAll() {
-        return repo.findAll().stream()
-                .map(this::getDto)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * SpendingWidget을 DTO로 변환합니다.
      * itemId로부터 item도 함께 가져옵니다.
      * @param widget
@@ -49,13 +39,23 @@ public class SpendingWidgetService {
     }
 
     /**
+     * 모든 SpendingWidget의 내용을 가져옵니다.
+     * @return 발견된 SpendingWidget 리스트
+     */
+    public List<SpendingWidgetDto> getDtoAll() {
+        return repo.findAll().stream()
+                .map(this::getDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * SpendingWidget의 ID를 이용해 DTO를 가져옵니다.
      * @param id
      * @return 발견된 SpendingWidget
      * @throws NoSuchContentException id에 해당하는 SpendingWidget이 없음
      */
     public SpendingWidgetDto getDtoById(long id)
-        throws NoSuchContentException
+            throws NoSuchContentException
     {
         Optional<SpendingWidget> widgetOrNot = repo.findById(id);
         if (widgetOrNot.isEmpty())
@@ -64,11 +64,27 @@ public class SpendingWidgetService {
     }
 
     /**
+     * 연결된 다이어리의 ID를 통해 DTO를 가져옵니다.
+     * 해당되는 SpendingWidget이 여러 개일 경우 첫 번째로 발견된 것을 가져옵니다.
+     * @param diaryId 찾을 SpendingWidget에 연결된 다이어리 ID
+     * @return 발견된 SpendingWidget
+     * @throws NoSuchContentException id에 해당하는 SpendingWidget이 없음
+     */
+    public SpendingWidgetDto getDtoByDiaryId(long diaryId)
+            throws NoSuchContentException
+    {
+        List<SpendingWidget> widgets = repo.findByDiaryId(diaryId);
+        if (widgets.isEmpty())
+            throw new NoSuchContentException();
+        return this.getDto(widgets.get(0));
+    }
+
+    /**
      * DTO의 정보를 통해 새 SpendingWidget을 저장합니다.
      * @param dto
      * @return 저장된 SpendingWidget (entity)
      */
-    public SpendingWidget save(SpendingWidgetDto dto) {
+    public SpendingWidgetDto save(SpendingWidgetDto dto) {
         List<SpendingWidgetItem> items = dto.getItems().stream()
                 .map(itemService::save)
                 .collect(Collectors.toList());
@@ -88,6 +104,6 @@ public class SpendingWidgetService {
                 .build();
         widget.setId(SequenceGeneratorService.generateSequence(SpendingWidget.SEQUENCE_NAME));
 
-        return repo.save(widget);
+        return this.getDto(widget);
     }
 }

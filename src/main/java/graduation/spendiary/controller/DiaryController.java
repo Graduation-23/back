@@ -1,16 +1,9 @@
 package graduation.spendiary.controller;
 
-import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
-import graduation.spendiary.domain.diary.Diary;
-import graduation.spendiary.domain.diary.DiaryEditVo;
-import graduation.spendiary.domain.diary.DiarySaveVo;
-import graduation.spendiary.domain.diary.DiaryService;
-import graduation.spendiary.domain.user.User;
-import graduation.spendiary.security.jwt.Authorization;
+import graduation.spendiary.domain.diary.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,38 +20,38 @@ public class DiaryController {
     private DiaryService diaryService;
 
     @GetMapping
-    public List<Diary> diarys(Model model) {
-        List<Diary> diarys = diaryService.getAll();
-        model.addAttribute("diarys", diarys);
-        return diarys;
+    public List<DiaryDto> diarys(Model model) {
+        List<DiaryDto> diaryDtos = diaryService.getDtoAll();
+        model.addAttribute("diarys", diaryDtos);
+        return diaryDtos;
     }
 
     @GetMapping("/{diaryId}")
-    public Diary getDiaryById(@PathVariable Long diaryId, Model model) {
-        Diary diary = diaryService.getById(diaryId);
-        model.addAttribute("diary", diary);
-        return diary;
+    public DiaryDto getDiaryById(@PathVariable Long diaryId, Model model) {
+        DiaryDto diaryDto = diaryService.getDtoById(diaryId);
+        model.addAttribute("diary", diaryDto);
+        return diaryDto;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
+    public DiaryDto addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
             throws IOException
     {
         return diaryService.save(vo, userId);
     }
 
     @GetMapping("/last-week")
-    public List<Diary> getOfLastWeek(@AuthenticationPrincipal String userId) {
+    public List<DiaryDto> getOfLastWeek(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastWeek(userId);
     }
 
     @GetMapping("/last-month")
-    public List<Diary> getOfLastMonth(@AuthenticationPrincipal String userId) {
+    public List<DiaryDto> getOfLastMonth(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastMonth(userId);
     }
 
     @GetMapping("/date/{year}")
-    public List<Diary> getOfYear(
+    public List<DiaryDto> getOfYear(
             @AuthenticationPrincipal String userId,
             @PathVariable int year
     ) {
@@ -66,7 +59,7 @@ public class DiaryController {
     }
 
     @GetMapping("/date/{year}/{month}")
-    public List<Diary> getOfMonth(
+    public List<DiaryDto> getOfMonth(
             @AuthenticationPrincipal String userId,
             @PathVariable int year,
             @PathVariable int month
@@ -75,7 +68,7 @@ public class DiaryController {
     }
 
     @PutMapping(value = "/{diaryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary put(
+    public DiaryDto put(
             @AuthenticationPrincipal String userId,
             @PathVariable long diaryId,
             @ModelAttribute DiaryEditVo vo

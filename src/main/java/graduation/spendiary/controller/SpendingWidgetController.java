@@ -1,7 +1,6 @@
 package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
-import graduation.spendiary.domain.spendingWidget.SpendingWidgetItem;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ public class SpendingWidgetController {
 
     @GetMapping
     public List<SpendingWidgetDto> getAll() {
-        return service.getAll();
+        return service.getDtoAll();
     }
 
     @GetMapping("/{widgetId}")
