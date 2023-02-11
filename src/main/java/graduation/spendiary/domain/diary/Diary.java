@@ -2,6 +2,7 @@ package graduation.spendiary.domain.diary;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,6 +21,7 @@ public class Diary {
     @Transient
     public static final String SEQUENCE_NAME = "diary_sequence";
 
+    @Id
     @Field("diary_id")
     private Long id;
 
