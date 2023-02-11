@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 /**
  * 소비 내역(SpendingWidget)에 관한 서비스 클래스입니다.
+ * @author 구본웅
  */
 @Service
 public class SpendingWidgetService {
