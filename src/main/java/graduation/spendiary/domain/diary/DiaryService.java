@@ -43,6 +43,7 @@ public class DiaryService {
                 .title(diary.getTitle())
                 .content(diary.getContent())
                 .imageNames(diary.getImages())
+                .created(diary.getCreated())
                 .weather(diary.getWeather());
         try {
             builder = builder.widget(widgetService.getDtoByDiaryId(diary.getId()));
