@@ -2,6 +2,7 @@ package graduation.spendiary.domain.finance;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -33,4 +34,7 @@ public class Finance {
 
     @Field("finance_colorcode")
     private String colorcode;
+
+    @Version
+    private Integer version;
 }

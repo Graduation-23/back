@@ -3,6 +3,7 @@ package graduation.spendiary.domain.goal;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -35,4 +36,7 @@ public class Goal {
 
     @Field("goal_date")
     private LocalDate date;
+
+    @Version
+    private Integer version;
 }
