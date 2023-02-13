@@ -1,8 +1,6 @@
 package graduation.spendiary.domain.spendingWidget;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -12,5 +10,5 @@ public class SpendingWidgetDto {
     private Long id;
     private Long diaryId;
     private List<SpendingWidgetItem> items;
-    private long totalCost;
+    private Long totalCost;
 }

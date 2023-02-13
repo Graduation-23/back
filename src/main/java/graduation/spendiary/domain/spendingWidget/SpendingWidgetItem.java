@@ -26,7 +26,7 @@ public class SpendingWidgetItem {
     private Long financeId;
 
     @Field("item_amount")
-    private long amount;
+    private Long amount;
 
     @Field("item_description")
     private String description;

@@ -67,6 +67,9 @@ public class DiaryService {
     public DiaryDto save(DiarySaveVo vo, String userId)
         throws IOException
     {
+        System.out.println("widget: ---");
+        System.out.println(vo.getWidget());
+
         // 이미지 파일 업로드
         List<String> fileNames = uploadImages(vo.getImages());
 
