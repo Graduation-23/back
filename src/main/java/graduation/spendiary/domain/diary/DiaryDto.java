@@ -1,19 +1,20 @@
 package graduation.spendiary.domain.diary;
 
-import graduation.spendiary.domain.spendingWidget.SpendingWidget;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
+import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class DiarySaveVo {
+@Builder
+public class DiaryDto {
+    private Long id;
     private String title;
     private String content;
-    private List<MultipartFile> images;
+    private List<String> imageNames;
     private String weather;
+    private LocalDate created;
     private SpendingWidgetDto widget;
 }

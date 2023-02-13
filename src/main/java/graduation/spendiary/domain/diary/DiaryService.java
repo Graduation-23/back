@@ -2,6 +2,8 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
+import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
+import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.util.file.TemporalFileUtil;
@@ -12,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.DateTimeException;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -33,20 +34,46 @@ public class DiaryService {
     private CloudinaryService cloudinaryService;
     @Autowired
     private TemporalFileUtil temporalFileUtil;
+    @Autowired
+    private SpendingWidgetService widgetService;
 
-    public List<Diary> getAll() {
-        return repo.findAll();
+    public DiaryDto getDto(Diary diary) {
+        DiaryDto.DiaryDtoBuilder builder = DiaryDto.builder()
+                .id(diary.getId())
+                .title(diary.getTitle())
+                .content(diary.getContent())
+                .imageNames(diary.getImages())
+                .created(diary.getCreated())
+                .weather(diary.getWeather());
+        try {
+            builder = builder.widget(widgetService.getDtoByDiaryId(diary.getId()));
+        }
+        catch (NoSuchContentException | NullPointerException e) {
+            builder = builder.widget(null);
+        }
+        return builder.build();
     }
 
-    public Diary getById(long id) {
-        return repo.findById(id).get();
+    public List<DiaryDto> getDtoAll() {
+        return repo.findAll().stream()
+                .map(this::getDto)
+                .collect(Collectors.toList());
     }
 
-    public Diary save(DiarySaveVo vo, String userId)
+    public DiaryDto getDtoById(long id) {
+        return this.getDto(repo.findById(id).get());
+    }
+
+    public DiaryDto save(DiarySaveVo vo, String userId)
         throws IOException
     {
+        System.out.println("widget: ---");
+        System.out.println(vo.getWidget());
+
+        // 이미지 파일 업로드
         List<String> fileNames = uploadImages(vo.getImages());
 
+        // diary entity 생성
         Diary diary = Diary.builder()
                 .title(vo.getTitle())
                 .content(vo.getContent())
@@ -56,27 +83,37 @@ public class DiaryService {
                 .build();
         diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
 
+        // 위젯 저장
+        SpendingWidgetDto widgetDto = vo.getWidget();
+        if (widgetDto != null) {
+            widgetDto.setDiaryId(diary.getId());
+            widgetService.save(widgetDto);
+        }
+
+        // 다이어리 저장
         repo.save(diary);
-        return diary;
+        return this.getDto(diary);
     }
 
-    public List<Diary> getByCreatedDateRange(String userId, LocalDate start, LocalDate end) {
-        return repo.findByUserAndCreatedBetween(userId, start, end);
+    public List<DiaryDto> getDtoByCreatedRange(String userId, LocalDate start, LocalDate end) {
+        return repo.findByUserAndCreatedBetween(userId, start, end).stream()
+                .map(this::getDto)
+                .collect(Collectors.toList());
     }
 
-    public List<Diary> getOfLastWeek(String userId) {
+    public List<DiaryDto> getOfLastWeek(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastWeek = now.minusWeeks(1);
-        return getByCreatedDateRange(userId, lastWeek, now);
+        return getDtoByCreatedRange(userId, lastWeek, now);
     }
 
-    public List<Diary> getOfLastMonth(String userId) {
+    public List<DiaryDto> getOfLastMonth(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastMonth = now.minusMonths(1);
-        return getByCreatedDateRange(userId, lastMonth, now);
+        return getDtoByCreatedRange(userId, lastMonth, now);
     }
 
-    public List<Diary> getOfYear(String userId, int year) {
+    public List<DiaryDto> getOfYear(String userId, int year) {
         LocalDate firstDay, lastDay;
         try {
             firstDay = LocalDate.of(year, 1, 1);
@@ -85,10 +122,10 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getByCreatedDateRange(userId, firstDay, lastDay);
+        return getDtoByCreatedRange(userId, firstDay, lastDay);
     }
 
-    public List<Diary> getOfMonth(String userId, int year, int month) {
+    public List<DiaryDto> getOfMonth(String userId, int year, int month) {
         LocalDate firstDay, lastDay;
         try {
             firstDay = LocalDate.of(year, month, 1);
@@ -97,7 +134,7 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getByCreatedDateRange(userId, firstDay, lastDay);
+        return getDtoByCreatedRange(userId, firstDay, lastDay);
     }
 
     /**
@@ -110,8 +147,9 @@ public class DiaryService {
      * @throws IndexOutOfBoundsException
      * @throws IOException
      */
-    public Diary edit(long diaryId, DiaryEditVo vo, String userId)
+    public DiaryDto edit(long diaryId, DiaryEditVo vo, String userId)
             throws NumberFormatException, IndexOutOfBoundsException, IOException {
+        // 다이어리 가져오기
         Optional<Diary> diaryOrNot = repo.findById(diaryId);
         if (diaryOrNot.isEmpty())
             throw new NoSuchContentException();
@@ -136,6 +174,7 @@ public class DiaryService {
                 })
                 .collect(Collectors.toList());
 
+        // diary entity 재생성
         Diary newDiary = Diary.builder()
                 .id(diaryId)
                 .title(vo.getTitle())
@@ -145,9 +184,16 @@ public class DiaryService {
                 .weather(vo.getWeather())
                 .build();
 
-        repo.save(newDiary);
+        // 위젯 저장
+        SpendingWidgetDto widgetDto = vo.getWidget();
+        if (widgetDto != null) {
+            widgetDto.setDiaryId(newDiary.getId());
+            widgetService.save(widgetDto);
+        }
 
-        return newDiary;
+        // 다이어리 저장
+        repo.save(newDiary);
+        return this.getDto(newDiary);
     }
 
     /**

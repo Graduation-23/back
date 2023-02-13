@@ -1,4 +1,4 @@
-package graduation.spendiary.domain.goal;
+package graduation.spendiary.domain.spendingWidget;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -7,35 +7,29 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
+import java.util.List;
 
-@Document(collection = "Goal")
+@Document(collection = "SpendingWidgets")
 @AllArgsConstructor
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Goal {
+public class SpendingWidget {
     @Transient
-    public static final String SEQUENCE_NAME = "goal_sequence";
+    public static final String SEQUENCE_NAME = "spending_widget_sequence";
 
     @Id
-    @Field("goal_id")
+    @Field("widget_id")
     private Long id;
 
-    @Field("user_id")
-    private String user;
+    @Field("diary_id")
+    private Long diaryId;
 
-    @Field("goal_name")
-    private String name;
+    @Field("item_ids")
+    private List<Long> itemIds;
 
-    @Field("goal_amount")
-    private Long amount;
-
-    @Field("goal_state")
-    private String state;
-
-    @Field("goal_date")
-    private LocalDate date;
+    @Field("total_cost")
+    private long totalCost;
 
     @Version
     private Integer version;
