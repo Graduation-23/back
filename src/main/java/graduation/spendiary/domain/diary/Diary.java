@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,8 +22,7 @@ public class Diary {
     @Transient
     public static final String SEQUENCE_NAME = "diary_sequence";
 
-    @Id
-    @Field("diary_id")
+    @MongoId
     private Long id;
 
     @Field("user_id")
