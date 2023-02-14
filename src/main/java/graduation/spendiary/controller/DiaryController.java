@@ -1,6 +1,7 @@
 package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.diary.*;
+import graduation.spendiary.exception.DiaryDuplicatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -46,8 +47,9 @@ public class DiaryController {
     public Long saveEmptyDiary(
             @AuthenticationPrincipal String userId,
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate diaryDate
-    ) {
-        return diaryService.saveEmptyDiary(diaryDate, userId);
+    ) throws DiaryDuplicatedException
+    {
+        return diaryService.saveEmptyDiary(userId, diaryDate);
     }
 
     @GetMapping("/last-week")

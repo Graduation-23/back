@@ -4,6 +4,7 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
+import graduation.spendiary.exception.DiaryDuplicatedException;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.util.file.TemporalFileUtil;
@@ -92,7 +93,19 @@ public class DiaryService {
         return this.getDto(diary);
     }
 
-    public Long saveEmptyDiary(LocalDate diaryDate, String userId) {
+    /**
+     * 주어진 날짜에 해당되는 빈 다이어리를 작성합니다.
+     * @param diaryDate 다이어리의 날짜
+     * @param userId 다이어리 작성자
+     * @return 빈 다이어리
+     * @throws DiaryDuplicatedException 해당 날짜에 이미 다이어리가 있음
+     */
+    public Long saveEmptyDiary(String userId, LocalDate diaryDate)
+        throws DiaryDuplicatedException
+    {
+        if (!repo.findByUserAndDate(userId, diaryDate).isEmpty())
+            throw new DiaryDuplicatedException();
+
         Diary diary = Diary.builder()
                 .title("")
                 .content("")
