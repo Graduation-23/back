@@ -92,13 +92,13 @@ public class DiaryService {
         return this.getDto(diary);
     }
 
-    public Long saveEmptyDiary(LocalDate diarydate, String userId) {
+    public Long saveEmptyDiary(LocalDate diaryDate, String userId) {
         Diary diary = Diary.builder()
                 .title("")
                 .content("")
                 .user(userId)
                 .images(Collections.emptyList())
-                .date(diarydate)
+                .date(diaryDate)
                 .weather("")
                 .build();
         diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));

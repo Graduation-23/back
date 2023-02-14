@@ -3,12 +3,14 @@ package graduation.spendiary.controller;
 import graduation.spendiary.domain.diary.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -33,11 +35,19 @@ public class DiaryController {
         return diaryDto;
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public DiaryDto addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
-            throws IOException
-    {
-        return diaryService.save(vo, userId);
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public DiaryDto addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
+//            throws IOException
+//    {
+//        return diaryService.save(vo, userId);
+//    }
+
+    @PostMapping
+    public Long saveEmptyDiary(
+            @AuthenticationPrincipal String userId,
+            @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate diaryDate
+    ) {
+        return diaryService.saveEmptyDiary(diaryDate, userId);
     }
 
     @GetMapping("/last-week")
