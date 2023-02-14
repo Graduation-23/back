@@ -65,34 +65,6 @@ public class DiaryService {
         return this.getDto(repo.findById(id).get());
     }
 
-    public DiaryDto save(DiarySaveVo vo, String userId)
-        throws IOException
-    {
-        // 이미지 파일 업로드
-        List<String> fileNames = uploadImages(vo.getImages());
-
-        // diary entity 생성
-        Diary diary = Diary.builder()
-                .title(vo.getTitle())
-                .content(vo.getContent())
-                .user(userId)
-                .images(fileNames)
-                .weather(vo.getWeather())
-                .build();
-        diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
-
-        // 위젯 저장
-        SpendingWidgetDto widgetDto = vo.getWidget();
-        if (widgetDto != null) {
-            widgetDto.setDiaryId(diary.getId());
-            widgetService.save(widgetDto);
-        }
-
-        // 다이어리 저장
-        repo.save(diary);
-        return this.getDto(diary);
-    }
-
     /**
      * 주어진 날짜에 해당되는 빈 다이어리를 작성합니다.
      * @param diaryDate 다이어리의 날짜
