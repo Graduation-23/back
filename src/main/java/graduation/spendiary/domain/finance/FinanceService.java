@@ -30,7 +30,9 @@ public class FinanceService {
      * @param userId 사용자 ID
      * @return 저장된 finance ID
      */
-    public Long save(Finance finance, String userId) {
+    public Long save(Finance finance, String userId)
+        throws TooMuchFinanceException
+    {
         // finance 생성 한도 체크
         if (repo.findByUser(userId).size() >= 5)
             throw new TooMuchFinanceException();
