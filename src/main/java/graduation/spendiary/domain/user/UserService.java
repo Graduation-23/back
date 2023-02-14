@@ -66,5 +66,12 @@ public class UserService {
     public User getUser(String userId) {
         return repo.findById(userId).get();
     }
-
+    public boolean deleteUser(String userId, String password) {
+        User user = repo.findByIdAndPw(userId, password);
+        if(user == null) {
+            return false;
+        }
+        repo.delete(user);
+        return true;
+    }
 }
