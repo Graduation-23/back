@@ -154,7 +154,7 @@ public class DiaryService {
         Diary oldDiary = oldDiaryOptional.get();
 
         // 생성된 시간보다 3일 초과해서 지났다면 안됨
-        if (Period.between(oldDiary.getCreated(), LocalDate.now()).minusDays(3).isNegative())
+        if (!Period.between(oldDiary.getCreated(), LocalDate.now()).minusDays(3).isNegative())
             throw new DiaryUneditableException();
 
         // 새 이미지들을 업로드
