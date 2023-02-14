@@ -20,4 +20,13 @@ public class UserController {
         return userService.getUser(userId);
     }
 
+    @DeleteMapping
+    public String deleteInformation(@AuthenticationPrincipal String userId, String password) {
+        if(!(userService.deleteUser(userId, password))){
+            return "실패; password를 확인하세요";
+        }
+        userService.deleteUser(userId, password);
+        return "탈퇴 완료";
+    }
+
 }
