@@ -21,12 +21,12 @@ public class UserController {
     }
 
     @DeleteMapping
-    public String deleteInformation(@AuthenticationPrincipal String userId, String password) {
+    public Message deleteInformation(@AuthenticationPrincipal String userId, String password) {
         if(!(userService.deleteUser(userId, password))){
-            return "실패; password를 확인하세요";
+            return new Message("탈퇴 실패; 패스워드를 확인하세요", false);
         }
         userService.deleteUser(userId, password);
-        return "탈퇴 완료";
+        return new Message("탈퇴 완료", true);
     }
 
 }
