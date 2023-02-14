@@ -43,7 +43,7 @@ public class DiaryService {
                 .id(diary.getId())
                 .title(diary.getTitle())
                 .content(diary.getContent())
-                .imageNames(diary.getImages())
+                .imageUrls( /* todo */)
                 .created(diary.getCreated())
                 .weather(diary.getWeather());
         try {
