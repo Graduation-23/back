@@ -13,6 +13,7 @@ public class DiaryEditVo {
     private String content;
     private List<String> imageNames;
     private String weather;
+    private Long thumbnailIdx;
     private List<MultipartFile> newImages;
     private SpendingWidgetDto widget;
 }
