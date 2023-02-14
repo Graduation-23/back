@@ -178,6 +178,7 @@ public class DiaryService {
                 .content(vo.getContent())
                 .user(userId)
                 .images(newImageNames)
+                .date(oldDiary.getDate())
                 .weather(vo.getWeather())
                 .build();
 
