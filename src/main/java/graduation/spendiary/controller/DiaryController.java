@@ -34,13 +34,6 @@ public class DiaryController {
         return diaryDto;
     }
 
-//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public DiaryDto addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
-//            throws IOException
-//    {
-//        return diaryService.save(vo, userId);
-//    }
-
     @PostMapping
     public Long saveEmptyDiary(
             @AuthenticationPrincipal String userId,

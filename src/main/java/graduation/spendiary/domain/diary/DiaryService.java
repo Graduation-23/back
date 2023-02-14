@@ -43,8 +43,8 @@ public class DiaryService {
                 .id(diary.getId())
                 .title(diary.getTitle())
                 .content(diary.getContent())
-                .imageNames(diary.getImages())
-                .created(diary.getCreated())
+                .thumbnailIdx(diary.getThumbnailIdx())
+                .imageUrls(diary.getImageUrls())
                 .date(diary.getDate())
                 .weather(diary.getWeather());
         try {
@@ -66,34 +66,6 @@ public class DiaryService {
         return this.getDto(repo.findById(id).get());
     }
 
-    public DiaryDto save(DiarySaveVo vo, String userId)
-        throws IOException
-    {
-        // 이미지 파일 업로드
-        List<String> fileNames = uploadImages(vo.getImages());
-
-        // diary entity 생성
-        Diary diary = Diary.builder()
-                .title(vo.getTitle())
-                .content(vo.getContent())
-                .user(userId)
-                .images(fileNames)
-                .weather(vo.getWeather())
-                .build();
-        diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
-
-        // 위젯 저장
-        SpendingWidgetDto widgetDto = vo.getWidget();
-        if (widgetDto != null) {
-            widgetDto.setDiaryId(diary.getId());
-            widgetService.save(widgetDto);
-        }
-
-        // 다이어리 저장
-        repo.save(diary);
-        return this.getDto(diary);
-    }
-
     /**
      * 주어진 날짜에 해당되는 빈 다이어리를 작성합니다.
      * @param diaryDate 다이어리의 날짜
@@ -111,7 +83,7 @@ public class DiaryService {
                 .title("")
                 .content("")
                 .user(userId)
-                .images(Collections.emptyList())
+                .imageUrls(Collections.emptyList())
                 .date(diaryDate)
                 .weather("")
                 .build();
@@ -176,25 +148,25 @@ public class DiaryService {
     public DiaryDto edit(long diaryId, DiaryEditVo vo, String userId)
             throws NumberFormatException, IndexOutOfBoundsException, IOException {
         // 다이어리 가져오기
-        Optional<Diary> diaryOrNot = repo.findById(diaryId);
-        if (diaryOrNot.isEmpty())
+        Optional<Diary> oldDiaryOptional = repo.findById(diaryId);
+        if (oldDiaryOptional.isEmpty())
             throw new NoSuchContentException();
-        Diary oldDiary = diaryOrNot.get();
+        Diary oldDiary = oldDiaryOptional.get();
 
         // 생성된 시간보다 3일 초과해서 지났다면 안됨
-        if (Period.between(oldDiary.getCreated(), LocalDate.now()).minusDays(3).isNegative())
+        if (!Period.between(oldDiary.getDate(), LocalDate.now()).minusDays(3).isNegative())
             throw new DiaryUneditableException();
 
         // 새 이미지들을 업로드
-        List<String> fileNames = uploadImages(vo.getNewImages());
+        List<String> uploadedImageUrls = uploadImages(vo.getNewImages());
 
-        // vo.images()의 "$i"를 fileNames로 대체
-        List<String> newImageNames = vo.getImageNames().stream()
+        // vo.images()의 "$i"를 uploadedImageUrl[i]로 대체
+        List<String> newImageUrls = vo.getImageUrls().stream()
                 .map(id -> {
                     Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
                     if (matcher.find()) {
                         int idx = Integer.parseInt(matcher.group(1));
-                        return fileNames.get(idx);
+                        return uploadedImageUrls.get(idx);
                     }
                     return id;
                 })
@@ -206,7 +178,9 @@ public class DiaryService {
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .user(userId)
-                .images(newImageNames)
+                .imageUrls(newImageUrls)
+                .thumbnailIdx(vo.getThumbnailIdx())
+                .date(oldDiary.getDate())
                 .weather(vo.getWeather())
                 .build();
 
@@ -225,18 +199,19 @@ public class DiaryService {
     /**
      * 이미지 파일들을 임의의 이름으로 CDN 서버에 업로드합니다.
      * @param images 업로드할 이미지 파일들
-     * @return 모든 이미지 업로드에 성공 시 재설정된 파일의 이름 리스트
+     * @return 모든 이미지 업로드에 성공 시 업로드 된 파일 URL (https) 리스트
      * @throws IOException 임시 폴더 또는 CDN 서버에 파일 저장 실패
      */
     private List<String> uploadImages(List<MultipartFile> images)
         throws IOException
     {
         Path path;
+        String imageUrl;
         List<String> fileNames = new ArrayList<>();
         for (MultipartFile file: images) {
             path = temporalFileUtil.save(file);
-            cloudinaryService.upload(path);
-            fileNames.add(path.getFileName().toString());
+            imageUrl = cloudinaryService.upload(path);
+            fileNames.add(imageUrl);
         }
         return fileNames;
     }

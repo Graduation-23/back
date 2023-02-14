@@ -33,7 +33,4 @@ public class SpendingWidgetItem {
 
     @Field("item_category")
     private String category;
-
-    @Version
-    private Integer version;
 }

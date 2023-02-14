@@ -13,9 +13,9 @@ public class DiaryDto {
     private Long id;
     private String title;
     private String content;
-    private List<String> imageNames;
+    private List<String> imageUrls;
+    private Long thumbnailIdx;
     private String weather;
-    private LocalDate created;
     private LocalDate date;
     private SpendingWidgetDto widget;
 }

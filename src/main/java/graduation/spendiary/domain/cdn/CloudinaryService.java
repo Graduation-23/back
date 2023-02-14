@@ -12,6 +12,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * CDN 서버 'CloudinaryService'와 통신하기 위한 클래스
+ * @author Bonwoong Ku
+ */
 @Component
 public class CloudinaryService {
     private static Cloudinary cloudinary = null;
@@ -33,11 +37,18 @@ public class CloudinaryService {
         }
     }
 
-    public void upload(Path path) throws IOException {
+    /**
+     * 로컬 경로에 위치한 파일을 Cloudinary에 업로드합니다.
+     * @param path 파일의 로컬 경로
+     * @throws IOException
+     * @return Cloudinary에 업로드된 파일의 URL (https)
+     */
+    public String upload(Path path) throws IOException {
         Map options = ObjectUtils.asMap(
                 "use_filename", true,
                 "unique_filename", false
         );
-        cloudinary.uploader().upload(new File(path.toString()), options);
+        Map map = cloudinary.uploader().upload(new File(path.toString()), options);
+        return (String) map.get("secure_url");
     }
 }

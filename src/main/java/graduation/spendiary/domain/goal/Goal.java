@@ -36,7 +36,4 @@ public class Goal {
 
     @Field("goal_date")
     private LocalDate date;
-
-    @Version
-    private Integer version;
 }

@@ -34,7 +34,4 @@ public class Finance {
 
     @Field("finance_colorcode")
     private String colorcode;
-
-    @Version
-    private Integer version;
 }

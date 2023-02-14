@@ -34,19 +34,15 @@ public class Diary {
     @Field("diary_content")
     private String content;
 
-    @CreatedDate
-    @Field("diary_create")
-    private LocalDate created;
-
     @Field("diary_date")
     private LocalDate date;
 
-    @Field("diary_image")
-    private List<String> images;
+    @Field("diary_image_urls")
+    private List<String> imageUrls;
+
+    @Field("diary_thumbnail_idx")
+    private Long thumbnailIdx;
 
     @Field("diary_weather")
     private String weather;
-
-    @Version
-    private Integer version;
 }
