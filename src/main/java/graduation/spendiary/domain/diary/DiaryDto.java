@@ -16,5 +16,6 @@ public class DiaryDto {
     private List<String> imageNames;
     private String weather;
     private LocalDate created;
+    private LocalDate date;
     private SpendingWidgetDto widget;
 }
