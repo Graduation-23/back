@@ -11,7 +11,7 @@ import java.util.List;
 public class DiaryEditVo {
     private String title;
     private String content;
-    private List<String> imageNames;
+    private List<String> imageUrls;
     private String weather;
     private Long thumbnailIdx;
     private List<MultipartFile> newImages;

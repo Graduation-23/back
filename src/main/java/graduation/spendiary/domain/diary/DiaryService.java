@@ -161,7 +161,7 @@ public class DiaryService {
         List<String> uploadedImageUrls = uploadImages(vo.getNewImages());
 
         // vo.images()의 "$i"를 uploadedImageUrl[i]로 대체
-        List<String> newImageUrls = vo.getImageNames().stream()
+        List<String> newImageUrls = vo.getImageUrls().stream()
                 .map(id -> {
                     Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
                     if (matcher.find()) {
