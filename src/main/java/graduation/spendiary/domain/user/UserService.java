@@ -4,6 +4,7 @@ import graduation.spendiary.security.google.GoogleUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -66,6 +67,7 @@ public class UserService {
     public User getUser(String userId) {
         return repo.findById(userId).get();
     }
+
     public boolean deleteUser(String userId, String password) {
         User user = repo.findByIdAndPw(userId, password);
         if(user == null) {
@@ -73,5 +75,11 @@ public class UserService {
         }
         repo.delete(user);
         return true;
+    }
+
+    public User birthday(String  userId, LocalDate birthday) {
+        User updateUser = repo.findById(userId).orElse(null);
+        updateUser.setBirth(birthday);
+        return repo.save(updateUser);
     }
 }
