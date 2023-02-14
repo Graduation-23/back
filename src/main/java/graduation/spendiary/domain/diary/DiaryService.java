@@ -67,9 +67,6 @@ public class DiaryService {
     public DiaryDto save(DiarySaveVo vo, String userId)
         throws IOException
     {
-        System.out.println("widget: ---");
-        System.out.println(vo.getWidget());
-
         // 이미지 파일 업로드
         List<String> fileNames = uploadImages(vo.getImages());
 
@@ -93,6 +90,21 @@ public class DiaryService {
         // 다이어리 저장
         repo.save(diary);
         return this.getDto(diary);
+    }
+
+    public Long saveEmptyDiary(LocalDate diarydate, String userId) {
+        Diary diary = Diary.builder()
+                .title("")
+                .content("")
+                .user(userId)
+                .images(Collections.emptyList())
+                .date(diarydate)
+                .weather("")
+                .build();
+        diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
+
+        Diary savedDiary = repo.save(diary);
+        return savedDiary.getId();
     }
 
     public List<DiaryDto> getDtoByCreatedRange(String userId, LocalDate start, LocalDate end) {
