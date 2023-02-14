@@ -34,10 +34,6 @@ public class Diary {
     @Field("diary_content")
     private String content;
 
-    @CreatedDate
-    @Field("diary_create")
-    private LocalDate created;
-
     @Field("diary_date")
     private LocalDate date;
 
@@ -49,7 +45,4 @@ public class Diary {
 
     @Field("diary_weather")
     private String weather;
-
-    @Version
-    private Integer version;
 }

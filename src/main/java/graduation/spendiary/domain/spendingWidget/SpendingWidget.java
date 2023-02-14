@@ -30,7 +30,4 @@ public class SpendingWidget {
 
     @Field("total_cost")
     private long totalCost;
-
-    @Version
-    private Integer version;
 }
