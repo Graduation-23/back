@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface DiaryRepository extends MongoRepository<Diary, Long> {
+    List<Diary> findByUser(String userId);
+
     @Query(value = "{'user_id': ?0, 'diary_date': ?1}")
     List<Diary> findByUserAndDate(String userId, LocalDate date);
 

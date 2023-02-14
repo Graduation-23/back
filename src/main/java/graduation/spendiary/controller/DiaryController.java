@@ -23,10 +23,8 @@ public class DiaryController {
     private DiaryService diaryService;
 
     @GetMapping
-    public List<DiaryDto> diarys(Model model) {
-        List<DiaryDto> diaryDtos = diaryService.getDtoAll();
-        model.addAttribute("diarys", diaryDtos);
-        return diaryDtos;
+    public List<DiaryDto> getAll(@AuthenticationPrincipal String userId) {
+        return diaryService.getAllOfUser(userId);
     }
 
     @GetMapping("/{diaryId}")

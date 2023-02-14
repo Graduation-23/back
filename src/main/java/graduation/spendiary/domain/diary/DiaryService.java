@@ -55,8 +55,8 @@ public class DiaryService {
         return builder.build();
     }
 
-    public List<DiaryDto> getDtoAll() {
-        return repo.findAll().stream()
+    public List<DiaryDto> getAllOfUser(String userId) {
+        return repo.findByUser(userId).stream()
                 .map(this::getDto)
                 .collect(Collectors.toList());
     }
