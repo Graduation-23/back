@@ -4,6 +4,7 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
+import graduation.spendiary.exception.DiaryDuplicatedException;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.util.file.TemporalFileUtil;
@@ -67,9 +68,6 @@ public class DiaryService {
     public DiaryDto save(DiarySaveVo vo, String userId)
         throws IOException
     {
-        System.out.println("widget: ---");
-        System.out.println(vo.getWidget());
-
         // 이미지 파일 업로드
         List<String> fileNames = uploadImages(vo.getImages());
 
@@ -93,6 +91,33 @@ public class DiaryService {
         // 다이어리 저장
         repo.save(diary);
         return this.getDto(diary);
+    }
+
+    /**
+     * 주어진 날짜에 해당되는 빈 다이어리를 작성합니다.
+     * @param diaryDate 다이어리의 날짜
+     * @param userId 다이어리 작성자
+     * @return 빈 다이어리
+     * @throws DiaryDuplicatedException 해당 날짜에 이미 다이어리가 있음
+     */
+    public Long saveEmptyDiary(String userId, LocalDate diaryDate)
+        throws DiaryDuplicatedException
+    {
+        if (!repo.findByUserAndDate(userId, diaryDate).isEmpty())
+            throw new DiaryDuplicatedException();
+
+        Diary diary = Diary.builder()
+                .title("")
+                .content("")
+                .user(userId)
+                .images(Collections.emptyList())
+                .date(diaryDate)
+                .weather("")
+                .build();
+        diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
+
+        Diary savedDiary = repo.save(diary);
+        return savedDiary.getId();
     }
 
     public List<DiaryDto> getDtoByCreatedRange(String userId, LocalDate start, LocalDate end) {

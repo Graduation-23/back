@@ -38,6 +38,9 @@ public class Diary {
     @Field("diary_create")
     private LocalDate created;
 
+    @Field("diary_date")
+    private LocalDate date;
+
     @Field("diary_image")
     private List<String> images;
 
