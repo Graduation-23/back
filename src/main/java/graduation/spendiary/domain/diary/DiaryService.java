@@ -2,7 +2,6 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
-import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.exception.DiaryDuplicatedException;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
@@ -85,8 +84,8 @@ public class DiaryService {
         return savedDiary.getId();
     }
 
-    public List<DiaryDto> getDtoByCreatedRange(String userId, LocalDate start, LocalDate end) {
-        return repo.findByUserAndCreatedBetween(userId, start, end).stream()
+    public List<DiaryDto> getDtoByDateRange(String userId, LocalDate start, LocalDate end) {
+        return repo.findByUserAndDateBetween(userId, start, end).stream()
                 .map(this::getDto)
                 .collect(Collectors.toList());
     }
@@ -94,13 +93,13 @@ public class DiaryService {
     public List<DiaryDto> getOfLastWeek(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastWeek = now.minusWeeks(1);
-        return getDtoByCreatedRange(userId, lastWeek, now);
+        return getDtoByDateRange(userId, lastWeek, now);
     }
 
     public List<DiaryDto> getOfLastMonth(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastMonth = now.minusMonths(1);
-        return getDtoByCreatedRange(userId, lastMonth, now);
+        return getDtoByDateRange(userId, lastMonth, now);
     }
 
     public List<DiaryDto> getOfYear(String userId, int year) {
@@ -112,7 +111,7 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getDtoByCreatedRange(userId, firstDay, lastDay);
+        return getDtoByDateRange(userId, firstDay, lastDay);
     }
 
     public List<DiaryDto> getOfMonth(String userId, int year, int month) {
@@ -124,7 +123,7 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getDtoByCreatedRange(userId, firstDay, lastDay);
+        return getDtoByDateRange(userId, firstDay, lastDay);
     }
 
     /**
