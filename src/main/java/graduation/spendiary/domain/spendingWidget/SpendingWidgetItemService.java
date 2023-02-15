@@ -32,10 +32,10 @@ public class SpendingWidgetItemService {
     /**
      * 새 SpendingWidgetItem을 저장합니다.
      * @param item 저장할 SpendingWidgetItem 정보
-     * @return 새로 저장된 SpendingWidgetItem (매개변수 item과 내용 같음)
+     * @return 새로 저장된 SpendingWidgetItem의 Id
      */
-    public SpendingWidgetItem save(SpendingWidgetItem item) {
+    public Long save(SpendingWidgetItem item) {
         item.setId(SequenceGeneratorService.generateSequence(SpendingWidgetItem.SEQUENCE_NAME));
-        return repo.save(item);
+        return repo.save(item).getId();
     }
 }

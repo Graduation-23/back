@@ -8,7 +8,6 @@ import java.util.List;
 @Builder
 public class SpendingWidgetDto {
     private Long id;
-    private Long diaryId;
     private List<SpendingWidgetItem> items;
     private Long totalCost;
 }

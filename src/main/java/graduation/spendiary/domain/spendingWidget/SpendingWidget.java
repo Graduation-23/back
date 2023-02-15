@@ -8,20 +8,14 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.util.List;
 
-@Document(collection = "SpendingWidgets")
+@Document(collection = "SpendingWidget")
 @AllArgsConstructor
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SpendingWidget {
-    @Transient
-    public static final String SEQUENCE_NAME = "spending_widget_sequence";
-
     @MongoId
     private Long id;
-
-    @Field("diary_id")
-    private Long diaryId;
 
     @Field("item_ids")
     private List<Long> itemIds;
