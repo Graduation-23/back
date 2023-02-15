@@ -15,5 +15,4 @@ public class DiaryEditVo {
     private String weather;
     private Long thumbnailIdx;
     private List<MultipartFile> newImages;
-    private SpendingWidgetDto widget;
 }

@@ -2,8 +2,6 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
-import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
-import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import graduation.spendiary.exception.DiaryDuplicatedException;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
@@ -35,25 +33,17 @@ public class DiaryService {
     private CloudinaryService cloudinaryService;
     @Autowired
     private TemporalFileUtil temporalFileUtil;
-    @Autowired
-    private SpendingWidgetService widgetService;
 
     public DiaryDto getDto(Diary diary) {
-        DiaryDto.DiaryDtoBuilder builder = DiaryDto.builder()
+        return DiaryDto.builder()
                 .id(diary.getId())
                 .title(diary.getTitle())
                 .content(diary.getContent())
                 .thumbnailIdx(diary.getThumbnailIdx())
                 .imageUrls(diary.getImageUrls())
                 .date(diary.getDate())
-                .weather(diary.getWeather());
-        try {
-            builder = builder.widget(widgetService.getDtoByDiaryId(diary.getId()));
-        }
-        catch (NoSuchContentException | NullPointerException e) {
-            builder = builder.widget(null);
-        }
-        return builder.build();
+                .weather(diary.getWeather())
+                .build();
     }
 
     public List<DiaryDto> getAllOfUser(String userId) {
@@ -94,8 +84,8 @@ public class DiaryService {
         return savedDiary.getId();
     }
 
-    public List<DiaryDto> getDtoByCreatedRange(String userId, LocalDate start, LocalDate end) {
-        return repo.findByUserAndCreatedBetween(userId, start, end).stream()
+    public List<DiaryDto> getDtoByDateRange(String userId, LocalDate start, LocalDate end) {
+        return repo.findByUserAndDateBetween(userId, start, end).stream()
                 .map(this::getDto)
                 .collect(Collectors.toList());
     }
@@ -103,13 +93,13 @@ public class DiaryService {
     public List<DiaryDto> getOfLastWeek(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastWeek = now.minusWeeks(1);
-        return getDtoByCreatedRange(userId, lastWeek, now);
+        return getDtoByDateRange(userId, lastWeek, now);
     }
 
     public List<DiaryDto> getOfLastMonth(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastMonth = now.minusMonths(1);
-        return getDtoByCreatedRange(userId, lastMonth, now);
+        return getDtoByDateRange(userId, lastMonth, now);
     }
 
     public List<DiaryDto> getOfYear(String userId, int year) {
@@ -121,7 +111,7 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getDtoByCreatedRange(userId, firstDay, lastDay);
+        return getDtoByDateRange(userId, firstDay, lastDay);
     }
 
     public List<DiaryDto> getOfMonth(String userId, int year, int month) {
@@ -133,7 +123,7 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getDtoByCreatedRange(userId, firstDay, lastDay);
+        return getDtoByDateRange(userId, firstDay, lastDay);
     }
 
     /**
@@ -184,13 +174,6 @@ public class DiaryService {
                 .date(oldDiary.getDate())
                 .weather(vo.getWeather())
                 .build();
-
-        // 위젯 저장
-        SpendingWidgetDto widgetDto = vo.getWidget();
-        if (widgetDto != null) {
-            widgetDto.setDiaryId(newDiary.getId());
-            widgetService.save(widgetDto);
-        }
 
         // 다이어리 저장
         repo.save(newDiary);

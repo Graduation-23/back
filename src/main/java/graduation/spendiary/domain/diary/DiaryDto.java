@@ -17,5 +17,4 @@ public class DiaryDto {
     private Long thumbnailIdx;
     private String weather;
     private LocalDate date;
-    private SpendingWidgetDto widget;
 }

@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@Document(collection = "SpendingWidgetsItems")
+@Document(collection = "SpendingWidgetItem")
 @AllArgsConstructor
 @Data
 @Builder
