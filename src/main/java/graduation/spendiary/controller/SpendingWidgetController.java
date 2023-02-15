@@ -17,8 +17,11 @@ public class SpendingWidgetController {
     private SpendingWidgetService service;
 
     @PostMapping
-    public Long post(@ModelAttribute SpendingWidgetDto dto) {
-        return service.save(dto);
+    public Long post(
+            @AuthenticationPrincipal String userId,
+            @ModelAttribute SpendingWidgetDto dto
+    ) {
+        return service.save(userId, dto);
     }
 
     @GetMapping

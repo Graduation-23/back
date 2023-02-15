@@ -75,7 +75,8 @@ public class SpendingWidgetService {
      * @param dto 저장할 SpendingWidget의 DTO
      * @return 저장된 SpendingWidget의 ID
      */
-    public Long save(SpendingWidgetDto dto) {
+    public Long save(String userId, SpendingWidgetDto dto) {
+        System.out.println(dto);
         // item 저장 및 id 가져오기
         List<Long> itemIds = dto.getItems().stream()
                 .map(itemService::save)
@@ -88,7 +89,9 @@ public class SpendingWidgetService {
 
         SpendingWidget widget = SpendingWidget.builder()
                 .id(dto.getId())
+                .userId(userId)
                 .itemIds(itemIds)
+                .date(dto.getDate())
                 .totalCost(totalCost)
                 .build();
 
