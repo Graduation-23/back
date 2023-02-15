@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -32,10 +33,8 @@ public class User {
     @Field("user_access_type")
     private String accessType;
     @Field("user_create")
-    @CreatedDate
     private LocalDate created;
     @Field("user_birth")
+    @DateTimeFormat(pattern = "YYYY-MM-DD")
     private LocalDate birth;
-    @Version
-    private Integer version;
 }

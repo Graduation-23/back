@@ -2,10 +2,13 @@ package graduation.spendiary.domain.user;
 
 import graduation.spendiary.security.google.GoogleUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -43,6 +46,7 @@ public class UserService {
                 .accessType("none")
                 .password(user.getPassword())
                 .birth((user.getBirth()))
+                .created(LocalDate.now())
                 .build());
 
         return member != null;
@@ -55,6 +59,7 @@ public class UserService {
                 .id(googleUser.getEmail())
                 .nickname(googleUser.getName())
                 .password("")
+                .created(LocalDate.now())
                 .build();
 
         if(repo.findByGoogleId(user.getId()) == null){
