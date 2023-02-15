@@ -1,10 +1,14 @@
 package graduation.spendiary.domain.spendingWidget;
 
+import graduation.spendiary.domain.diary.DiaryDto;
 import graduation.spendiary.domain.diary.DiaryService;
 import graduation.spendiary.exception.NoSuchContentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -102,5 +106,47 @@ public class SpendingWidgetService {
         if (!repo.existsById(dto.getId()))
             throw new NoSuchContentException();
         return this.save(userId, dto);
+    }
+
+    public List<SpendingWidgetDto> getDtoByDateRange(String userId, LocalDate start, LocalDate end) {
+        return repo.findByUserAndDateBetween(userId, start, end).stream()
+                .map(this::getDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<SpendingWidgetDto> getOfLastWeek(String userId) {
+        LocalDate now = LocalDate.now();
+        LocalDate lastWeek = now.minusWeeks(1);
+        return getDtoByDateRange(userId, lastWeek, now);
+    }
+
+    public List<SpendingWidgetDto> getOfLastMonth(String userId) {
+        LocalDate now = LocalDate.now();
+        LocalDate lastMonth = now.minusMonths(1);
+        return getDtoByDateRange(userId, lastMonth, now);
+    }
+
+    public List<SpendingWidgetDto> getOfYear(String userId, int year) {
+        LocalDate firstDay, lastDay;
+        try {
+            firstDay = LocalDate.of(year, 1, 1);
+            lastDay = LocalDate.of(year, 12, 31);
+        }
+        catch (DateTimeException e) {
+            return Collections.emptyList();
+        }
+        return getDtoByDateRange(userId, firstDay, lastDay);
+    }
+
+    public List<SpendingWidgetDto> getOfMonth(String userId, int year, int month) {
+        LocalDate firstDay, lastDay;
+        try {
+            firstDay = LocalDate.of(year, month, 1);
+            lastDay = LocalDate.of(year, month + 1, 1).minusDays(1);
+        }
+        catch (DateTimeException e) {
+            return Collections.emptyList();
+        }
+        return getDtoByDateRange(userId, firstDay, lastDay);
     }
 }

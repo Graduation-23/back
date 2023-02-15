@@ -1,5 +1,6 @@
 package graduation.spendiary.controller;
 
+import graduation.spendiary.domain.diary.DiaryDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,33 @@ public class SpendingWidgetController {
     @GetMapping("/{widgetId}")
     public SpendingWidgetDto getById(@PathVariable Long widgetId) {
         return service.getDtoById(widgetId);
+    }
+
+    @GetMapping("/last-week")
+    public List<SpendingWidgetDto> getOfLastWeek(@AuthenticationPrincipal String userId) {
+        return service.getOfLastWeek(userId);
+    }
+
+    @GetMapping("/last-month")
+    public List<SpendingWidgetDto> getOfLastMonth(@AuthenticationPrincipal String userId) {
+        return service.getOfLastMonth(userId);
+    }
+
+    @GetMapping("/date/{year}")
+    public List<SpendingWidgetDto> getOfYear(
+            @AuthenticationPrincipal String userId,
+            @PathVariable int year
+    ) {
+        return service.getOfYear(userId, year);
+    }
+
+    @GetMapping("/date/{year}/{month}")
+    public List<SpendingWidgetDto> getOfMonth(
+            @AuthenticationPrincipal String userId,
+            @PathVariable int year,
+            @PathVariable int month
+    ) {
+        return service.getOfMonth(userId, year, month);
     }
 
     @PutMapping
