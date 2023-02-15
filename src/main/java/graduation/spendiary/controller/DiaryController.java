@@ -75,8 +75,7 @@ public class DiaryController {
             @AuthenticationPrincipal String userId,
             @PathVariable long diaryId,
             @ModelAttribute DiaryEditVo vo
-    ) throws IOException
-    {
+    ) throws IOException {
         return diaryService.edit(diaryId, vo, userId);
     }
 }
