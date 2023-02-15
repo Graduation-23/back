@@ -34,4 +34,12 @@ public class SpendingWidgetController {
         return service.getDtoById(widgetId);
     }
 
+    @PutMapping
+    public Long put(
+            @AuthenticationPrincipal String userId,
+            @ModelAttribute SpendingWidgetDto dto
+    ) {
+        return service.edit(userId, dto);
+    }
+
 }

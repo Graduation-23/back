@@ -91,4 +91,16 @@ public class SpendingWidgetService {
         return savedWidget.getId();
     }
 
+    /**
+     * DTO의 정보를 통해 새 SpendingWidget을 수정합니다.
+     * @param dto 수정할 SpendingWidget의 DTO
+     * @return 저장된 SpendingWidget의 ID
+     */
+    public Long edit(String userId, SpendingWidgetDto dto)
+        throws NoSuchContentException, NullPointerException
+    {
+        if (!repo.existsById(dto.getId()))
+            throw new NoSuchContentException();
+        return this.save(userId, dto);
+    }
 }

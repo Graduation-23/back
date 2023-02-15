@@ -34,25 +34,17 @@ public class DiaryService {
     private CloudinaryService cloudinaryService;
     @Autowired
     private TemporalFileUtil temporalFileUtil;
-//    @Autowired
-    //private SpendingWidgetService widgetService;
 
     public DiaryDto getDto(Diary diary) {
-        DiaryDto.DiaryDtoBuilder builder = DiaryDto.builder()
+        return DiaryDto.builder()
                 .id(diary.getId())
                 .title(diary.getTitle())
                 .content(diary.getContent())
                 .thumbnailIdx(diary.getThumbnailIdx())
                 .imageUrls(diary.getImageUrls())
                 .date(diary.getDate())
-                .weather(diary.getWeather());
-        try {
-//            builder = builder.widget(widgetService.getDtoByDiaryId(diary.getId()));
-        }
-        catch (NoSuchContentException | NullPointerException e) {
-            builder = builder.widget(null);
-        }
-        return builder.build();
+                .weather(diary.getWeather())
+                .build();
     }
 
     public List<DiaryDto> getAllOfUser(String userId) {
@@ -183,13 +175,6 @@ public class DiaryService {
                 .date(oldDiary.getDate())
                 .weather(vo.getWeather())
                 .build();
-
-        // 위젯 저장
-        SpendingWidgetDto widgetDto = vo.getWidget();
-        if (widgetDto != null) {
-//            widgetDto.setDiaryId(newDiary.getId());
-//            widgetService.save(widgetDto);
-        }
 
         // 다이어리 저장
         repo.save(newDiary);
