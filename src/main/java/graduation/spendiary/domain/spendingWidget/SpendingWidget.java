@@ -19,7 +19,7 @@ public class SpendingWidget {
     private Long id;
 
     @Field("user_id")
-    private String userId;
+    private String user;
 
     @Field("date")
     private LocalDate date;

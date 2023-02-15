@@ -1,7 +1,5 @@
 package graduation.spendiary.domain.spendingWidget;
 
-import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
-import graduation.spendiary.domain.diary.DiaryDto;
 import graduation.spendiary.domain.diary.DiaryService;
 import graduation.spendiary.exception.NoSuchContentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +19,6 @@ public class SpendingWidgetService {
     private SpendingWidgetRepository repo;
     @Autowired
     private SpendingWidgetItemService itemService;
-    @Autowired
-    private DiaryService diaryService;
 
     /**
      * SpendingWidget을 DTO로 변환합니다.
@@ -47,10 +43,7 @@ public class SpendingWidgetService {
      * todo: diary -> getId가 아닌 diaryId를 바로 가져올 수 있도록
      */
     public List<SpendingWidgetDto> getAllOfUser(String userId) {
-        return diaryService.getAllOfUser(userId).stream()
-                .map(DiaryDto::getId)
-                .map(repo::findById)
-                .map(Optional::get)
+        return repo.findByUser(userId).stream()
                 .map(this::getDto)
                 .collect(Collectors.toList());
     }
