@@ -48,7 +48,7 @@ public class DiaryService {
                 .date(diary.getDate())
                 .weather(diary.getWeather());
         try {
-            builder = builder.widget(widgetService.getDtoByDiaryId(diary.getId()));
+//            builder = builder.widget(widgetService.getDtoByDiaryId(diary.getId()));
         }
         catch (NoSuchContentException | NullPointerException e) {
             builder = builder.widget(null);
@@ -188,7 +188,7 @@ public class DiaryService {
         // 위젯 저장
         SpendingWidgetDto widgetDto = vo.getWidget();
         if (widgetDto != null) {
-            widgetDto.setDiaryId(newDiary.getId());
+//            widgetDto.setDiaryId(newDiary.getId());
             widgetService.save(widgetDto);
         }
 
