@@ -69,7 +69,6 @@ public class SpendingWidgetService {
      * @return 저장된 SpendingWidget의 ID
      */
     public Long save(String userId, SpendingWidgetDto dto) {
-        System.out.println(dto);
         // totalCost 계산
         long totalCost = dto.getItems().stream()
                 .map(SpendingWidgetItem::getAmount)
