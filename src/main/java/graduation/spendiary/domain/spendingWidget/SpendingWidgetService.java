@@ -82,7 +82,7 @@ public class SpendingWidgetService {
 
         SpendingWidget widget = SpendingWidget.builder()
                 .id(dto.getId())
-                .userId(userId)
+                .user(userId)
                 .itemIds(itemIds)
                 .date(dto.getDate())
                 .totalCost(totalCost)
