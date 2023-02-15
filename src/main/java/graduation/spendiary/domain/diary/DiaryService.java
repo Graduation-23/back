@@ -3,7 +3,6 @@ package graduation.spendiary.domain.diary;
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
-import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import graduation.spendiary.exception.DiaryDuplicatedException;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
@@ -36,7 +35,7 @@ public class DiaryService {
     @Autowired
     private TemporalFileUtil temporalFileUtil;
     @Autowired
-    private SpendingWidgetService widgetService;
+    //private SpendingWidgetService widgetService;
 
     public DiaryDto getDto(Diary diary) {
         DiaryDto.DiaryDtoBuilder builder = DiaryDto.builder()

@@ -7,5 +7,4 @@ import java.util.List;
 
 @Repository
 public interface SpendingWidgetRepository extends MongoRepository<SpendingWidget, Long> {
-    List<SpendingWidget> findByUser(String userId);
 }
