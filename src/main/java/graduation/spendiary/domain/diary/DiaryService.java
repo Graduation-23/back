@@ -34,7 +34,7 @@ public class DiaryService {
     private CloudinaryService cloudinaryService;
     @Autowired
     private TemporalFileUtil temporalFileUtil;
-    @Autowired
+//    @Autowired
     //private SpendingWidgetService widgetService;
 
     public DiaryDto getDto(Diary diary) {
