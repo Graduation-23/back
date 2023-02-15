@@ -70,15 +70,15 @@ public class SpendingWidgetService {
      */
     public Long save(String userId, SpendingWidgetDto dto) {
         System.out.println(dto);
+        // totalCost 계산
+        long totalCost = dto.getItems().stream()
+                .map(SpendingWidgetItem::getAmount)
+                .mapToLong(Long::longValue).sum();
+
         // item 저장 및 id 가져오기
         List<Long> itemIds = dto.getItems().stream()
                 .map(itemService::save)
                 .collect(Collectors.toList());
-        // totalCost 계산
-        long totalCost = itemIds.stream()
-                .map(itemService::getById)
-                .map(SpendingWidgetItem::getAmount)
-                .mapToLong(Long::longValue).sum();
 
         SpendingWidget widget = SpendingWidget.builder()
                 .id(dto.getId())
