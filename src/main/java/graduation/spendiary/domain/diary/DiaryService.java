@@ -8,6 +8,7 @@ import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -148,23 +149,11 @@ public class DiaryService {
         if (!Period.between(oldDiary.getDate(), LocalDate.now()).minusDays(3).isNegative())
             throw new DiaryUneditableException();
 
-        List<String> newImageUrls = Collections.emptyList();
+        List<String> newImageUrls = vo.getImageUrls();
 
         if(vo.getImageUrls() != null) {
-            // 새 이미지들을 업로드
-            List<String> uploadedImageUrls = uploadImages(vo.getNewImages());
-
-            // vo.images()의 "$i"를 uploadedImageUrl[i]로 대체
-            newImageUrls = vo.getImageUrls().stream()
-                    .map(id -> {
-                        Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
-                        if (matcher.find()) {
-                            int idx = Integer.parseInt(matcher.group(1));
-                            return uploadedImageUrls.get(idx);
-                        }
-                        return id;
-                    })
-                    .collect(Collectors.toList());
+            // 새 이미지들을 업로드 후 url 등록
+            newImageUrls.addAll(uploadImages(vo.getNewImages()));
         }
         // diary entity 재생성
         Diary newDiary = Diary.builder()

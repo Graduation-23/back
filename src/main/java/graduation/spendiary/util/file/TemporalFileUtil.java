@@ -32,7 +32,6 @@ public class TemporalFileUtil {
         Files.createDirectories(Path.of(PATH_TEMP_FILES_DIR));
 
         // 새 이름은 "(UUID).(기존 확장자)" 형식
-        System.out.println(file);
         oldName = file.getOriginalFilename();
         newName = UUID.randomUUID().toString() + oldName.substring(oldName.lastIndexOf("."));
         filePath = Paths.get(PATH_TEMP_FILES_DIR, newName);
