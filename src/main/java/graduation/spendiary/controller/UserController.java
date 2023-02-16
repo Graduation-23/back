@@ -22,12 +22,14 @@ public class UserController {
     }
 
     @DeleteMapping
-    public Message deleteInformation(@AuthenticationPrincipal String userId, String password) {
-        if(!(userService.deleteUser(userId, password))){
-            return new Message("탈퇴 실패; 패스워드를 확인하세요", false);
-        }
-        userService.deleteUser(userId, password);
-        return new Message("탈퇴 완료", true);
+    public Message deleteInformation(@AuthenticationPrincipal String userId, @RequestParam("password") String password) {
+
+        boolean success = userService.deleteUser(userId, password);
+
+        return new Message(
+                success ? "탈퇴 완료" : "탈퇴 실패; 패스워드를 확인하세요",
+                success
+        );
     }
 
     @PutMapping ("/birth")
