@@ -4,8 +4,10 @@ import graduation.spendiary.domain.user.User;
 import graduation.spendiary.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -36,5 +38,13 @@ public class UserController {
     public User birthdayInformation(@AuthenticationPrincipal String userId, @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthday) {
         userService.birthday(userId, birthday);
         return userService.getUser(userId);
+    }
+
+    @PutMapping(value = "/profile-pic", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public User putProfilePic(
+            @AuthenticationPrincipal String userId,
+            MultipartFile profilePic
+    ) {
+        return userService.setProfilePic(userId, profilePic);
     }
 }
