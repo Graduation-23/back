@@ -6,6 +6,7 @@ spring:
       - path
       - cloudinary
       - oauth
+      - openbank
   security:
     user:
       password: 1234

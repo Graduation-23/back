@@ -39,6 +39,7 @@ public class SecurityConfiguration {
        return (web) -> web.ignoring().antMatchers(
             "/swagger*/**",
                "/api/auth/**",
+               "/api/auth/openbank/**",
                "/favicon.ico",
                "/swagger-resources/**",
                "/swagger-ui.html",

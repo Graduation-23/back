@@ -3,16 +3,19 @@ package graduation.spendiary.controller;
 import graduation.spendiary.domain.bank.OpenBankService;
 import graduation.spendiary.security.openbank.BankRequestToken;
 import graduation.spendiary.security.openbank.BankResponseToken;
-import graduation.spendiary.security.openbank.OpenBankUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpSession;
+import java.net.URI;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,20 +39,8 @@ public class OpenbankApiController {
         응답: 거래구분, 거래점명, 거래후잔액, 통장인자내용, 계좌잔액 등
     */
 
-    private final HttpSession session;
-    private final OpenBankUtil openBankUtil;
 
-    @Value("${openbank.reirect-uri}")
-    private String redirectUri;
-    @Value("${openbank.tran-id}")
-    private String tranId;
-    @Value("${openbank.client-id}")
-    private String ClientId;
-    @Value("${openbank.secret}")
-    private String client_secret;
-    @Value("${oepnbank.access-token}")
-    private String accessToken;
-
+    @Autowired
     private final OpenBankService openBankService;
 
     /**
@@ -62,4 +53,18 @@ public class OpenbankApiController {
         log.info("bankResponseToken={}", token);
         return "v1/bank";
     }
+
+    @GetMapping("/uri")
+    public ResponseEntity getGoogleAuthUri(@AuthenticationPrincipal String userId) {
+        try{
+            HttpHeaders redirectHeader = new HttpHeaders();
+            redirectHeader.setLocation(new URI(openBankService.getUri("nr")));
+            return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(redirectHeader).build();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
 }
