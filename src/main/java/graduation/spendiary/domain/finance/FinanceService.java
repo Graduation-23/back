@@ -1,6 +1,7 @@
 package graduation.spendiary.domain.finance;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
+import graduation.spendiary.domain.user.User;
 import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.exception.TooMuchFinanceException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +42,11 @@ public class FinanceService {
         finance.setUser(userId);
         Finance savedFinance = repo.save(finance);
         return savedFinance.getId();
+    }
+
+    public boolean deleteFinance(String userId, Long financeId) {
+        Finance deleteFinance = repo.findById(financeId).get();
+        repo.deleteById(deleteFinance.getId());
+        return true;
     }
 }
