@@ -149,9 +149,9 @@ public class DiaryService {
         if (!Period.between(oldDiary.getDate(), LocalDate.now()).minusDays(3).isNegative())
             throw new DiaryUneditableException();
 
-        List<String> newImageUrls = vo.getImageUrls();
+        List<String> newImageUrls = vo.getImageUrls() != null ? vo.getImageUrls() : new ArrayList<>();
 
-        if(vo.getImageUrls() != null) {
+        if(vo.getNewImages() != null) {
             // 새 이미지들을 업로드 후 url 등록
             newImageUrls.addAll(uploadImages(vo.getNewImages()));
         }
