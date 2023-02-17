@@ -36,4 +36,10 @@ public class FinanceController {
     ) {
         return financeService.save(finance, userId);
     }
+
+    @DeleteMapping
+    public Message deleteFinance(@AuthenticationPrincipal String userId, @RequestParam("financeId") Long id) {
+        financeService.deleteFinance(userId, id);
+        return new Message("삭제 완료", true);
+    }
 }
