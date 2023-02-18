@@ -32,8 +32,6 @@ public class DiaryService {
     private DiaryRepository repo;
     @Autowired
     private CloudinaryService cloudinaryService;
-    @Autowired
-    private TemporalFileUtil temporalFileUtil;
 
     public DiaryDto getDto(Diary diary) {
         return DiaryDto.builder()
@@ -153,7 +151,7 @@ public class DiaryService {
 
         if(vo.getNewImages() != null) {
             // 새 이미지들을 업로드 후 url 등록
-            newImageUrls.addAll(uploadImages(vo.getNewImages()));
+            newImageUrls.addAll(cloudinaryService.upload(vo.getNewImages()));
         }
         // diary entity 재생성
         Diary newDiary = Diary.builder()
@@ -170,25 +168,5 @@ public class DiaryService {
         // 다이어리 저장
         repo.save(newDiary);
         return this.getDto(newDiary);
-    }
-
-    /**
-     * 이미지 파일들을 임의의 이름으로 CDN 서버에 업로드합니다.
-     * @param images 업로드할 이미지 파일들
-     * @return 모든 이미지 업로드에 성공 시 업로드 된 파일 URL (https) 리스트
-     * @throws IOException 임시 폴더 또는 CDN 서버에 파일 저장 실패
-     */
-    private List<String> uploadImages(List<MultipartFile> images)
-        throws IOException
-    {
-        Path path;
-        String imageUrl;
-        List<String> fileNames = new ArrayList<>();
-        for (MultipartFile file: images) {
-            path = temporalFileUtil.save(file);
-            imageUrl = cloudinaryService.upload(path);
-            fileNames.add(imageUrl);
-        }
-        return fileNames;
     }
 }
