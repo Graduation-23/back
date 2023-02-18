@@ -10,7 +10,6 @@ import java.util.List;
 @Builder
 public class SpendingWidgetDto {
     private Long id;
-    private String userId;
     private @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date;
     private List<SpendingWidgetItem> items;
     private Long totalCost;

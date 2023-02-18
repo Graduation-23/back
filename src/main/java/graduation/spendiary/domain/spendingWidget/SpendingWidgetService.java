@@ -36,6 +36,7 @@ public class SpendingWidgetService {
                 .collect(Collectors.toList());
         return SpendingWidgetDto.builder()
                 .id(widget.getId())
+                .date(widget.getDate())
                 .items(items)
                 .totalCost(widget.getTotalCost())
                 .build();
