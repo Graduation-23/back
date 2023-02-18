@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -44,13 +45,13 @@ public class OpenbankApiController {
     /**
      * 토큰 발급 요청
      */
-    @GetMapping
-    public String getToken(BankRequestToken bankRequestToken, Model model) {
-        BankResponseToken token = openBankService.requestToken(bankRequestToken);
-        model.addAttribute("bankResponseToken", token);
-        log.info("bankResponseToken={}", token);
-        return "v1/bank";
-    }
+    //@GetMapping
+    //public String getToken(BankRequestToken bankRequestToken, Model model) {
+        //BankResponseToken token = openBankService.requestToken(bankRequestToken);
+        //model.addAttribute("bankResponseToken", token);
+        //log.info("bankResponseToken={}", token);
+        //return "v1/bank";
+    //}
 
     @GetMapping("/uri")
     public ResponseEntity getOpenbankUri(@AuthenticationPrincipal String userId) {
@@ -65,4 +66,14 @@ public class OpenbankApiController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
+    /*
+    @GetMapping
+    public ResponseEntity RedirectResult(@RequestParam(value = "code") String code,  @RequestParam(value = "client_info") String userId){
+        try{
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+     */
 }
