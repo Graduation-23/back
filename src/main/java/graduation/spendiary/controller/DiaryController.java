@@ -82,8 +82,8 @@ public class DiaryController {
     }
 
     @DeleteMapping
-    public Message deleteDiary(@AuthenticationPrincipal String userId, @RequestParam("diaryId") Long id) {
-        diaryService.deleteDiary(userId, id);
+    public Message deleteDiary(@AuthenticationPrincipal String userId, @RequestParam("diaryId") Long diaryid) {
+        diaryService.deleteDiary(userId, diaryid);
         return new Message("삭제 완료", true);
     }
 }
