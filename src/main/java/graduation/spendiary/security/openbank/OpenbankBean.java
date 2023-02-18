@@ -6,7 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-public class Config {
+public class OpenbankBean {
     @Bean
     public RestTemplate restTemplate(){
         return new RestTemplate();

@@ -42,14 +42,12 @@ public class OpenBankService {
                     "register_info", "A"
             );
 
-
-
             this.uri = OPEN_BANK_BASIC_URI + map
                     .entrySet()
                     .stream()
                     .map(entry -> entry.getKey() + "=" + entry.getValue())
-                    .collect(Collectors.joining("&"))+
-                    "&"+ map2
+                    .collect(Collectors.joining("&"))
+                    + "&" + map2
                     .entrySet()
                     .stream()
                     .map(entry -> entry.getKey() + "=" + entry.getValue())

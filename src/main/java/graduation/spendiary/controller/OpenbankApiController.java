@@ -22,7 +22,6 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/auth/openbank")
 public class OpenbankApiController {
-    // TODO: 2023-02-05
     /*
     1. 사용자인증(oauth/2.0/authorize)
         요청: client_id, redirect_uri
@@ -39,7 +38,6 @@ public class OpenbankApiController {
         응답: 거래구분, 거래점명, 거래후잔액, 통장인자내용, 계좌잔액 등
     */
 
-
     @Autowired
     private final OpenBankService openBankService;
 
@@ -55,10 +53,10 @@ public class OpenbankApiController {
     }
 
     @GetMapping("/uri")
-    public ResponseEntity getGoogleAuthUri(@AuthenticationPrincipal String userId) {
+    public ResponseEntity getOpenbankUri(@AuthenticationPrincipal String userId) {
         try{
             HttpHeaders redirectHeader = new HttpHeaders();
-            redirectHeader.setLocation(new URI(openBankService.getUri("nr")));
+            redirectHeader.setLocation(new URI(openBankService.getUri(userId)));
             return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(redirectHeader).build();
         }catch (Exception e){
             e.printStackTrace();
