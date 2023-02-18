@@ -44,6 +44,6 @@ public class User {
     @DateTimeFormat(pattern = "YYYY-MM-DD")
     private LocalDate birth;
 
-    @Field("user_profile_pic")
-    private String  profilePic;
+    @Field("user_profile_pic_url")
+    private String profilePicUrl;
 }
