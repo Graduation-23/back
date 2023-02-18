@@ -80,4 +80,10 @@ public class DiaryController {
     ) throws IOException {
         return diaryService.edit(diaryId, vo, userId);
     }
+
+    @DeleteMapping
+    public Message deleteDiary(@AuthenticationPrincipal String userId, @RequestParam("diaryId") Long id) {
+        diaryService.deleteDiary(userId, id);
+        return new Message("삭제 완료", true);
+    }
 }

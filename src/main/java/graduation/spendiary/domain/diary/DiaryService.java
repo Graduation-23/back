@@ -164,4 +164,10 @@ public class DiaryService {
         repo.save(newDiary);
         return this.getDto(newDiary);
     }
+
+    public boolean deleteDiary(String userId, Long diaryId) {
+        Diary deleteDiary = repo.findById(diaryId).get();
+        repo.deleteById(deleteDiary.getId());
+        return true;
+    }
 }
