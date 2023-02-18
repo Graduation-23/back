@@ -41,23 +41,24 @@ public class CloudinaryService {
             e.printStackTrace();
         }
     }
-
+    
     /**
-     * 로컬 경로에 위치한 파일을 Cloudinary에 업로드합니다.
-     * @param path 파일의 로컬 경로
+     * MultipartFile을 Cloudinary에 업로드합니다.
+     * @param file 업로드할 파일
      * @throws IOException
      * @return Cloudinary에 업로드된 파일의 URL (https)
      */
-    public String upload(Path path) throws IOException {
-        Map response = cloudinary.uploader().upload(new File(path.toString()), UPLOAD_OPTIONS);
-        return (String) response.get("secure_url");
-    }
-
     public String upload(MultipartFile file) throws IOException {
         Map response = cloudinary.uploader().upload(file.getBytes(), UPLOAD_OPTIONS);
         return (String) response.get("secure_url");
     }
 
+    /**
+     * 다수의 MultipartFile을 Cloudinary에 업로드합니다.
+     * @param files 업로드할 파일 리스트
+     * @throws IOException
+     * @return Cloudinary에 업로드된 파일의 URL 리스트 (https)
+     */
     public List<String> upload(List<MultipartFile> files) throws IOException {
         List<String> urls = new ArrayList<>();
         for (MultipartFile file: files) {
