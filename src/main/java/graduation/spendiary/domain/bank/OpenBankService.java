@@ -13,11 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.nio.charset.StandardCharsets;
 
 @RequiredArgsConstructor
 @Service
@@ -26,24 +24,23 @@ public class OpenBankService {
     private String OPEN_BANK_BASIC_URI = "https://testapi.openbanking.or.kr/oauth/2.0/authorize?";
 
 
-    public synchronized String getAuthUrl(String userId) {
-        Map<String, Object> queries = new HashMap<>();
-        queries.put("response_type", "code");
-        queries.put("client_id", config.getClientId());
-        queries.put("redirect_url", config.getRedirectUri());
-        queries.put("scope", "login inquiry transfer".replaceAll(" ", "%20"));
-        queries.put("client_info", userId);
-        queries.put("state","b80BLsfigm9OokPTjy03elbJqRHOfGSY");
-        queries.put("auth_type", "0");
-        queries.put("cellphone_cert_yn", "Y");
-        queries.put("authorized_cert_yn", "Y");
-        queries.put("account_hold_auth_yn", "N");
-        queries.put("register_info", "A");
-
-        return OPEN_BANK_BASIC_URI
-                + queries.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + entry.getValue())
-                .collect(Collectors.joining("&"));
+    public String getAuthUrl(String userId) {
+        return UriComponentsBuilder
+                .fromUriString(OPEN_BANK_BASIC_URI)
+                .queryParam("response_type", "code")
+                .queryParam("client_id", config.getClientId())
+                .queryParam("redirect_uri", config.getRedirectUri())
+                .queryParam("scope", "login inquiry transfer")
+                .queryParam("client_info", userId)
+                .queryParam("state","b80BLsfigm9OokPTjy03elbJqRHOfGSY")
+                .queryParam("auth_type", "0")
+                .queryParam("cellphone_cert_yn", "Y")
+                .queryParam("authorized_cert_yn", "Y")
+                .queryParam("account_hold_auth_yn", "N")
+                .queryParam("register_info", "A")
+                .encode()
+                .build()
+                .toUriString();
     }
 
     public BankResponseToken requestToken(String code) throws Exception {
