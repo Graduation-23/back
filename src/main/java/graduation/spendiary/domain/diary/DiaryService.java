@@ -5,14 +5,10 @@ import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.exception.DiaryDuplicatedException;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
-import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Period;
@@ -20,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -32,8 +27,6 @@ public class DiaryService {
     private DiaryRepository repo;
     @Autowired
     private CloudinaryService cloudinaryService;
-    @Autowired
-    private TemporalFileUtil temporalFileUtil;
 
     public DiaryDto getDto(Diary diary) {
         return DiaryDto.builder()
@@ -153,7 +146,7 @@ public class DiaryService {
 
         if(vo.getNewImages() != null) {
             // 새 이미지들을 업로드 후 url 등록
-            newImageUrls.addAll(uploadImages(vo.getNewImages()));
+            newImageUrls.addAll(cloudinaryService.upload(vo.getNewImages()));
         }
         // diary entity 재생성
         Diary newDiary = Diary.builder()
@@ -172,23 +165,9 @@ public class DiaryService {
         return this.getDto(newDiary);
     }
 
-    /**
-     * 이미지 파일들을 임의의 이름으로 CDN 서버에 업로드합니다.
-     * @param images 업로드할 이미지 파일들
-     * @return 모든 이미지 업로드에 성공 시 업로드 된 파일 URL (https) 리스트
-     * @throws IOException 임시 폴더 또는 CDN 서버에 파일 저장 실패
-     */
-    private List<String> uploadImages(List<MultipartFile> images)
-        throws IOException
-    {
-        Path path;
-        String imageUrl;
-        List<String> fileNames = new ArrayList<>();
-        for (MultipartFile file: images) {
-            path = temporalFileUtil.save(file);
-            imageUrl = cloudinaryService.upload(path);
-            fileNames.add(imageUrl);
-        }
-        return fileNames;
+    public boolean deleteDiary(String userId, Long diaryId) {
+        Diary deleteDiary = repo.findById(diaryId).get();
+        repo.deleteById(deleteDiary.getId());
+        return true;
     }
 }
