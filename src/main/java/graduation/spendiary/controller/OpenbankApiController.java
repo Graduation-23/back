@@ -55,7 +55,6 @@ public class OpenbankApiController {
     public ResponseEntity getAuth(@AuthenticationPrincipal String userId)
         throws URISyntaxException
     {
-        System.out.println(openBankService.getAuthUrl(userId));
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(new URI(openBankService.getAuthUrl(userId)));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
