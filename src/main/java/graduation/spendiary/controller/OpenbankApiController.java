@@ -51,21 +51,25 @@ public class OpenbankApiController {
         //return "v1/bank";
     //}
 
-    @GetMapping("/auth")
+    @GetMapping("/auth/uri")
     public ResponseEntity getAuth(@AuthenticationPrincipal String userId)
         throws URISyntaxException
     {
+        System.out.println(openBankService.getAuthUrl(userId));
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(new URI(openBankService.getAuthUrl(userId)));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
     }
 
-    @GetMapping("/auth-complete")
+    @GetMapping("/auth")
     public ResponseEntity getAuthComplete(
             @RequestParam("code") String code,
             @RequestParam("client_info") String userId,
             @RequestParam("state") String state
     ) {
+        System.out.println("code: " + code);
+        System.out.println("client-info: " + userId);
+        System.out.println("state: " + state);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

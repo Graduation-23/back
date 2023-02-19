@@ -47,6 +47,8 @@ public class OpenBankService {
         // todo: state가 전송했던 state와 일치하는 지 확인해야 함
 
         // todo: code를 User DB에 저장해야 함
+
+        return true;
     }
 
     public BankResponseToken requestToken(String code) throws Exception {
