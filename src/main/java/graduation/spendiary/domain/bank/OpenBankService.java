@@ -43,6 +43,12 @@ public class OpenBankService {
                 .toUriString();
     }
 
+    public boolean saveOpenbankCode(String userId, String code, String state) {
+        // todo: state가 전송했던 state와 일치하는 지 확인해야 함
+
+        // todo: code를 User DB에 저장해야 함
+    }
+
     public BankResponseToken requestToken(String code) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         BankRequestToken request = BankRequestToken.builder()

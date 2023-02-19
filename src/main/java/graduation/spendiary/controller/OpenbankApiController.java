@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -59,14 +60,12 @@ public class OpenbankApiController {
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
     }
 
-    /*
-    @GetMapping
-    public ResponseEntity RedirectResult(@RequestParam(value = "code") String code,  @RequestParam(value = "client_info") String userId){
-        try{
-
-        }catch (Exception e) {
-            e.printStackTrace();
-        }return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("/auth-complete")
+    public ResponseEntity getAuthComplete(
+            @RequestParam("code") String code,
+            @RequestParam("client_info") String userId,
+            @RequestParam("state") String state
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
-     */
 }
