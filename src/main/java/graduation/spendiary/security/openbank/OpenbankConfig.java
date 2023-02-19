@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 @Getter
 public class OpenbankConfig {
 
-    @Value("${openbank.redirectUri}")
+    @Value("${openbank.redirect-uri}")
     private String redirectUri;
-    @Value("${openbank.tranId}")
+    @Value("${openbank.tran-id}")
     private String tranId;
-    @Value("${openbank.clientId}")
+    @Value("${openbank.client-id}")
     private String clientId;
     @Value("${openbank.secret}")
     private String secret;
