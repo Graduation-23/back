@@ -1,8 +1,6 @@
 package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.bank.OpenBankService;
-import graduation.spendiary.security.openbank.BankRequestToken;
-import graduation.spendiary.security.openbank.BankResponseToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,18 +8,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/auth/openbank")
+@RequestMapping("/api/openbank")
 public class OpenbankApiController {
     /*
     1. 사용자인증(oauth/2.0/authorize)
@@ -53,17 +50,13 @@ public class OpenbankApiController {
         //return "v1/bank";
     //}
 
-    @GetMapping("/uri")
-    public ResponseEntity getOpenbankUri(@AuthenticationPrincipal String userId) {
-        try{
-            HttpHeaders redirectHeader = new HttpHeaders();
-            redirectHeader.setLocation(new URI(openBankService.getUri(userId)));
-            return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(redirectHeader).build();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    @GetMapping("/auth")
+    public ResponseEntity getAuth(@AuthenticationPrincipal String userId)
+        throws URISyntaxException
+    {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(new URI(openBankService.getAuthUrl(userId)));
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
     }
 
     /*

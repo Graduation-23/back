@@ -25,7 +25,7 @@ public class OpenBankService {
     private String OPEN_BANK_BASIC_URI = "https://testapi.openbanking.or.kr/oauth/2.0/authorize?";
 
 
-    public synchronized String getUri(String userId) {
+    public synchronized String getAuthUrl(String userId) {
         Map<String, Object> queries = new HashMap<>();
         queries.put("response_type", "code");
         queries.put("client_id", config.getClientId());
@@ -39,9 +39,8 @@ public class OpenBankService {
         queries.put("account_hold_auth_yn", "N");
         queries.put("register_info", "A");
 
-        return OPEN_BANK_BASIC_URI + queries
-                .entrySet()
-                .stream()
+        return OPEN_BANK_BASIC_URI
+                + queries.entrySet().stream()
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining("&"));
     }
