@@ -66,9 +66,6 @@ public class OpenbankApiController {
             @RequestParam("client_info") String userId,
             @RequestParam("state") String state
     ) {
-        System.out.println("code: " + code);
-        System.out.println("client-info: " + userId);
-        System.out.println("state: " + state);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
