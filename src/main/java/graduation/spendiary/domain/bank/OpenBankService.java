@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -21,40 +22,28 @@ import java.util.stream.Collectors;
 @Service
 public class OpenBankService {
     private final OpenbankConfig config;
-    private String uri;
     private String OPEN_BANK_BASIC_URI = "https://testapi.openbanking.or.kr/oauth/2.0/authorize?";
 
 
     public synchronized String getUri(String userId) {
-        if(uri == null) {
-            Map<String, Object> map = Map.of(
-                    "response_type", "code",
-                    "client_id", config.getClientId(),
-                    "redirect_uri", config.getRedirectUri(),
-                    "scope", "login inquiry transfer".replaceAll(" ", "%20"),
-                    "client_info", userId,
-                    "state","b80BLsfigm9OokPTjy03elbJqRHOfGSY"
-            );
-            Map<String, Object> map2 = Map.of(
-                    "auth_type", "0",
-                    "cellphone_cert_yn", "Y",
-                    "authorized_cert_yn", "Y",
-                    "account_hold_auth_yn", "N",
-                    "register_info", "A"
-            );
+        Map<String, Object> queries = new HashMap<>();
+        queries.put("response_type", "code");
+        queries.put("client_id", config.getClientId());
+        queries.put("redirect_url", config.getRedirectUri());
+        queries.put("scope", "login inquiry transfer".replaceAll(" ", "%20"));
+        queries.put("client_info", userId);
+        queries.put("state","b80BLsfigm9OokPTjy03elbJqRHOfGSY");
+        queries.put("auth_type", "0");
+        queries.put("cellphone_cert_yn", "Y");
+        queries.put("authorized_cert_yn", "Y");
+        queries.put("account_hold_auth_yn", "N");
+        queries.put("register_info", "A");
 
-            this.uri = OPEN_BANK_BASIC_URI + map
-                    .entrySet()
-                    .stream()
-                    .map(entry -> entry.getKey() + "=" + entry.getValue())
-                    .collect(Collectors.joining("&"))
-                    + "&" + map2
-                    .entrySet()
-                    .stream()
-                    .map(entry -> entry.getKey() + "=" + entry.getValue())
-                    .collect(Collectors.joining("&"));
-        }
-        return uri;
+        return OPEN_BANK_BASIC_URI + queries
+                .entrySet()
+                .stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
     }
 
     public BankResponseToken requestToken(String code) throws Exception {
