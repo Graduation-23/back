@@ -15,18 +15,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.nio.charset.StandardCharsets;
-
 @RequiredArgsConstructor
 @Service
 public class OpenBankService {
     private final OpenbankConfig config;
-    private String OPEN_BANK_BASIC_URI = "https://testapi.openbanking.or.kr/oauth/2.0/authorize?";
+    private String OPEN_BANK_AUTHORIZE_URI = "https://testapi.openbanking.or.kr/oauth/2.0/authorize";
+    private String OPEN_BANK_TOKEN_URI = "https://testapi.openbanking.or.kr/oauth/2.0/token";
 
 
     public String getAuthUrl(String userId) {
         return UriComponentsBuilder
-                .fromUriString(OPEN_BANK_BASIC_URI)
+                .fromUriString(OPEN_BANK_AUTHORIZE_URI)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", config.getClientId())
                 .queryParam("redirect_uri", config.getRedirectUri())
@@ -43,14 +42,6 @@ public class OpenBankService {
                 .toUriString();
     }
 
-    public boolean saveOpenbankCode(String userId, String code, String state) {
-        // todo: state가 전송했던 state와 일치하는 지 확인해야 함
-
-        // todo: code를 User DB에 저장해야 함
-
-        return true;
-    }
-
     public BankResponseToken requestToken(String code) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         BankRequestToken request = BankRequestToken.builder()
@@ -64,7 +55,7 @@ public class OpenBankService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<BankRequestToken> requestEntity = new HttpEntity<>(request, headers);
-        ResponseEntity<String> stringJson = restTemplate.postForEntity(OPEN_BANK_BASIC_URI, requestEntity, String.class);
+        ResponseEntity<String> stringJson = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, String.class);
         BankResponseToken response = (BankResponseToken) mapping(stringJson.getBody(), BankResponseToken.class);
 
         if(response != null) return response;

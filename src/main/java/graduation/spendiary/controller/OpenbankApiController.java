@@ -52,7 +52,7 @@ public class OpenbankApiController {
     //}
 
     @GetMapping("/auth/uri")
-    public ResponseEntity getAuth(@AuthenticationPrincipal String userId)
+    public ResponseEntity getAuthUri(@AuthenticationPrincipal String userId)
         throws URISyntaxException
     {
         HttpHeaders headers = new HttpHeaders();
@@ -61,7 +61,7 @@ public class OpenbankApiController {
     }
 
     @GetMapping("/auth")
-    public ResponseEntity getAuthComplete(
+    public ResponseEntity getAuth(
             @RequestParam("code") String code,
             @RequestParam("client_info") String userId,
             @RequestParam("state") String state
