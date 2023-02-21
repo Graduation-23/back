@@ -1,6 +1,7 @@
 package graduation.spendiary.domain.bank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import graduation.spendiary.security.openbank.BankRequestToken;
@@ -42,7 +43,7 @@ public class OpenBankService {
                 .toUriString();
     }
 
-    public BankResponseToken requestToken(String code) throws Exception {
+    public BankResponseToken requestToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
         BankRequestToken request = BankRequestToken.builder()
                 .code(code)
@@ -58,15 +59,19 @@ public class OpenBankService {
         ResponseEntity<String> stringJson = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, String.class);
         BankResponseToken response = (BankResponseToken) mapping(stringJson.getBody(), BankResponseToken.class);
 
-        if(response != null) return response;
-        else throw new Exception("Failed");
+        return response;
     }
 
-    private Object mapping(String body, Class classType) throws Exception {
+    private Object mapping(String body, Class classType) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return objectMapper.readValue(body, classType);
+        try {
+            return objectMapper.readValue(body, classType);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /*

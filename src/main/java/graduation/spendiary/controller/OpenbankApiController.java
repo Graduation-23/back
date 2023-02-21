@@ -1,6 +1,7 @@
 package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.bank.OpenBankService;
+import graduation.spendiary.security.openbank.BankResponseToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,8 @@ public class OpenbankApiController {
             @RequestParam("client_info") String userId,
             @RequestParam("state") String state
     ) {
+        BankResponseToken token = openBankService.requestToken(code);
+        System.out.println(token);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
