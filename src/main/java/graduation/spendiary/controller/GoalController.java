@@ -31,4 +31,9 @@ public class GoalController {
     public Goal add(@RequestBody Goal goal, @AuthenticationPrincipal String userId) {
         return goalService.save(goal, userId);
     }
+
+    @PostMapping("/month")
+    public Goal monthAdd(@AuthenticationPrincipal String userId, @RequestBody Goal goal) {
+        return goalService.monthGoal(userId, goal);
+    }
 }
