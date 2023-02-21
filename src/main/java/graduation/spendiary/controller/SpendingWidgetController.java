@@ -21,7 +21,7 @@ public class SpendingWidgetController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Long post(
             @AuthenticationPrincipal String userId,
-            @ModelAttribute SpendingWidgetDto dto
+            @RequestBody SpendingWidgetDto dto
     ) {
         return service.save(userId, dto);
     }
