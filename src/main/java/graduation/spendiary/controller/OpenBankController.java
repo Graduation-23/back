@@ -21,7 +21,7 @@ import java.net.URISyntaxException;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/openbank")
-public class OpenbankApiController {
+public class OpenBankController {
     /*
     1. 사용자인증(oauth/2.0/authorize) V
         요청: client_id, redirect_uri
