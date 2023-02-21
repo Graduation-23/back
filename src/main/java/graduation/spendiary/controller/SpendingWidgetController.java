@@ -26,27 +26,27 @@ public class SpendingWidgetController {
         return service.save(userId, dto);
     }
 
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public List<SpendingWidgetDto> getAll(@AuthenticationPrincipal String userId) {
         return service.getAllOfUser(userId);
     }
 
-    @GetMapping(value = "/{widgetId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{widgetId}")
     public SpendingWidgetDto getById(@PathVariable Long widgetId) {
         return service.getDtoById(widgetId);
     }
 
-    @GetMapping(value = "/last-week", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/last-week")
     public List<SpendingWidgetDto> getOfLastWeek(@AuthenticationPrincipal String userId) {
         return service.getOfLastWeek(userId);
     }
 
-    @GetMapping(value = "/last-month", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/last-month")
     public List<SpendingWidgetDto> getOfLastMonth(@AuthenticationPrincipal String userId) {
         return service.getOfLastMonth(userId);
     }
 
-    @GetMapping(value = "/date/{year}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/date/{year}")
     public List<SpendingWidgetDto> getOfYear(
             @AuthenticationPrincipal String userId,
             @PathVariable int year
@@ -54,7 +54,7 @@ public class SpendingWidgetController {
         return service.getOfYear(userId, year);
     }
 
-    @GetMapping(value = "/date/{year}/{month}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/date/{year}/{month}")
     public List<SpendingWidgetDto> getOfMonth(
             @AuthenticationPrincipal String userId,
             @PathVariable int year,

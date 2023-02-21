@@ -24,12 +24,12 @@ public class DiaryController {
     @Autowired
     private DiaryService diaryService;
 
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public List<DiaryDto> getAll(@AuthenticationPrincipal String userId) {
         return diaryService.getAllOfUser(userId);
     }
 
-    @GetMapping(value = "/{diaryId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{diaryId}")
     public DiaryDto getDiaryById(@PathVariable Long diaryId, Model model) {
         DiaryDto diaryDto = diaryService.getDtoById(diaryId);
         model.addAttribute("diary", diaryDto);
@@ -45,17 +45,17 @@ public class DiaryController {
         return diaryService.saveEmptyDiary(userId, diaryDate);
     }
 
-    @GetMapping(value = "/last-week", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/last-week")
     public List<DiaryDto> getOfLastWeek(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastWeek(userId);
     }
 
-    @GetMapping(value = "/last-month", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/last-month")
     public List<DiaryDto> getOfLastMonth(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastMonth(userId);
     }
 
-    @GetMapping(value = "/date/{year}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/date/{year}")
     public List<DiaryDto> getOfYear(
             @AuthenticationPrincipal String userId,
             @PathVariable int year
@@ -63,7 +63,7 @@ public class DiaryController {
         return diaryService.getOfYear(userId, year);
     }
 
-    @GetMapping(value = "/date/{year}/{month}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/date/{year}/{month}")
     public List<DiaryDto> getOfMonth(
             @AuthenticationPrincipal String userId,
             @PathVariable int year,
@@ -81,7 +81,7 @@ public class DiaryController {
         return diaryService.edit(diaryId, vo, userId);
     }
 
-    @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping
     public Message deleteDiary(@AuthenticationPrincipal String userId, @RequestParam("diaryId") Long diaryid) {
         diaryService.deleteDiary(userId, diaryid);
         return new Message("삭제 완료", true);
