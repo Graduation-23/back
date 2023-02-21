@@ -18,8 +18,8 @@ public class GoalController {
     private GoalService goalService;
 
     @GetMapping
-    public List<Goal> getAll() {
-        return goalService.getAll();
+    public List<Goal> getAll(@AuthenticationPrincipal String userId) {
+        return goalService.getAll(userId);
     }
 
     @GetMapping(value = "/{goalId}")
@@ -27,13 +27,15 @@ public class GoalController {
         return goalService.getById(goalId);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Goal add(@RequestBody Goal goal, @AuthenticationPrincipal String userId) {
-        return goalService.save(goal, userId);
-    }
-
     @PostMapping("/month")
     public Goal monthAdd(@AuthenticationPrincipal String userId, @RequestBody Goal goal) {
         return goalService.monthGoal(userId, goal);
     }
+
+    @PostMapping("/week")
+    public Goal weekAdd(@AuthenticationPrincipal String userId, @RequestBody Goal goal) {
+        return goalService.weekGoal(userId, goal);
+    }
+
+
 }
