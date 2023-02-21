@@ -20,12 +20,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public User getInformation(@AuthenticationPrincipal String userId) {
         return userService.getUser(userId);
     }
 
-    @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping
     public Message deleteInformation(@AuthenticationPrincipal String userId, @RequestParam("password") String password) {
 
         boolean success = userService.deleteUser(userId, password);
@@ -36,7 +36,7 @@ public class UserController {
         );
     }
 
-    @PutMapping (value = "/birth", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping (value = "/birth")
     public User putBirthday(
             @AuthenticationPrincipal String userId,
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthday
@@ -46,7 +46,7 @@ public class UserController {
         return userService.getUser(userId);
     }
 
-    @PutMapping(value = "/profile-pic", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile-pic")
     public User putProfilePic(
             @AuthenticationPrincipal String userId,
             @RequestParam MultipartFile profilePic
