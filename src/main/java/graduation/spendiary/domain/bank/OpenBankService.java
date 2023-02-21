@@ -11,8 +11,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -43,25 +47,33 @@ public class OpenBankService {
 
     public OpenBankTokenResponse requestToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
-        OpenBankTokenRequest request = OpenBankTokenRequest.builder()
-                .code(code)
-                .client_id(config.getClientId())
-                .client_secret(config.getSecret())
-                .redirect_uri(config.getRedirectUri())
-                .grant_type("authorization_code")
-                .build();
+//        OpenBankTokenRequest request = OpenBankTokenRequest.builder()
+//                .code(code)
+//                .client_id(config.getClientId())
+//                .client_secret(config.getSecret())
+//                .redirect_uri(config.getRedirectUri())
+//                .grant_type("authorization_code")
+//                .build();
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("code", code);
+        body.add("client_id", config.getClientId());
+        body.add("client_secret", config.getSecret());
+        body.add("redirect_uri", config.getRedirectUri());
+        body.add("grant_type", "authorization_code");
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<OpenBankTokenRequest> requestEntity = new HttpEntity<>(request, headers);
-        ResponseEntity<OpenBankTokenResponse> responseEntity
-                = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
-//        ResponseEntity<String> stringJson = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, String.class);
-//        OpenBankTokenResponse response = (OpenBankTokenResponse) mapping(stringJson.getBody(), OpenBankTokenResponse.class);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+        System.out.println(requestEntity);
+//        ResponseEntity<OpenBankTokenResponse> responseEntity
+//                = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
+        ResponseEntity<String> stringJson = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, String.class);
+        OpenBankTokenResponse response = (OpenBankTokenResponse) mapping(stringJson.getBody(), OpenBankTokenResponse.class);
 
-        System.out.println(responseEntity.getBody());
-//        return response;
-        return responseEntity.getBody();
+        System.out.println(stringJson.getBody());
+//        System.out.println(responseEntity.getBody());
+        return response;
+//        return responseEntity.getBody();
     }
 
     private Object mapping(String body, Class classType) {
