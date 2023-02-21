@@ -30,6 +30,7 @@ public class OpenBankController {
         요청: authorization_code
         응답: access_token, 사용자일련번호
     <사용자토큰 Headers에 "access_token, Bearer" 입력, 이용기관토큰 X>
+     --> 임시방편: repo에서 access_token 불러오자
     3. 등록계좌조회(account/list)
         요청: access_token, 사용자일련번호
         응답: 핀테크이용번호

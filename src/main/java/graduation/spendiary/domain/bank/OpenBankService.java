@@ -1,8 +1,10 @@
 package graduation.spendiary.domain.bank;
 
+import graduation.spendiary.exception.AccountInquiryFailedException;
 import graduation.spendiary.exception.OpenBankTokenFailedException;
 import graduation.spendiary.security.config.OpenBankConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,7 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 @Service
 public class OpenBankService {
+    @Autowired
+    private final OpenBankInfoRepository repo;
+    @Autowired
     private final OpenBankConfig config;
+
     private String OPEN_BANK_AUTHORIZE_URI = "https://testapi.openbanking.or.kr/oauth/2.0/authorize";
     private String OPEN_BANK_TOKEN_URI = "https://testapi.openbanking.or.kr/oauth/2.0/token";
 
@@ -43,13 +49,21 @@ public class OpenBankService {
     public void register(String userId, String code, String state) {
         // todo: state 확인
 
+        // token 발급
         OpenBankTokenResponse tokenResponse = this.requestToken(code);
-        // access token 헤더에 등록
-
-        // refresh token, 사용자 번호 DB에 저장
-        String accessToken = tokenResponse.getAccess_token();
-        String refreshToken = tokenResponse.getRefresh_token();
         String userSeqNo = tokenResponse.getUser_seq_no();
+
+        // 계좌 조회
+        AccountInquiryResponse accountInquiryResponse = this.inquiryAccount(userSeqNo);
+
+        // access token, refresh token, 핀테크 번호, 사용자 번호 DB에 저장
+        OpenBankInfo info = OpenBankInfo.builder()
+                .id(userId)
+                .accessToken(tokenResponse.getAccess_token())
+                .refreshToken(tokenResponse.getRefresh_token())
+                .fintechNums(null /* todo */)
+                .userSeqNo(userSeqNo)
+                .build();
 
     }
 
@@ -86,5 +100,16 @@ public class OpenBankService {
             throw new OpenBankTokenFailedException();
 
         return response;
+    }
+
+    private AccountInquiryResponse inquiryAccount(String userSeqNo)
+        throws AccountInquiryFailedException
+    {
+        RestTemplate restTemplate = new RestTemplate();
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+
+        //todo
+
     }
 }

@@ -22,8 +22,8 @@ public class OpenBankInfo {
     @Field("refresh_token")
     private String refreshToken;
 
-    @Field("account_fin_nums")
-    private List<String> accountFinNums;
+    @Field("fintech_nums")
+    private List<String> fintechNums;
 
     @Field("user_seq_no")
     private String userSeqNo;

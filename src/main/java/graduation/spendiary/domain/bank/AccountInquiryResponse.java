@@ -1,4 +1,4 @@
 package graduation.spendiary.domain.bank;
 
-public class OpenBankAccountInquiryResponse {
+public class AccountInquiryResponse {
 }
