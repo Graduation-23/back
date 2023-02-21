@@ -23,10 +23,10 @@ import java.net.URISyntaxException;
 @RequestMapping("/api/openbank")
 public class OpenbankApiController {
     /*
-    1. 사용자인증(oauth/2.0/authorize)
+    1. 사용자인증(oauth/2.0/authorize) V
         요청: client_id, redirect_uri
         응답: authorization_code
-    2. 사용자토큰발급(oauth/2.0/token)
+    2. 사용자토큰발급(oauth/2.0/token) V
         요청: authorization_code
         응답: access_token, 사용자일련번호
     <사용자토큰 Headers에 "access_token, Bearer" 입력, 이용기관토큰 X>
@@ -67,8 +67,7 @@ public class OpenbankApiController {
             @RequestParam("client_info") String userId,
             @RequestParam("state") String state
     ) {
-        OpenBankTokenResponse token = openBankService.requestToken(code);
-        System.out.println(token);
+        openBankService.register(userId, code, state);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

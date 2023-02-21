@@ -40,7 +40,28 @@ public class OpenBankService {
                 .toUriString();
     }
 
-    public OpenBankTokenResponse requestToken(String code) {
+    public void register(String userId, String code, String state) {
+        // todo: state 확인
+
+        OpenBankTokenResponse tokenResponse = this.requestToken(code);
+        // access token 헤더에 등록
+
+        // refresh token, 사용자 번호 DB에 저장
+        String refreshToken = tokenResponse.getRefresh_token();
+        String userSeqNo = tokenResponse.getUser_seq_no();
+
+    }
+
+    /**
+     * 금융결제원 사용자 인증 토큰을 발급받습니다.
+     * @param code 사용자 인증 과정에서 받은 code
+     * @return 발급 받은 토큰 정보가 포함된 Response
+     * @throws OpenBankTokenFailedException 사용자 인증 토큰을 발급하는 데 실패함.
+     * todo: 오류 코드 읽어서 발급 실패 원인 상세화 및 처리
+     */
+    private OpenBankTokenResponse requestToken(String code)
+        throws OpenBankTokenFailedException
+    {
         RestTemplate restTemplate = new RestTemplate();
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -63,12 +84,6 @@ public class OpenBankService {
         if (response.getAccess_token() == null)
             throw new OpenBankTokenFailedException();
 
-
+        return response;
     }
-
-    /*
-    public synchronized String getTokenUri(){
-
-    }
-     */
 }
