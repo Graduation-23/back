@@ -1,6 +1,8 @@
 package graduation.spendiary.controller;
 
-import graduation.spendiary.domain.diary.*;
+import graduation.spendiary.domain.diary.DiaryDto;
+import graduation.spendiary.domain.diary.DiaryEditVo;
+import graduation.spendiary.domain.diary.DiaryService;
 import graduation.spendiary.exception.DiaryDuplicatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.Console;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -24,19 +24,19 @@ public class DiaryController {
     @Autowired
     private DiaryService diaryService;
 
-    @GetMapping
+    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<DiaryDto> getAll(@AuthenticationPrincipal String userId) {
         return diaryService.getAllOfUser(userId);
     }
 
-    @GetMapping("/{diaryId}")
+    @GetMapping(value = "/{diaryId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public DiaryDto getDiaryById(@PathVariable Long diaryId, Model model) {
         DiaryDto diaryDto = diaryService.getDtoById(diaryId);
         model.addAttribute("diary", diaryDto);
         return diaryDto;
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Long saveEmptyDiary(
             @AuthenticationPrincipal String userId,
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate diaryDate
@@ -45,17 +45,17 @@ public class DiaryController {
         return diaryService.saveEmptyDiary(userId, diaryDate);
     }
 
-    @GetMapping("/last-week")
+    @GetMapping(value = "/last-week", consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<DiaryDto> getOfLastWeek(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastWeek(userId);
     }
 
-    @GetMapping("/last-month")
+    @GetMapping(value = "/last-month", consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<DiaryDto> getOfLastMonth(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastMonth(userId);
     }
 
-    @GetMapping("/date/{year}")
+    @GetMapping(value = "/date/{year}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<DiaryDto> getOfYear(
             @AuthenticationPrincipal String userId,
             @PathVariable int year
@@ -63,7 +63,7 @@ public class DiaryController {
         return diaryService.getOfYear(userId, year);
     }
 
-    @GetMapping("/date/{year}/{month}")
+    @GetMapping(value = "/date/{year}/{month}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<DiaryDto> getOfMonth(
             @AuthenticationPrincipal String userId,
             @PathVariable int year,
@@ -76,12 +76,12 @@ public class DiaryController {
     public DiaryDto put(
             @AuthenticationPrincipal String userId,
             @PathVariable long diaryId,
-            @ModelAttribute DiaryEditVo vo
+            @RequestBody DiaryEditVo vo
     ) throws IOException {
         return diaryService.edit(diaryId, vo, userId);
     }
 
-    @DeleteMapping
+    @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Message deleteDiary(@AuthenticationPrincipal String userId, @RequestParam("diaryId") Long diaryid) {
         diaryService.deleteDiary(userId, diaryid);
         return new Message("삭제 완료", true);

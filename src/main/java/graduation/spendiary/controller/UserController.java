@@ -20,12 +20,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping
+    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public User getInformation(@AuthenticationPrincipal String userId) {
         return userService.getUser(userId);
     }
 
-    @DeleteMapping
+    @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Message deleteInformation(@AuthenticationPrincipal String userId, @RequestParam("password") String password) {
 
         boolean success = userService.deleteUser(userId, password);
@@ -36,7 +36,7 @@ public class UserController {
         );
     }
 
-    @PutMapping ("/birth")
+    @PutMapping (value = "/birth", consumes = MediaType.APPLICATION_JSON_VALUE)
     public User putBirthday(
             @AuthenticationPrincipal String userId,
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthday

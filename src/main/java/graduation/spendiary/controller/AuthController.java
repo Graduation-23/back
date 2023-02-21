@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class AuthController {
     private final String GOOGLE_APP_AUTH_URL = "paiary-app://authenticate";
 
     /// region Login based Application
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Token> signUp(@RequestBody User user) {
         boolean isMember = userService.signUpRaw(user);
 
@@ -49,7 +50,7 @@ public class AuthController {
     /// endregion
 
     /// region Login based Google API
-    @GetMapping("/google/uri")
+    @GetMapping(value = "/google/uri", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getGoogleAuthUri() {
         try{
             HttpHeaders redirectHeader = new HttpHeaders();
@@ -62,7 +63,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-    @GetMapping("/google")
+    @GetMapping(value = "/google", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity processRedirectResult(@RequestParam(value = "code") String code) {
         try{
             GoogleOAuthLoginResponse loginResponse =  googleOAuthHelper.requestOAuthLogin(code);
@@ -95,7 +96,7 @@ public class AuthController {
 
     /// endregion
 
-    @PostMapping("/authenticate")
+    @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Token> authenticate(@RequestBody Authorization authorization) {
 
         User user = userService.authorize(authorization.getId(), authorization.getPassword());
@@ -106,7 +107,7 @@ public class AuthController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PostMapping("/revoke")
+    @PostMapping(value = "/revoke", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Token> revoke(@RequestHeader(value = JwtAuthenticationFilter.REFRESH_HEADER_KEY) String refreshToken){
         try{
             if(StringUtils.hasText(refreshToken) && refreshToken.startsWith("Bearer ")){
