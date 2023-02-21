@@ -1,4 +1,4 @@
-package graduation.spendiary.security.openbank;
+package graduation.spendiary.security.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

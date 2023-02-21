@@ -1,9 +1,9 @@
-package graduation.spendiary.security.openbank;
+package graduation.spendiary.domain.bank;
 
 import lombok.Data;
 
 @Data
-public class BankResponseToken {
+public class OpenBankTokenResponse {
     private String access_token; //오픈뱅킹에서 발행된 Access Token
     private String token_type; //Access Token 유형
     private int expires_in; //Access Token 만료 기간(초)

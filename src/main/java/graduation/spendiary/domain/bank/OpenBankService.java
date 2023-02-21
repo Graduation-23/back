@@ -3,10 +3,8 @@ package graduation.spendiary.domain.bank;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import graduation.spendiary.security.openbank.BankRequestToken;
-import graduation.spendiary.security.openbank.BankResponseToken;
-import graduation.spendiary.security.openbank.OpenbankConfig;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import graduation.spendiary.security.config.OpenbankConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,9 +41,9 @@ public class OpenBankService {
                 .toUriString();
     }
 
-    public BankResponseToken requestToken(String code) {
+    public OpenBankTokenResponse requestToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
-        BankRequestToken request = BankRequestToken.builder()
+        OpenBankTokenRequest request = OpenBankTokenRequest.builder()
                 .code(code)
                 .client_id(config.getClientId())
                 .client_secret(config.getSecret())
@@ -55,16 +53,20 @@ public class OpenBankService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<BankRequestToken> requestEntity = new HttpEntity<>(request, headers);
-        ResponseEntity<String> stringJson = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, String.class);
-        BankResponseToken response = (BankResponseToken) mapping(stringJson.getBody(), BankResponseToken.class);
+        HttpEntity<OpenBankTokenRequest> requestEntity = new HttpEntity<>(request, headers);
+        ResponseEntity<OpenBankTokenResponse> responseEntity
+                = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
+//        ResponseEntity<String> stringJson = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, String.class);
+//        OpenBankTokenResponse response = (OpenBankTokenResponse) mapping(stringJson.getBody(), OpenBankTokenResponse.class);
 
-        return response;
+        System.out.println(responseEntity.getBody());
+//        return response;
+        return responseEntity.getBody();
     }
 
     private Object mapping(String body, Class classType) {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         try {
             return objectMapper.readValue(body, classType);

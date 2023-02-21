@@ -1,4 +1,4 @@
-package graduation.spendiary.security.openbank;
+package graduation.spendiary.util;
 
 import org.springframework.stereotype.Component;
 
