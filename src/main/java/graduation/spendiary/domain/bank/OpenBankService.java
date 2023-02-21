@@ -47,6 +47,7 @@ public class OpenBankService {
         // access token 헤더에 등록
 
         // refresh token, 사용자 번호 DB에 저장
+        String accessToken = tokenResponse.getAccess_token();
         String refreshToken = tokenResponse.getRefresh_token();
         String userSeqNo = tokenResponse.getUser_seq_no();
 
