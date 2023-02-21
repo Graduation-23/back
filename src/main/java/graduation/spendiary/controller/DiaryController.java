@@ -76,7 +76,7 @@ public class DiaryController {
     public DiaryDto put(
             @AuthenticationPrincipal String userId,
             @PathVariable long diaryId,
-            @RequestBody DiaryEditVo vo
+            @ModelAttribute DiaryEditVo vo
     ) throws IOException {
         return diaryService.edit(diaryId, vo, userId);
     }
