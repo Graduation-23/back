@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Getter
-public class OpenbankConfig {
+public class OpenBankConfig {
 
     @Value("${openbank.redirect-uri}")
     private String redirectUri;
