@@ -5,6 +5,7 @@ import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,10 +63,10 @@ public class SpendingWidgetController {
         return service.getOfMonth(userId, year, month);
     }
 
-    @PutMapping
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Long put(
             @AuthenticationPrincipal String userId,
-            @ModelAttribute SpendingWidgetDto dto
+            @RequestBody SpendingWidgetDto dto
     ) {
         return service.edit(userId, dto);
     }
