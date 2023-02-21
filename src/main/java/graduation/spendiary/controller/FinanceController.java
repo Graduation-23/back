@@ -18,14 +18,14 @@ public class FinanceController {
     @Autowired
     private FinanceService financeService;
 
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public List<Finance> getAll(
             @AuthenticationPrincipal String userId
     ) {
         return financeService.getAllOfUser(userId);
     }
 
-    @GetMapping(value = "/{financeId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{financeId}")
     public Finance finance(@PathVariable Long financeId) {
         return financeService.getById(financeId);
     }
@@ -38,7 +38,7 @@ public class FinanceController {
         return financeService.save(finance, userId);
     }
 
-    @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping
     public Message deleteFinance(@AuthenticationPrincipal String userId, @RequestParam("financeId") Long id) {
         financeService.deleteFinance(userId, id);
         return new Message("삭제 완료", true);

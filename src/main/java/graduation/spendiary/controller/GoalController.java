@@ -22,7 +22,7 @@ public class GoalController {
         return goalService.getAll();
     }
 
-    @GetMapping(value = "/{goalId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{goalId}")
     public Goal getById(@PathVariable long goalId) {
         return goalService.getById(goalId);
     }
