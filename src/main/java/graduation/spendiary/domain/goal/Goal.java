@@ -33,12 +33,9 @@ public class Goal {
     @Field("goal_state")
     private String state;
 
-    @Field("goal_type")
-    private String type;
-
     @Field("goal_start")
     private LocalDate start;
 
-    @Field("goal_date")
+    @Field("goal_end")
     private LocalDate end;
 }

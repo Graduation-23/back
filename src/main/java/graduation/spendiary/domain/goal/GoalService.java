@@ -24,4 +24,12 @@ public class GoalService {
         goal.setUser(userId);
         return repo.save(goal);
     }
+
+    /**
+     * 월간 목표
+     */
+    public Goal monthGoal(String userId, Goal goal) {
+
+        return new Goal();
+    }
 }
