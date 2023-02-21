@@ -4,6 +4,7 @@ import graduation.spendiary.domain.goal.Goal;
 import graduation.spendiary.domain.goal.GoalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +22,12 @@ public class GoalController {
         return goalService.getAll();
     }
 
-    @GetMapping("/{goalId}")
+    @GetMapping(value = "/{goalId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Goal getById(@PathVariable long goalId) {
         return goalService.getById(goalId);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Goal add(@RequestBody Goal goal, @AuthenticationPrincipal String userId) {
         return goalService.save(goal, userId);
     }
