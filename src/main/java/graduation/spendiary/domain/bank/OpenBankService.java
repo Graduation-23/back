@@ -15,6 +15,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Collections;
+
 @RequiredArgsConstructor
 @Service
 public class OpenBankService {
@@ -51,20 +53,16 @@ public class OpenBankService {
 
         // token 발급
         OpenBankTokenResponse tokenResponse = this.requestToken(code);
-        String userSeqNo = tokenResponse.getUser_seq_no();
 
-        // 계좌 조회
-        AccountInquiryResponse accountInquiryResponse = this.inquiryAccount(userSeqNo);
-
-        // access token, refresh token, 핀테크 번호, 사용자 번호 DB에 저장
+        // access token, refresh token, 사용자 번호 DB에 저장
         OpenBankInfo info = OpenBankInfo.builder()
                 .id(userId)
                 .accessToken(tokenResponse.getAccess_token())
                 .refreshToken(tokenResponse.getRefresh_token())
-                .fintechNums(null /* todo */)
-                .userSeqNo(userSeqNo)
+                .fintechNums(Collections.emptyList())
+                .userSeqNo(tokenResponse.getUser_seq_no())
                 .build();
-
+        repo.save(info);
     }
 
     /**
@@ -109,7 +107,10 @@ public class OpenBankService {
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 
-        //todo
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        //todo
+        return null;
     }
 }

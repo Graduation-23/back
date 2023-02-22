@@ -45,13 +45,6 @@ public class OpenBankController {
     /**
      * 토큰 발급 요청
      */
-    //@GetMapping
-    //public String getToken(BankRequestToken bankRequestToken, Model model) {
-        //BankResponseToken token = openBankService.requestToken(bankRequestToken);
-        //model.addAttribute("bankResponseToken", token);
-        //log.info("bankResponseToken={}", token);
-        //return "v1/bank";
-    //}
 
     @GetMapping("/auth/uri")
     public ResponseEntity getAuthUri(@AuthenticationPrincipal String userId)
