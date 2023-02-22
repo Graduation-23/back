@@ -1,16 +1,13 @@
 package graduation.spendiary.domain.bank;
 
-import graduation.spendiary.exception.AccountInquiryFailedException;
+import graduation.spendiary.exception.OpenBankRequestFailedException;
 import graduation.spendiary.exception.NoRefreshTokenException;
 import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.exception.OpenBankTokenFailedException;
 import graduation.spendiary.security.config.OpenBankConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -28,13 +26,14 @@ public class OpenBankService {
     @Autowired
     private final OpenBankConfig config;
 
-    private String OPEN_BANK_AUTHORIZE_URI = "https://testapi.openbanking.or.kr/oauth/2.0/authorize";
-    private String OPEN_BANK_TOKEN_URI = "https://testapi.openbanking.or.kr/oauth/2.0/token";
+    private final String OPEN_BANK_URI = "https://testapi.openbanking.or.kr";
+    private final String OPEN_BANK_AUTHORIZE_URI = OPEN_BANK_URI + "/oauth/2.0/authorize";
+    private final String OPEN_BANK_TOKEN_URI = OPEN_BANK_URI + "/oauth/2.0/token";
+    private final String OPEN_BANK_ACCOUNT_LIST_URI = OPEN_BANK_URI + "/account/list";
 
 
     public String getAuthUrl(String userId) {
-        return UriComponentsBuilder
-                .fromUriString(OPEN_BANK_AUTHORIZE_URI)
+        return UriComponentsBuilder.fromUriString(OPEN_BANK_AUTHORIZE_URI)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", config.getClientId())
                 .queryParam("redirect_uri", config.getRedirectUri())
@@ -46,9 +45,7 @@ public class OpenBankService {
                 .queryParam("authorized_cert_yn", "Y")
                 .queryParam("account_hold_auth_yn", "N")
                 .queryParam("register_info", "A")
-                .encode()
-                .build()
-                .toUriString();
+                .encode().build().toUriString();
     }
 
     public void register(String userId, String code, String state) {
@@ -104,6 +101,21 @@ public class OpenBankService {
     }
 
     /**
+     * 금융결제원 정보를 가져옵니다.
+     * @param userId 사용자 ID
+     * @return 사용자의 금융결제원 정보
+     * @throws NoSuchContentException 사용자 ID에 해당하는 금융결제원 정보를 찾지 못함
+     */
+    public OpenBankInfo getInfo(String userId)
+            throws NoSuchContentException
+    {
+        Optional<OpenBankInfo> infoOptional = repo.findById(userId);
+        if (infoOptional.isEmpty())
+            throw new NoSuchContentException();
+        return infoOptional.get();
+    }
+
+    /**
      * 금융결제원 사용자 토큰을 refresh 합니다.
      * @param userId 사용자 ID
      * @throws NoSuchContentException 사용자 ID에 해당하는 금융결제원 정보를 찾지 못함
@@ -112,11 +124,7 @@ public class OpenBankService {
     public void refreshToken(String userId)
         throws NoSuchContentException, NoRefreshTokenException, OpenBankTokenFailedException
     {
-        // DB에서 오픈뱅킹 정보 가져오기
-        Optional<OpenBankInfo> infoOptional = repo.findById(userId);
-        if (infoOptional.isEmpty())
-            throw new NoSuchContentException();
-        OpenBankInfo info = infoOptional.get();
+        OpenBankInfo info = this.getInfo(userId);
 
         if (info.getRefreshToken() == null)
             throw new NoRefreshTokenException();
@@ -134,6 +142,7 @@ public class OpenBankService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        // 전송
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<OpenBankTokenResponse> responseEntity
                 = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
@@ -149,15 +158,31 @@ public class OpenBankService {
         repo.save(info);
     }
 
-    private AccountInquiryResponse inquiryAccount(String userSeqNo)
-        throws AccountInquiryFailedException
+
+    public AccountInquiryResponse inquiryAccount(String userId)
+        throws OpenBankRequestFailedException
     {
+        OpenBankInfo info = this.getInfo(userId);
+
         RestTemplate restTemplate = new RestTemplate();
 
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        String url = UriComponentsBuilder.fromUriString(OPEN_BANK_ACCOUNT_LIST_URI)
+                .queryParam("user_seq_no", info.getUserSeqNo())
+                .queryParam("include_cancel_yn", "N")
+                .queryParam("sort_order", "A")
+                .encode().build().toUriString();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.add("Authorization", "Bearer " + info.getAccessToken());
+
+        // 전송
+        Map response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), Map.class).getBody();
+        System.out.println(response);
+        
+        String rspCode = (String) response.get("rsp_code");
+        String rspMsg = (String) response.get("rsp_msg");
+        if (!response.get(rspCode).equals("A0000"))
+            throw new OpenBankRequestFailedException(rspCode, rspMsg);
 
         //todo
         return null;

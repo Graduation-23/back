@@ -64,4 +64,10 @@ public class OpenBankController {
         openBankService.register(userId, code, state);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @GetMapping("/refresh-account")
+    public ResponseEntity refreshAccount(@AuthenticationPrincipal String userId) {
+        openBankService.inquiryAccount(userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
