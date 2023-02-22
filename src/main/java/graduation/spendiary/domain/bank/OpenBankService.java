@@ -105,7 +105,7 @@ public class OpenBankService {
     }
 
     /**
-     * 금융결제원 정보를 가져옵니다.
+     * DB에서 금융결제원 관련 정보를 가져옵니다.
      * @param userId 사용자 ID
      * @return 사용자의 금융결제원 정보
      * @throws NoSuchContentException 사용자 ID에 해당하는 금융결제원 정보를 찾지 못함
@@ -213,7 +213,7 @@ public class OpenBankService {
         // 각 핀테크이용번호로 거래내역을 가져와 합침
         List<Transaction> result = new ArrayList<>();
         for (String fintechNum: info.getFintechNums()) {
-            String url = UriComponentsBuilder.fromUriString(OPEN_BANK_ACCOUNT_LIST_URI)
+            String url = UriComponentsBuilder.fromUriString(OPEN_BANK_TRANSACTION_LIST_URI)
                     .queryParam("bank_tran_id", this.generateBankTranId())
                     .queryParam("fintech_use_num", fintechNum)
                     .queryParam("inquiry_type", "O")
@@ -255,7 +255,7 @@ public class OpenBankService {
      * @return 생성한 거래고유번호
      */
     private String generateBankTranId() {
-        return config.getTranId() + "U" + RandomStringUtils.randomAlphanumeric(9).toUpperCase();
+        return config.getTranId() + "U" + RandomStringUtils.randomNumeric(9).toUpperCase();
     }
 
     /**

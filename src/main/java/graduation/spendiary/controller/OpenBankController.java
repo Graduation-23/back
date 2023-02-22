@@ -85,4 +85,16 @@ public class OpenBankController {
     ) {
         return openBankService.getWithdrawTransactionAt(userId, date);
     }
+
+    @ExceptionHandler(Exception.class)
+    public String test(Exception e) {
+        e.printStackTrace();
+        if (e instanceof OpenBankRequestFailedException) {
+            OpenBankRequestFailedException ex = (OpenBankRequestFailedException) e;
+            System.err.println(ex.getCode());
+            System.err.println(ex.getMessage());
+            return ex.getCode() + ex.getMessage();
+        }
+        return "";
+    }
 }
