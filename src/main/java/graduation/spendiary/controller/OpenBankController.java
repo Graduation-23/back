@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -65,9 +66,13 @@ public class OpenBankController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @GetMapping("/refresh-token")
+    public void getRefreshToken(@AuthenticationPrincipal String userId) {
+        openBankService.refreshToken(userId);
+    }
+
     @GetMapping("/refresh-account")
-    public ResponseEntity refreshAccount(@AuthenticationPrincipal String userId) {
-        openBankService.inquiryAccount(userId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public Map getRefreshAccount(@AuthenticationPrincipal String userId) {
+        return openBankService.inquiryAccount(userId);
     }
 }

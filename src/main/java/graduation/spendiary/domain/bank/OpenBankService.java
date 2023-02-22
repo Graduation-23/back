@@ -29,7 +29,7 @@ public class OpenBankService {
     private final String OPEN_BANK_URI = "https://testapi.openbanking.or.kr";
     private final String OPEN_BANK_AUTHORIZE_URI = OPEN_BANK_URI + "/oauth/2.0/authorize";
     private final String OPEN_BANK_TOKEN_URI = OPEN_BANK_URI + "/oauth/2.0/token";
-    private final String OPEN_BANK_ACCOUNT_LIST_URI = OPEN_BANK_URI + "/account/list";
+    private final String OPEN_BANK_ACCOUNT_LIST_URI = OPEN_BANK_URI + "/v2.0/account/list";
 
 
     public String getAuthUrl(String userId) {
@@ -37,7 +37,7 @@ public class OpenBankService {
                 .queryParam("response_type", "code")
                 .queryParam("client_id", config.getClientId())
                 .queryParam("redirect_uri", config.getRedirectUri())
-                .queryParam("scope", "login inquiry transfer")
+                .queryParam("scope", "login inquiry")
                 .queryParam("client_info", userId)
                 .queryParam("state","b80BLsfigm9OokPTjy03elbJqRHOfGSY")
                 .queryParam("auth_type", "0")
@@ -136,7 +136,7 @@ public class OpenBankService {
         body.add("client_id", config.getClientId());
         body.add("client_secret", config.getSecret());
         body.add("refresh_token", info.getRefreshToken());
-        body.add("scope", "login inquiry transfer");
+        body.add("scope", "login inquiry");
         body.add("grant_type", "refresh_token");
 
         HttpHeaders headers = new HttpHeaders();
@@ -146,7 +146,7 @@ public class OpenBankService {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<OpenBankTokenResponse> responseEntity
                 = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
-        
+
         OpenBankTokenResponse response = responseEntity.getBody();
 
         assert response != null;
@@ -155,11 +155,12 @@ public class OpenBankService {
 
         // DB에 갱신
         info.setAccessToken(response.getAccess_token());
+        info.setRefreshToken(response.getRefresh_token());
         repo.save(info);
     }
 
 
-    public AccountInquiryResponse inquiryAccount(String userId)
+    public Map inquiryAccount(String userId)
         throws OpenBankRequestFailedException
     {
         OpenBankInfo info = this.getInfo(userId);
@@ -173,7 +174,7 @@ public class OpenBankService {
                 .encode().build().toUriString();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + info.getAccessToken());
+        headers.setBearerAuth(info.getAccessToken());
 
         // 전송
         Map response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), Map.class).getBody();
@@ -181,10 +182,10 @@ public class OpenBankService {
         
         String rspCode = (String) response.get("rsp_code");
         String rspMsg = (String) response.get("rsp_msg");
-        if (!response.get(rspCode).equals("A0000"))
-            throw new OpenBankRequestFailedException(rspCode, rspMsg);
+//        if (!rspCode.equals("A0000"))
+//            throw new OpenBankRequestFailedException(rspCode, rspMsg);
 
         //todo
-        return null;
+        return response;
     }
 }
