@@ -255,7 +255,7 @@ public class OpenBankService {
      * @return 생성한 거래고유번호
      */
     private String generateBankTranId() {
-        return config.getTranId() + RandomStringUtils.randomAlphanumeric(9).toUpperCase();
+        return config.getTranId() + "U" + RandomStringUtils.randomAlphanumeric(9).toUpperCase();
     }
 
     /**
