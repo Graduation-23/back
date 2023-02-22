@@ -1,6 +1,8 @@
 package graduation.spendiary.domain.bank;
 
 import graduation.spendiary.exception.AccountInquiryFailedException;
+import graduation.spendiary.exception.NoRefreshTokenException;
+import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.exception.OpenBankTokenFailedException;
 import graduation.spendiary.security.config.OpenBankConfig;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -49,7 +52,7 @@ public class OpenBankService {
     }
 
     public void register(String userId, String code, String state) {
-        // todo: state 확인
+        // todo: state 유효성 확인
 
         // token 발급
         OpenBankTokenResponse tokenResponse = this.requestToken(code);
@@ -98,6 +101,52 @@ public class OpenBankService {
             throw new OpenBankTokenFailedException();
 
         return response;
+    }
+
+    /**
+     * 금융결제원 사용자 토큰을 refresh 합니다.
+     * @param userId 사용자 ID
+     * @throws NoSuchContentException 사용자 ID에 해당하는 금융결제원 정보를 찾지 못함
+     * @throws NoRefreshTokenException 금융결제원 Refresh token 찾지 못함
+     */
+    public void refreshToken(String userId)
+        throws NoSuchContentException, NoRefreshTokenException, OpenBankTokenFailedException
+    {
+        // DB에서 오픈뱅킹 정보 가져오기
+        Optional<OpenBankInfo> infoOptional = repo.findById(userId);
+        if (infoOptional.isEmpty())
+            throw new NoSuchContentException();
+        OpenBankInfo info = infoOptional.get();
+
+        if (info.getRefreshToken() == null)
+            throw new NoRefreshTokenException();
+
+        // 금융결제원에 token 요청
+        RestTemplate restTemplate = new RestTemplate();
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", config.getClientId());
+        body.add("client_secret", config.getSecret());
+        body.add("refresh_token", info.getRefreshToken());
+        body.add("scope", "login inquiry transfer");
+        body.add("grant_type", "refresh_token");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<OpenBankTokenResponse> responseEntity
+                = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
+        
+        OpenBankTokenResponse response = responseEntity.getBody();
+
+        assert response != null;
+        if (response.getAccess_token() == null)
+            throw new OpenBankTokenFailedException();
+
+        // DB에 갱신
+        info.setAccessToken(response.getAccess_token());
+        repo.save(info);
     }
 
     private AccountInquiryResponse inquiryAccount(String userSeqNo)
