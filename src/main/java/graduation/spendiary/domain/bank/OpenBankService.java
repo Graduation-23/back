@@ -200,7 +200,9 @@ public class OpenBankService {
         repo.save(info);
     }
 
-    public List<Transaction> getWithdrawTransactionAt(String userId, LocalDate date) {
+    public List<Transaction> getWithdrawTransactionAt(String userId, LocalDate date)
+        throws NoSuchContentException
+    {
         OpenBankInfo info = this.getInfo(userId);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -208,11 +210,14 @@ public class OpenBankService {
         String dateFormatted = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
+        String banktranid = this.generateBankTranId();
+        System.out.println(banktranid);
+
         // 각 핀테크이용번호로 거래내역을 가져와 합침
         List<Transaction> result = new ArrayList<>();
         for (String fintechNum: info.getFintechNums()) {
             String url = UriComponentsBuilder.fromUriString(OPEN_BANK_ACCOUNT_LIST_URI)
-                    .queryParam("bank_tran_id", this.generateBankTranId())
+                    .queryParam("bank_tran_id", banktranid)
                     .queryParam("fintech_use_num", fintechNum)
                     .queryParam("inquiry_type", "O")
                     .queryParam("inquiry_base", "D")
@@ -253,7 +258,7 @@ public class OpenBankService {
      * @return 생성한 거래고유번호
      */
     private String generateBankTranId() {
-        return config.getTranId() + "U" + RandomStringUtils.randomAlphanumeric(9).toUpperCase();
+        return config.getTranId() + RandomStringUtils.randomAlphanumeric(9).toUpperCase();
     }
 
     /**
@@ -268,7 +273,7 @@ public class OpenBankService {
         if (response == null)
             throw new NullPointerException("Response is null");
         String rspCode = (String) response.get("rsp_code");
-        String rspMsg = (String) response.get("rsp_msg");
+        String rspMsg = (String) response.get("rsp_message");
         if (!rspCode.equals("A0000"))
             throw new OpenBankRequestFailedException(rspCode, rspMsg);
     }
