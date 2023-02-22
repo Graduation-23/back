@@ -2,9 +2,11 @@ package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.bank.OpenBankService;
 import graduation.spendiary.domain.bank.OpenBankTokenResponse;
+import graduation.spendiary.domain.bank.Transaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -72,7 +76,15 @@ public class OpenBankController {
     }
 
     @GetMapping("/refresh-account")
-    public Map getRefreshAccount(@AuthenticationPrincipal String userId) {
-        return openBankService.inquiryAccount(userId);
+    public void getRefreshAccount(@AuthenticationPrincipal String userId) {
+        openBankService.inquiryAccount(userId);
+    }
+
+    @GetMapping("/transactions")
+    public List<Transaction> getTransactions(
+            @AuthenticationPrincipal String userId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
+    ) {
+        return openBankService.getWithdrawTransactionAt(userId, date);
     }
 }
