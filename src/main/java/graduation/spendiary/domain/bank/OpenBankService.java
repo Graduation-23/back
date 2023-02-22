@@ -210,14 +210,11 @@ public class OpenBankService {
         String dateFormatted = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-        String banktranid = this.generateBankTranId();
-        System.out.println(banktranid);
-
         // 각 핀테크이용번호로 거래내역을 가져와 합침
         List<Transaction> result = new ArrayList<>();
         for (String fintechNum: info.getFintechNums()) {
             String url = UriComponentsBuilder.fromUriString(OPEN_BANK_ACCOUNT_LIST_URI)
-                    .queryParam("bank_tran_id", banktranid)
+                    .queryParam("bank_tran_id", this.generateBankTranId())
                     .queryParam("fintech_use_num", fintechNum)
                     .queryParam("inquiry_type", "O")
                     .queryParam("inquiry_base", "D")
