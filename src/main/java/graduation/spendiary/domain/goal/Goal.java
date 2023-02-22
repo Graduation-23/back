@@ -36,6 +36,9 @@ public class Goal {
     @Field("goal_type")
     private String type;
 
+    @Field("goal_month")
+    private int mon;
+
     @Field("goal_start")
     private LocalDate start;
 

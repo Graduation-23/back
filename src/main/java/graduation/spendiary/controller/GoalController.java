@@ -28,13 +28,21 @@ public class GoalController {
     }
 
     @PostMapping("/month")
-    public Goal monthAdd(@AuthenticationPrincipal String userId, @RequestBody Goal goal) {
-        return goalService.monthGoal(userId, goal);
+    public Message monthAdd(@AuthenticationPrincipal String userId, @RequestBody Goal goal) {
+        boolean success = goalService.monthGoal(userId, goal);
+        return new Message(
+                success ? "생성 완료" : "생성 실패; 이미 존재합니다",
+                success
+        );
     }
 
     @PostMapping("/week")
-    public Goal weekAdd(@AuthenticationPrincipal String userId, @RequestBody Goal goal) {
-        return goalService.weekGoal(userId, goal);
+    public Message weekAdd(@AuthenticationPrincipal String userId, @RequestBody Goal goal) {
+        boolean success = goalService.weekGoal(userId, goal);
+        return new Message(
+                success ? "생성 완료" : "생성 실패; 이미 존재합니다",
+                success
+        );
     }
 
 
