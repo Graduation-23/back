@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -56,15 +57,15 @@ public class OpenBankService {
         // todo: state 유효성 확인
 
         // token 발급
-        OpenBankTokenResponse tokenResponse = this.requestToken(code);
+        Map response = this.requestToken(code);
 
         // access token, refresh token, 사용자 번호 DB에 저장
         OpenBankInfo info = OpenBankInfo.builder()
                 .id(userId)
-                .accessToken(tokenResponse.getAccess_token())
-                .refreshToken(tokenResponse.getRefresh_token())
+                .accessToken((String) response.get("access_token"))
+                .refreshToken((String) response.get("refresh_token"))
                 .fintechNums(Collections.emptyList())
-                .userSeqNo(tokenResponse.getUser_seq_no())
+                .userSeqNo((String) response.get("user_seq_no"))
                 .build();
         repo.save(info);
     }
@@ -76,7 +77,7 @@ public class OpenBankService {
      * @throws OpenBankTokenFailedException 사용자 인증 토큰을 발급하는 데 실패함.
      * todo: 오류 코드 읽어서 발급 실패 원인 상세화 및 처리
      */
-    private OpenBankTokenResponse requestToken(String code)
+    private Map requestToken(String code)
         throws OpenBankTokenFailedException
     {
         RestTemplate restTemplate = new RestTemplate();
@@ -92,14 +93,10 @@ public class OpenBankService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
-        ResponseEntity<OpenBankTokenResponse> responseEntity
-                = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
-
-        OpenBankTokenResponse response = responseEntity.getBody();
+        Map response = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, Map.class).getBody();
 
         assert response != null;
-        if (response.getAccess_token() == null)
-            throw new OpenBankTokenFailedException();
+        checkTokenResponse(response);
 
         return response;
     }
@@ -148,18 +145,17 @@ public class OpenBankService {
 
         // 전송
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
-        ResponseEntity<OpenBankTokenResponse> responseEntity
-                = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, OpenBankTokenResponse.class);
+        ResponseEntity<Map> responseEntity
+                = restTemplate.postForEntity(OPEN_BANK_TOKEN_URI, requestEntity, Map.class);
 
-        OpenBankTokenResponse response = responseEntity.getBody();
+        Map response = responseEntity.getBody();
 
         assert response != null;
-        if (response.getAccess_token() == null)
-            throw new OpenBankTokenFailedException();
+        checkTokenResponse(response);
 
         // DB에 갱신
-        info.setAccessToken(response.getAccess_token());
-        info.setRefreshToken(response.getRefresh_token());
+        info.setAccessToken((String) response.get("access_token"));
+        info.setRefreshToken((String) response.get("refresh_token"));
         repo.save(info);
     }
 
@@ -259,6 +255,17 @@ public class OpenBankService {
     }
 
     /**
+     * 금융결제원에서 온 Token 응답이 유효한지 체크합니다.
+     */
+    private void checkTokenResponse(Map response) {
+        System.out.println(response);
+        if (response.containsKey("rsp_code")) {
+            String rspCode = (String) response.get("rsp_code");
+            String rspMessage = (String) response.get("rsp_message");
+            throw new OpenBankRequestFailedException(rspCode, rspMessage);
+        }
+    }
+    /**
      * 금융결제원에서 온 응답이 유효한지 체크합니다.
      * @param response 체크할 응답
      * @throws NullPointerException response == null임
@@ -270,9 +277,9 @@ public class OpenBankService {
         if (response == null)
             throw new NullPointerException("Response is null");
         String rspCode = (String) response.get("rsp_code");
-        String rspMsg = (String) response.get("rsp_message");
+        String rspMessage = (String) response.get("rsp_message");
         if (!rspCode.equals("A0000"))
-            throw new OpenBankRequestFailedException(rspCode, rspMsg);
+            throw new OpenBankRequestFailedException(rspCode, rspMessage);
     }
 
     /**
