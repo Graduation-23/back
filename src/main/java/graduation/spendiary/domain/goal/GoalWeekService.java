@@ -40,7 +40,6 @@ public class GoalWeekService {
         int whatWeek = LocalDate.now().get(WeekFields.ISO.weekOfMonth());
         LocalDate start = LocalDate.now().with(TemporalAdjusters.dayOfWeekInMonth(whatWeek - 1, DayOfWeek.MONDAY)); //특정 주차의 월요일 날짜
         LocalDate end = LocalDate.now().with(TemporalAdjusters.dayOfWeekInMonth(whatWeek, DayOfWeek.SUNDAY)); //일요일 날짜
-
         if (repo.findByUserAndDate(monthId, start).isEmpty()) {
             goalWeek.setId(SequenceGeneratorService.generateSequence(GoalMonth.SEQUENCE_NAME));
             goalWeek.setStart(start);

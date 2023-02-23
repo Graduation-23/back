@@ -24,7 +24,7 @@ public class GoalWeekController {
     }
 
     @PostMapping
-    public Message weekAdd(Long goalMonthId, @RequestBody GoalWeek goalWeek) {
+    public Message weekAdd(@RequestParam Long goalMonthId, @RequestBody GoalWeek goalWeek) {
         boolean success = goalWeekService.weekGoal(goalMonthId, goalWeek);
         return new Message(
                 success ? "생성 완료" : "생성 실패; 이미 존재합니다",

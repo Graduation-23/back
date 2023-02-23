@@ -1,7 +1,9 @@
 package graduation.spendiary.domain.goal;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
+import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetRepository;
+import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import graduation.spendiary.exception.NoSuchContentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,8 @@ import java.util.stream.Collectors;
 public class GoalMonthService {
     @Autowired
     private GoalMonthRepository repo;
-    private SpendingWidgetRepository spendingWidgetRepository;
+    @Autowired
+    private SpendingWidgetService spendingWidgetService;
     @Autowired
     private GoalWeekService goalWeekService;
 
@@ -78,7 +81,6 @@ public class GoalMonthService {
          * total_cost < goal_amount => failed
          * total_cost >= goal_amount => achieved
          */
-
         return true;
     }
 }
