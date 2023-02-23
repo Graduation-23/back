@@ -85,14 +85,14 @@ public class OpenBankController {
     }
 
     @ExceptionHandler(Exception.class)
-    public String test(Exception e) {
+    public ResponseEntity<String> test(Exception e) {
         e.printStackTrace();
         if (e instanceof OpenBankRequestFailedException) {
             OpenBankRequestFailedException ex = (OpenBankRequestFailedException) e;
             System.err.println(ex.getCode());
             System.err.println(ex.getMessage());
-            return ex.getCode() + ex.getMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getCode() + " " + ex.getMessage());
         }
-        return "";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

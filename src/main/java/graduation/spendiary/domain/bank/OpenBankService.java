@@ -195,7 +195,7 @@ public class OpenBankService {
     }
 
     public List<Transaction> getWithdrawTransactionAt(String userId, LocalDate date)
-        throws NoSuchContentException
+        throws NoSuchContentException, OpenBankRequestFailedException
     {
         OpenBankInfo info = this.getInfo(userId);
 
