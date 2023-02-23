@@ -3,13 +3,11 @@ package graduation.spendiary.domain.bank;
 import graduation.spendiary.exception.NoRefreshTokenException;
 import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.exception.OpenBankRequestFailedException;
-import graduation.spendiary.exception.OpenBankTokenFailedException;
 import graduation.spendiary.security.config.OpenBankConfig;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -74,11 +72,11 @@ public class OpenBankService {
      * 금융결제원 사용자 인증 토큰을 발급받습니다.
      * @param code 사용자 인증 과정에서 받은 code
      * @return 발급 받은 토큰 정보가 포함된 Response
-     * @throws OpenBankTokenFailedException 사용자 인증 토큰을 발급하는 데 실패함.
+     * @throws OpenBankRequestFailedException 사용자 인증 토큰을 발급하는 데 실패함.
      * todo: 오류 코드 읽어서 발급 실패 원인 상세화 및 처리
      */
     private Map requestToken(String code)
-        throws OpenBankTokenFailedException
+        throws OpenBankRequestFailedException
     {
         RestTemplate restTemplate = new RestTemplate();
 
@@ -123,7 +121,7 @@ public class OpenBankService {
      * @throws NoRefreshTokenException 금융결제원 Refresh token 찾지 못함
      */
     public void refreshToken(String userId)
-        throws NoSuchContentException, NoRefreshTokenException, OpenBankTokenFailedException
+        throws NoSuchContentException, NoRefreshTokenException, OpenBankRequestFailedException
     {
         OpenBankInfo info = this.getInfo(userId);
 

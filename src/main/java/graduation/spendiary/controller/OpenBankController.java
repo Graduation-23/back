@@ -1,7 +1,6 @@
 package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.bank.OpenBankService;
-import graduation.spendiary.domain.bank.OpenBankTokenResponse;
 import graduation.spendiary.domain.bank.Transaction;
 import graduation.spendiary.exception.OpenBankRequestFailedException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
