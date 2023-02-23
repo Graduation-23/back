@@ -8,40 +8,35 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
 
-@Document(collection = "Goal")
+@Document(collection = "Goal_Week")
 @AllArgsConstructor
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Goal {
+public class GoalWeek {
     @Transient
-    public static final String SEQUENCE_NAME = "goal_sequence";
+    public static final String SEQUENCE_NAME = "week_sequence";
 
     @Id
-    @Field("goal_id")
+    @Field("goal_week_id")
     private Long id;
 
-    @Field("user_id")
-    private String user;
+    @Field("goal_month_id")
+    private Long goalMonth;
 
-    @Field("goal_name")
+    @Field("goal_week_name")
     private String name;
 
-    @Field("goal_amount")
+    @Field("goal_week_amount")
     private Long amount;
 
-    @Field("goal_state")
+    @Field("goal_week_state")
     private String state;
 
-    @Field("goal_type")
-    private String type;
-
-    @Field("goal_month")
-    private int mon;
-
-    @Field("goal_start")
+    @Field("goal_week_start")
     private LocalDate start;
 
-    @Field("goal_end")
+    @Field("goal_week_end")
     private LocalDate end;
+
 }
