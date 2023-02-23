@@ -256,7 +256,6 @@ public class OpenBankService {
      * 금융결제원에서 온 Token 응답이 유효한지 체크합니다.
      */
     private void checkTokenResponse(Map response) {
-        System.out.println(response);
         if (response.containsKey("rsp_code")) {
             String rspCode = (String) response.get("rsp_code");
             String rspMessage = (String) response.get("rsp_message");
@@ -276,6 +275,8 @@ public class OpenBankService {
             throw new NullPointerException("Response is null");
         String rspCode = (String) response.get("rsp_code");
         String rspMessage = (String) response.get("rsp_message");
+        if (rspCode.equals("A0002")) // 참가기관 에러 [API업무처리시스템 - 시뮬레이터 응답전문 존재하지 않음]
+            return;
         if (!rspCode.equals("A0000"))
             throw new OpenBankRequestFailedException(rspCode, rspMessage);
     }
