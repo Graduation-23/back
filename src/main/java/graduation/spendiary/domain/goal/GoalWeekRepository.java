@@ -13,4 +13,7 @@ public interface GoalWeekRepository extends MongoRepository<GoalWeek, Long> {
 
     @Query(value = "{'goal_month_id': ?0, 'goal_week_start': ?1}")
     List<GoalWeek> findByUserAndDate(Long monthId, LocalDate date);
+
+    @Query(value = "{'goal_month_id': ?0, 'goal_week_start': ?1}")
+    GoalWeek findByUserAndWeek(Long monthId, LocalDate date);
 }

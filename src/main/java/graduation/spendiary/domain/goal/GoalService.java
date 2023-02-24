@@ -49,8 +49,8 @@ public class GoalService {
      * 월간 목표
      */
     public boolean monthGoal(String userId, GoalMonth goalMonth) {
-        LocalDate start = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());;
-        LocalDate end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());;
+        LocalDate start = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
 
         if(monthRepo.findByUserAndDate(userId, start).isEmpty()){
 
@@ -122,6 +122,36 @@ public class GoalService {
         else {
             goalMonth.setState(failed);
             monthRepo.save(goalMonth);
+        }
+        return true;
+    }
+
+    public boolean checkWeekState(String userId) {
+        LocalDate start = LocalDate.now().minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate end = start.plusDays(6);
+
+        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end).stream()
+                .map(widgetService::getDto)
+                .map(SpendingWidgetDto::getTotalCost)
+                .collect(Collectors.toList());
+        long total_cost = spendingWidget.stream().mapToLong(Long::longValue).sum();
+
+        Long monthId = monthRepo.findByUserAndGoalMonth(userId, start.with(TemporalAdjusters.firstDayOfMonth())).getId();
+        List<Long> goalWeekAmount = weekRepo.findByUserAndDate(monthId, start).stream()
+                .map(GoalWeek::getAmount)
+                .collect(Collectors.toList());
+        long weekAmount = goalWeekAmount.stream().mapToLong(Long::longValue).sum();
+
+        GoalWeek goalWeek = weekRepo.findByUserAndWeek(monthId, start);
+        String achieved = "달성";
+        String failed = "실패";
+
+        if(total_cost <= weekAmount) {
+            goalWeek.setState(achieved);
+            weekRepo.save(goalWeek);
+        } else {
+            goalWeek.setState(failed);
+            weekRepo.save(goalWeek);
         }
         return true;
     }
