@@ -3,6 +3,7 @@ package graduation.spendiary.controller;
 import graduation.spendiary.domain.goal.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,9 +45,15 @@ public class GoalController {
         boolean success = goalService.weekGoal(goalMonthId, goalWeek);
         if(success) goalService.insertWeekId(goalMonthId, goalWeek);
         return new Message(
-                success ? "생성 완료" : "생성 실패;",
-                success
+                success ? "생성 완료" : "생성 실패;", success
         );
+    }
+
+    @Scheduled(cron = "0 10 00 1 * ?") // 매월 1일 오전 00시 00분에 실행
+    @GetMapping
+    public Message monthState(@AuthenticationPrincipal String userId){
+        goalService.checkMonthState(userId);
+        return new Message("상태 변경", true);
     }
 
 }

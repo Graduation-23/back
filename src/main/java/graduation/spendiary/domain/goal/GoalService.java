@@ -1,6 +1,9 @@
 package graduation.spendiary.domain.goal;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
+import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
+import graduation.spendiary.domain.spendingWidget.SpendingWidgetRepository;
+import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +13,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class GoalService {
@@ -17,6 +21,10 @@ public class GoalService {
     private GoalMonthRepository monthRepo;
     @Autowired
     private GoalWeekRepository weekRepo;
+    @Autowired
+    private SpendingWidgetRepository spendRepo;
+    @Autowired
+    private SpendingWidgetService widgetService;
     private String state = "proceeding";
 
     public List<GoalMonth> getAll(String userId) {
@@ -56,10 +64,7 @@ public class GoalService {
             monthRepo.save(goalMonth);
             return true;
         }else return false;
-
-
     }
-
 
     public boolean weekGoal(Long monthId, GoalWeek goalWeek) {
         int whatWeek = LocalDate.now().get(WeekFields.ISO.weekOfMonth());
@@ -89,5 +94,35 @@ public class GoalService {
         GoalMonth goalMonth = monthRepo.findById(monthId).get();
         goalMonth.getWeekIds().add(goalWeek.getId());
         monthRepo.save(goalMonth);
+    }
+
+    public boolean checkMonthState(String userId) {
+        LocalDate start = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        LocalDate end = LocalDate.now().minusMonths(1).withDayOfMonth(start.lengthOfMonth());
+
+        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end).stream()
+                .map(widgetService::getDto)
+                .map(SpendingWidgetDto::getTotalCost)
+                .collect(Collectors.toList());
+        long total_cost = spendingWidget.stream().mapToLong(Long::longValue).sum();
+
+        List<Long> goalMonthAmount = monthRepo.findByUserAndDate(userId, start).stream()
+                .map(GoalMonth::getAmount)
+                .collect(Collectors.toList());
+        long monthAmount = goalMonthAmount.stream().mapToLong(Long::longValue).sum();
+
+        GoalMonth goalMonth = monthRepo.findByUserAndGoalMonth(userId, start);
+        String achieved = "달성";
+        String failed = "실패";
+
+        if(total_cost <= monthAmount) {
+            goalMonth.setState(achieved);
+            monthRepo.save(goalMonth);
+        }
+        else {
+            goalMonth.setState(failed);
+            monthRepo.save(goalMonth);
+        }
+        return true;
     }
 }
