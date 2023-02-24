@@ -16,8 +16,6 @@ import java.util.Optional;
 @Service
 public class GoalWeekService {
 
-    @Autowired
-    private GoalWeekRepository repo;
 
     private String state = "proceeding";
 
@@ -34,20 +32,5 @@ public class GoalWeekService {
     public Long save(GoalWeek goalWeek) {
         goalWeek.setId(SequenceGeneratorService.generateSequence(GoalWeek.SEQUENCE_NAME));
         return repo.save(goalWeek).getId();
-    }
-
-    public boolean weekGoal(Long monthId, GoalWeek goalWeek) {
-        int whatWeek = LocalDate.now().get(WeekFields.ISO.weekOfMonth());
-        LocalDate start = LocalDate.now().with(TemporalAdjusters.dayOfWeekInMonth(whatWeek - 1, DayOfWeek.MONDAY)); //특정 주차의 월요일 날짜
-        LocalDate end = LocalDate.now().with(TemporalAdjusters.dayOfWeekInMonth(whatWeek, DayOfWeek.SUNDAY)); //일요일 날짜
-        if (repo.findByUserAndDate(monthId, start).isEmpty()) {
-            goalWeek.setId(SequenceGeneratorService.generateSequence(GoalMonth.SEQUENCE_NAME));
-            goalWeek.setStart(start);
-            goalWeek.setEnd(end);
-            goalWeek.setGoalMonth(monthId);
-            goalWeek.setState(state);
-            repo.save(goalWeek);
-            return true;
-        } else return false;
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -19,8 +20,7 @@ public class GoalMonth {
     @Transient
     public static final String SEQUENCE_NAME = "month_sequence";
 
-    @Id
-    @Field("goal_month_id")
+    @MongoId
     private Long id;
 
     @Field("user_id")
