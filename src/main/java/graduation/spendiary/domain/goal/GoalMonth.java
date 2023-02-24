@@ -1,5 +1,6 @@
 package graduation.spendiary.domain.goal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -38,11 +39,16 @@ public class GoalMonth {
     @Field("goal_month")
     private int month;
 
+    @Field("goal_year")
+    private int year;
+
     @Field("goal_month_start")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate start;
 
     @Field("goal_month_end")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate end;
 
