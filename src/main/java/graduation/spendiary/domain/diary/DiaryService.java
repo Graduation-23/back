@@ -63,6 +63,10 @@ public class DiaryService {
         if (!repo.findByUserAndDate(userId, diaryDate).isEmpty())
             throw new DiaryDuplicatedException();
 
+        // 생성된 시간보다 3일 초과해서 지났다면 안됨
+        if (!Period.between(diaryDate, LocalDate.now()).minusDays(3).isNegative())
+            throw new DiaryUneditableException();
+
         Diary diary = Diary.builder()
                 .title("")
                 .content("")
