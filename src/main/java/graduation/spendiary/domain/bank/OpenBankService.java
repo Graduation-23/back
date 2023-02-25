@@ -51,6 +51,10 @@ public class OpenBankService {
                 .encode().build().toUriString();
     }
 
+    public boolean checkAuth(String userId) {
+        return repo.findById(userId).isPresent();
+    }
+
     public void register(String userId, String code, String state) {
         // todo: state 유효성 확인
 

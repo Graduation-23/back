@@ -43,6 +43,11 @@ public class OpenBankController {
     @Autowired
     private final OpenBankService openBankService;
 
+    @GetMapping("/check-auth")
+    public boolean getCheckAuth(@AuthenticationPrincipal String userId) {
+        return openBankService.checkAuth(userId);
+    }
+
     @GetMapping("/refresh-token")
     public void getRefreshToken(@AuthenticationPrincipal String userId) {
         openBankService.refreshToken(userId);
