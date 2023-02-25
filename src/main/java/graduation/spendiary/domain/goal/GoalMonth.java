@@ -1,10 +1,12 @@
 package graduation.spendiary.domain.goal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -19,8 +21,7 @@ public class GoalMonth {
     @Transient
     public static final String SEQUENCE_NAME = "month_sequence";
 
-    @Id
-    @Field("goal_month_id")
+    @MongoId
     private Long id;
 
     @Field("user_id")
@@ -38,11 +39,16 @@ public class GoalMonth {
     @Field("goal_month")
     private int month;
 
+    @Field("goal_year")
+    private int year;
+
     @Field("goal_month_start")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate start;
 
     @Field("goal_month_end")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate end;
 
