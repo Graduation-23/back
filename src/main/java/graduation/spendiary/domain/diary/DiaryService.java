@@ -3,7 +3,7 @@ package graduation.spendiary.domain.diary;
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.exception.DiaryDuplicatedException;
-import graduation.spendiary.exception.DiaryUneditableException;
+import graduation.spendiary.exception.TooLateDiaryException;
 import graduation.spendiary.exception.NoSuchContentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +65,7 @@ public class DiaryService {
 
         // 생성된 시간보다 3일 초과해서 지났다면 안됨
         if (!Period.between(diaryDate, LocalDate.now()).minusDays(3).isNegative())
-            throw new DiaryUneditableException();
+            throw new TooLateDiaryException();
 
         Diary diary = Diary.builder()
                 .title("")
@@ -144,7 +144,7 @@ public class DiaryService {
 
         // 생성된 시간보다 3일 초과해서 지났다면 안됨
         if (!Period.between(oldDiary.getDate(), LocalDate.now()).minusDays(3).isNegative())
-            throw new DiaryUneditableException();
+            throw new TooLateDiaryException();
 
         List<String> newImageUrls = vo.getImageUrls() != null ? vo.getImageUrls() : new ArrayList<>();
 
