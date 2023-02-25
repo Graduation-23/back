@@ -53,6 +53,11 @@ public class OpenBankController {
         openBankService.refreshToken(userId);
     }
 
+    @DeleteMapping
+    public void delete(@AuthenticationPrincipal String userId) {
+        openBankService.unregister(userId);
+    }
+
     @GetMapping("/refresh-account")
     public void getRefreshAccount(@AuthenticationPrincipal String userId) {
         openBankService.inquiryAccount(userId);
