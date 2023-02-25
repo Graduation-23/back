@@ -38,6 +38,7 @@ public class AuthController {
     private GoogleOAuthHelper googleOAuthHelper;
 
     private final String URI_APP_SCHEME = "paiary-app://";
+    private final String HOME_URL = URI_APP_SCHEME + "home";
     private final String GOOGLE_APP_AUTH_URL = URI_APP_SCHEME + "authenticate";
 
     /// region Login based Application
@@ -118,9 +119,14 @@ public class AuthController {
             @RequestParam("state") String state
     )   throws URISyntaxException
     {
-        openBankService.register(userId, code, state);
+        try {
+            openBankService.register(userId, code, state);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(new URI(URI_APP_SCHEME));
+        headers.setLocation(new URI(HOME_URL));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
     }
 
@@ -153,5 +159,4 @@ public class AuthController {
         }
         return ResponseEntity.badRequest().build();
     }
-
 }

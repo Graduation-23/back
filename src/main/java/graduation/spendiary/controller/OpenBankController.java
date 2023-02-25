@@ -1,5 +1,6 @@
 package graduation.spendiary.controller;
 
+import graduation.spendiary.domain.bank.OpenBankInfo;
 import graduation.spendiary.domain.bank.OpenBankService;
 import graduation.spendiary.domain.bank.Transaction;
 import graduation.spendiary.exception.OpenBankRequestFailedException;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -69,5 +72,18 @@ public class OpenBankController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
     ) {
         return openBankService.getWithdrawTransactionAt(userId, date);
+    }
+
+    @ExceptionHandler
+    public Map<String, String> testexhandler(Exception e) {
+        e.printStackTrace();
+        if (e instanceof OpenBankRequestFailedException) {
+            OpenBankRequestFailedException ex = (OpenBankRequestFailedException) e;
+            Map<String, String> response = new HashMap<>();
+            response.put("code", ex.getCode());
+            response.put("message", ex.getMessage());
+            return response;
+        }
+        return null;
     }
 }
