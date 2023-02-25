@@ -201,15 +201,16 @@ public class OpenBankService {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(info.getAccessToken());
 
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("client_use_code", config.getTranId());
-        body.add("user_seq_no", info.getUserSeqNo());
+        Map<String, String> body = new HashMap<>();
+        body.put("client_use_code", config.getTranId());
+        body.put("user_seq_no", info.getUserSeqNo());
 
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(body, headers);
         Map response = restTemplate.postForEntity(OPEN_BANK_UNLINK_URL, requestEntity, Map.class).getBody();
+        restTemplate.postForObject(OPEN_BANK_UNLINK_URL, requestEntity, Map.class);
 
         checkResponse(response);
     }

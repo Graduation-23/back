@@ -70,4 +70,9 @@ public class OpenBankController {
     ) {
         return openBankService.getWithdrawTransactionAt(userId, date);
     }
+
+    @ExceptionHandler
+    public void testexhandler(Exception e) {
+        e.printStackTrace();
+    }
 }
