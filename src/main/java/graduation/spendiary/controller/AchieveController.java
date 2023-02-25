@@ -37,4 +37,9 @@ public class AchieveController {
                 success ? "완료" : "실패;", success
         );
     }
+
+    @GetMapping("/week")
+    public long weekAchieve(@AuthenticationPrincipal String userId){
+        return achieveService.getWeekAchieve(userId);
+    }
 }
