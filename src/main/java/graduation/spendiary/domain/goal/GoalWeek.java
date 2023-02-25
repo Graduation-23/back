@@ -1,10 +1,12 @@
 package graduation.spendiary.domain.goal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -34,9 +36,13 @@ public class GoalWeek {
     private String state;
 
     @Field("goal_week_start")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate start;
 
     @Field("goal_week_end")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate end;
 
 }
