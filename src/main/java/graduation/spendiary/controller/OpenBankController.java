@@ -43,29 +43,6 @@ public class OpenBankController {
     @Autowired
     private final OpenBankService openBankService;
 
-    /**
-     * 토큰 발급 요청
-     */
-
-    @GetMapping("/auth/uri")
-    public ResponseEntity getAuthUri(@AuthenticationPrincipal String userId)
-        throws URISyntaxException
-    {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(new URI(openBankService.getAuthUrl(userId)));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
-    }
-
-    @GetMapping("/auth")
-    public ResponseEntity getAuth(
-            @RequestParam("code") String code,
-            @RequestParam("client_info") String userId,
-            @RequestParam("state") String state
-    ) {
-        openBankService.register(userId, code, state);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
     @GetMapping("/refresh-token")
     public void getRefreshToken(@AuthenticationPrincipal String userId) {
         openBankService.refreshToken(userId);
