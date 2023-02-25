@@ -53,6 +53,11 @@ public class OpenBankController {
         openBankService.refreshToken(userId);
     }
 
+    @DeleteMapping
+    public void delete(@AuthenticationPrincipal String userId) {
+        openBankService.unregister(userId);
+    }
+
     @GetMapping("/refresh-account")
     public void getRefreshAccount(@AuthenticationPrincipal String userId) {
         openBankService.inquiryAccount(userId);
@@ -64,5 +69,10 @@ public class OpenBankController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
     ) {
         return openBankService.getWithdrawTransactionAt(userId, date);
+    }
+
+    @ExceptionHandler
+    public void testexhandler(Exception e) {
+        e.printStackTrace();
     }
 }

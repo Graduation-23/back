@@ -37,7 +37,8 @@ public class AuthController {
     @Autowired
     private GoogleOAuthHelper googleOAuthHelper;
 
-    private final String GOOGLE_APP_AUTH_URL = "paiary-app://authenticate";
+    private final String URI_APP_SCHEME = "paiary-app://";
+    private final String GOOGLE_APP_AUTH_URL = URI_APP_SCHEME + "authenticate";
 
     /// region Login based Application
     @PostMapping("/signup")
@@ -115,10 +116,14 @@ public class AuthController {
             @RequestParam("code") String code,
             @RequestParam("client_info") String userId,
             @RequestParam("state") String state
-    ) {
+    )   throws URISyntaxException
+    {
         openBankService.register(userId, code, state);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(new URI(URI_APP_SCHEME));
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
     }
+
     /// endregion
 
     @PostMapping("/authenticate")
