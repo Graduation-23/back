@@ -57,7 +57,7 @@ public class AchieveService {
         List<List<Long>> weekIds = goalMonthRepo.findByUser(userId).stream()
                 .map(GoalMonth::getWeekIds)
                 .collect(Collectors.toList());
-        System.out.println(weekIds);
+
         long weekCnt = 0;
         for (List<Long> n : weekIds) {
             weekCnt += n.stream()
