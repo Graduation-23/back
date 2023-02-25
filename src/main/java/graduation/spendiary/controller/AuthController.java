@@ -123,6 +123,7 @@ public class AuthController {
         headers.setLocation(new URI(URI_APP_SCHEME));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
     }
+
     /// endregion
 
     @PostMapping("/authenticate")
