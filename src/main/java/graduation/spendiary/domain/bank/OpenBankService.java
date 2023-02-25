@@ -35,6 +35,11 @@ public class OpenBankService {
     private final String OPEN_BANK_TRANSACTION_LIST_URI = OPEN_BANK_URI + "/v2.0/account/transaction_list/fin_num";
 
 
+    /**
+     * 사용자 ID에 해당하는 금융결제원 인증 사이트 URI를 생성합니다.
+     * @param userId 사용자 ID
+     * @return 금융결제원 인증 URI
+     */
     public String getAuthUrl(String userId) {
         return UriComponentsBuilder.fromUriString(OPEN_BANK_AUTHORIZE_URI)
                 .queryParam("response_type", "code")
@@ -51,6 +56,11 @@ public class OpenBankService {
                 .encode().build().toUriString();
     }
 
+    /**
+     * 사용자가 금융결제원 인증을 완료했는지 확인합니다.
+     * @param userId 사용자 ID
+     * @return 완료 여부
+     */
     public boolean checkAuth(String userId) {
         return repo.findById(userId).isPresent();
     }
