@@ -35,6 +35,11 @@ public class OpenBankService {
     private final String OPEN_BANK_TRANSACTION_LIST_URI = OPEN_BANK_URI + "/v2.0/account/transaction_list/fin_num";
 
 
+    /**
+     * 사용자 ID에 해당하는 금융결제원 인증 사이트 URI를 생성합니다.
+     * @param userId 사용자 ID
+     * @return 금융결제원 인증 URI
+     */
     public String getAuthUrl(String userId) {
         return UriComponentsBuilder.fromUriString(OPEN_BANK_AUTHORIZE_URI)
                 .queryParam("response_type", "code")
@@ -49,6 +54,15 @@ public class OpenBankService {
                 .queryParam("account_hold_auth_yn", "N")
                 .queryParam("register_info", "A")
                 .encode().build().toUriString();
+    }
+
+    /**
+     * 사용자가 금융결제원 인증을 완료했는지 확인합니다.
+     * @param userId 사용자 ID
+     * @return 완료 여부
+     */
+    public boolean checkAuth(String userId) {
+        return repo.findById(userId).isPresent();
     }
 
     public void register(String userId, String code, String state) {
@@ -275,8 +289,6 @@ public class OpenBankService {
             throw new NullPointerException("Response is null");
         String rspCode = (String) response.get("rsp_code");
         String rspMessage = (String) response.get("rsp_message");
-        if (rspCode.equals("A0002")) // 참가기관 에러 [API업무처리시스템 - 시뮬레이터 응답전문 존재하지 않음]
-            return;
         if (!rspCode.equals("A0000"))
             throw new OpenBankRequestFailedException(rspCode, rspMessage);
     }
@@ -287,11 +299,12 @@ public class OpenBankService {
      * @return Transaction 객체
      */
     private List<Transaction> getTransactionsFromResponse(Map response) {
+        System.out.println(response);
         List<Map<String, String>> resList = (List<Map<String, String>>) response.get("res_list");
         return resList.stream()
                 .map(res -> Transaction.builder()
                         .bankName((String) response.get("bank_name"))
-                        .amount(Long.parseLong((String) res.get("balance_amt")))
+                        .amount(Long.parseLong((String) res.get("tran_amt")))
                         .transactionType(res.get("tran_type"))
                         .content(res.get("print_content"))
                         .build()
