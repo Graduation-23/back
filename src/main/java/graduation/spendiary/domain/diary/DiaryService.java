@@ -2,24 +2,20 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
+import graduation.spendiary.exception.DiaryDuplicatedException;
 import graduation.spendiary.exception.DiaryUneditableException;
 import graduation.spendiary.exception.NoSuchContentException;
-import graduation.spendiary.util.file.TemporalFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.DateTimeException;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -31,52 +27,76 @@ public class DiaryService {
     private DiaryRepository repo;
     @Autowired
     private CloudinaryService cloudinaryService;
-    @Autowired
-    private TemporalFileUtil temporalFileUtil;
 
-    public List<Diary> getAll() {
-        return repo.findAll();
+    public DiaryDto getDto(Diary diary) {
+        return DiaryDto.builder()
+                .id(diary.getId())
+                .title(diary.getTitle())
+                .content(diary.getContent())
+                .thumbnailIdx(diary.getThumbnailIdx())
+                .imageUrls(diary.getImageUrls())
+                .date(diary.getDate())
+                .weather(diary.getWeather())
+                .build();
     }
 
-    public Diary getById(long id) {
-        return repo.findById(id).get();
+    public List<DiaryDto> getAllOfUser(String userId) {
+        return repo.findByUser(userId).stream()
+                .map(this::getDto)
+                .collect(Collectors.toList());
     }
 
-    public Diary save(DiarySaveVo vo, String userId)
-        throws IOException
+    public DiaryDto getDtoById(long id) {
+        return this.getDto(repo.findById(id).get());
+    }
+
+    /**
+     * 주어진 날짜에 해당되는 빈 다이어리를 작성합니다.
+     * @param diaryDate 다이어리의 날짜
+     * @param userId 다이어리 작성자
+     * @return 빈 다이어리
+     * @throws DiaryDuplicatedException 해당 날짜에 이미 다이어리가 있음
+     */
+    public Long saveEmptyDiary(String userId, LocalDate diaryDate)
+        throws DiaryDuplicatedException
     {
-        List<String> fileNames = uploadImages(vo.getImages());
+        if (!repo.findByUserAndDate(userId, diaryDate).isEmpty())
+            throw new DiaryDuplicatedException();
 
         Diary diary = Diary.builder()
-                .title(vo.getTitle())
-                .content(vo.getContent())
+                .title("")
+                .content("")
                 .user(userId)
-                .images(fileNames)
-                .weather(vo.getWeather())
+                .imageUrls(Collections.emptyList())
+                .date(diaryDate)
+                .thumbnailIdx((long) -1)
+                .weather("")
                 .build();
         diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
 
-        repo.save(diary);
-        return diary;
+        Diary savedDiary = repo.save(diary);
+        return savedDiary.getId();
     }
 
-    public List<Diary> getByCreatedDateRange(String userId, LocalDate start, LocalDate end) {
-        return repo.findByUserAndCreatedBetween(userId, start, end);
+    public List<DiaryDto> getDtoByDateRange(String userId, LocalDate start, LocalDate end) {
+        return repo.findByUserAndDateBetween(userId, start, end).stream()
+                .map(this::getDto)
+                .collect(Collectors.toList());
     }
 
-    public List<Diary> getOfLastWeek(String userId) {
+    public List<DiaryDto> getOfLastWeek(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastWeek = now.minusWeeks(1);
-        return getByCreatedDateRange(userId, lastWeek, now);
+        return getDtoByDateRange(userId, lastWeek, now);
     }
 
-    public List<Diary> getOfLastMonth(String userId) {
+    public List<DiaryDto> getOfLastMonth(String userId) {
         LocalDate now = LocalDate.now();
         LocalDate lastMonth = now.minusMonths(1);
-        return getByCreatedDateRange(userId, lastMonth, now);
+        return getDtoByDateRange(userId, lastMonth, now);
     }
 
-    public List<Diary> getOfYear(String userId, int year) {
+    public List<DiaryDto> getOfYear(String userId, int year) {
         LocalDate firstDay, lastDay;
         try {
             firstDay = LocalDate.of(year, 1, 1);
@@ -85,10 +105,10 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getByCreatedDateRange(userId, firstDay, lastDay);
+        return getDtoByDateRange(userId, firstDay, lastDay);
     }
 
-    public List<Diary> getOfMonth(String userId, int year, int month) {
+    public List<DiaryDto> getOfMonth(String userId, int year, int month) {
         LocalDate firstDay, lastDay;
         try {
             firstDay = LocalDate.of(year, month, 1);
@@ -97,7 +117,7 @@ public class DiaryService {
         catch (DateTimeException e) {
             return Collections.emptyList();
         }
-        return getByCreatedDateRange(userId, firstDay, lastDay);
+        return getDtoByDateRange(userId, firstDay, lastDay);
     }
 
     /**
@@ -110,62 +130,44 @@ public class DiaryService {
      * @throws IndexOutOfBoundsException
      * @throws IOException
      */
-    public Diary edit(long diaryId, DiaryEditVo vo, String userId)
+    public DiaryDto edit(long diaryId, DiaryEditVo vo, String userId)
             throws NumberFormatException, IndexOutOfBoundsException, IOException {
-        Optional<Diary> diaryOrNot = repo.findById(diaryId);
-        if (diaryOrNot.isEmpty())
+        // 다이어리 가져오기
+        Optional<Diary> oldDiaryOptional = repo.findById(diaryId);
+        if (oldDiaryOptional.isEmpty())
             throw new NoSuchContentException();
-        Diary oldDiary = diaryOrNot.get();
+        Diary oldDiary = oldDiaryOptional.get();
 
         // 생성된 시간보다 3일 초과해서 지났다면 안됨
-        if (Period.between(oldDiary.getCreated(), LocalDate.now()).minusDays(3).isNegative())
+        if (!Period.between(oldDiary.getDate(), LocalDate.now()).minusDays(3).isNegative())
             throw new DiaryUneditableException();
 
-        // 새 이미지들을 업로드
-        List<String> fileNames = uploadImages(vo.getNewImages());
+        List<String> newImageUrls = vo.getImageUrls() != null ? vo.getImageUrls() : new ArrayList<>();
 
-        // vo.images()의 "$i"를 fileNames로 대체
-        List<String> newImageNames = vo.getImageNames().stream()
-                .map(id -> {
-                    Matcher matcher = NEW_IMAGE_ID_PLACEHOLDER_PATTERN.matcher(id);
-                    if (matcher.find()) {
-                        int idx = Integer.parseInt(matcher.group(1));
-                        return fileNames.get(idx);
-                    }
-                    return id;
-                })
-                .collect(Collectors.toList());
-
+        if(vo.getNewImages() != null) {
+            // 새 이미지들을 업로드 후 url 등록
+            newImageUrls.addAll(cloudinaryService.upload(vo.getNewImages()));
+        }
+        // diary entity 재생성
         Diary newDiary = Diary.builder()
                 .id(diaryId)
                 .title(vo.getTitle())
                 .content(vo.getContent())
                 .user(userId)
-                .images(newImageNames)
+                .imageUrls(newImageUrls)
+                .thumbnailIdx(vo.getThumbnailIdx())
+                .date(oldDiary.getDate())
                 .weather(vo.getWeather())
                 .build();
 
+        // 다이어리 저장
         repo.save(newDiary);
-
-        return newDiary;
+        return this.getDto(newDiary);
     }
 
-    /**
-     * 이미지 파일들을 임의의 이름으로 CDN 서버에 업로드합니다.
-     * @param images 업로드할 이미지 파일들
-     * @return 모든 이미지 업로드에 성공 시 재설정된 파일의 이름 리스트
-     * @throws IOException 임시 폴더 또는 CDN 서버에 파일 저장 실패
-     */
-    private List<String> uploadImages(List<MultipartFile> images)
-        throws IOException
-    {
-        Path path;
-        List<String> fileNames = new ArrayList<>();
-        for (MultipartFile file: images) {
-            path = temporalFileUtil.save(file);
-            cloudinaryService.upload(path);
-            fileNames.add(path.getFileName().toString());
-        }
-        return fileNames;
+    public boolean deleteDiary(String userId, Long diaryId) {
+        Diary deleteDiary = repo.findById(diaryId).get();
+        repo.deleteById(deleteDiary.getId());
+        return true;
     }
 }

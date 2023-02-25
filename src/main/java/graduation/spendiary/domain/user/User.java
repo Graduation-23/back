@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -21,21 +22,28 @@ import java.util.Date;
 public class User {
     @MongoId
     private String  id;
+
     @Field("user_nickname")
     private String  nickname;
+
     @Field("user_password")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String  password;
+
     @Field("user_refresh_token")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String  refreshToken;
+
     @Field("user_access_type")
     private String accessType;
+
     @Field("user_create")
-    @CreatedDate
     private LocalDate created;
+
     @Field("user_birth")
+    @DateTimeFormat(pattern = "YYYY-MM-DD")
     private LocalDate birth;
-    @Version
-    private Integer version;
+
+    @Field("user_profile_pic_url")
+    private String profilePicUrl;
 }

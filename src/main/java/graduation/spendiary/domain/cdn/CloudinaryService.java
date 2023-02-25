@@ -4,17 +4,26 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+/**
+ * CDN 서버 'CloudinaryService'와 통신하기 위한 클래스
+ * @author Bonwoong Ku
+ */
 @Component
 public class CloudinaryService {
     private static Cloudinary cloudinary = null;
+    private static final Map UPLOAD_OPTIONS = ObjectUtils.asMap(
+            "use_filename", true,
+            "unique_filename", false
+    );
 
     public CloudinaryService(
             @Value("${cloudinary.cloudName}")   final String CLOUD_NAME,
@@ -32,12 +41,29 @@ public class CloudinaryService {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * MultipartFile을 Cloudinary에 업로드합니다.
+     * @param file 업로드할 파일
+     * @throws IOException
+     * @return Cloudinary에 업로드된 파일의 URL (https)
+     */
+    public String upload(MultipartFile file) throws IOException {
+        Map response = cloudinary.uploader().upload(file.getBytes(), UPLOAD_OPTIONS);
+        return (String) response.get("secure_url");
+    }
 
-    public void upload(Path path) throws IOException {
-        Map options = ObjectUtils.asMap(
-                "use_filename", true,
-                "unique_filename", false
-        );
-        cloudinary.uploader().upload(new File(path.toString()), options);
+    /**
+     * 다수의 MultipartFile을 Cloudinary에 업로드합니다.
+     * @param files 업로드할 파일 리스트
+     * @throws IOException
+     * @return Cloudinary에 업로드된 파일의 URL 리스트 (https)
+     */
+    public List<String> upload(List<MultipartFile> files) throws IOException {
+        List<String> urls = new ArrayList<>();
+        for (MultipartFile file: files) {
+            urls.add(this.upload(file));
+        }
+        return urls;
     }
 }

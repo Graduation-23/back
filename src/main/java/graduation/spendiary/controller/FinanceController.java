@@ -1,12 +1,11 @@
 package graduation.spendiary.controller;
 
-import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.finance.Finance;
 import graduation.spendiary.domain.finance.FinanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,22 +19,28 @@ public class FinanceController {
     private FinanceService financeService;
 
     @GetMapping
-    public List<Finance> finances(Model model) {
-        List<Finance> finances = financeService.getAll();
-        model.addAttribute("finances", finances);
-        return finances;
+    public List<Finance> getAll(
+            @AuthenticationPrincipal String userId
+    ) {
+        return financeService.getAllOfUser(userId);
     }
 
-    @GetMapping("/{financeId}")
-    public Finance finance(@PathVariable Long financeId, Model model) {
-        Finance finance = financeService.getById(financeId);
-        model.addAttribute("finance", finance);
-        return finance;
+    @GetMapping(value = "/{financeId}")
+    public Finance finance(@PathVariable Long financeId) {
+        return financeService.getById(financeId);
     }
 
-    @PostMapping("/add")
-    public String addFinance(@RequestBody Finance finance, @AuthenticationPrincipal String userId) {
-        financeService.save(finance, userId);
-        return "생성";
+    @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Long addFinance(
+            @AuthenticationPrincipal String userId,
+            @RequestBody Finance finance
+    ) {
+        return financeService.save(finance, userId);
+    }
+
+    @DeleteMapping
+    public Message deleteFinance(@AuthenticationPrincipal String userId, @RequestParam("financeId") Long id) {
+        financeService.deleteFinance(userId, id);
+        return new Message("삭제 완료", true);
     }
 }

@@ -1,8 +1,8 @@
-package graduation.spendiary.domain.goal;
+package graduation.spendiary.domain.bank;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GoalRepository extends MongoRepository<Goal, Long> {
+public interface OpenBankInfoRepository extends MongoRepository<OpenBankInfo, String> {
 }

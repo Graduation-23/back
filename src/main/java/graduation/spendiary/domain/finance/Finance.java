@@ -1,9 +1,10 @@
 package graduation.spendiary.domain.finance;
 
 import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 
 @Document(collection = "Finance")
@@ -12,11 +13,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @Builder
 public class Finance {
-
     @Transient
     public static final String SEQUENCE_NAME = "finance_sequence";
 
-    @Field("finance_id")
+    @MongoId
     private Long id;
 
     @Field("user_id")

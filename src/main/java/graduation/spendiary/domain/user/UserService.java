@@ -1,15 +1,25 @@
 package graduation.spendiary.domain.user;
 
+import graduation.spendiary.domain.cdn.CloudinaryService;
+import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.security.google.GoogleUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository repo;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public List<User> getAll() {
         return repo.findAll();
@@ -42,6 +52,7 @@ public class UserService {
                 .accessType("none")
                 .password(user.getPassword())
                 .birth((user.getBirth()))
+                .created(LocalDate.now())
                 .build());
 
         return member != null;
@@ -54,6 +65,7 @@ public class UserService {
                 .id(googleUser.getEmail())
                 .nickname(googleUser.getName())
                 .password("")
+                .created(LocalDate.now())
                 .build();
 
         if(repo.findByGoogleId(user.getId()) == null){
@@ -67,4 +79,37 @@ public class UserService {
         return repo.findById(userId).get();
     }
 
+    public boolean deleteUser(String userId, String password) {
+        User user = repo.findByIdAndPw(userId, password);
+        if(user == null) {
+            return false;
+        }
+        repo.delete(user);
+        return true;
+    }
+
+    public User setBirthday(String userId, LocalDate birthday)
+        throws NoSuchContentException
+    {
+        Optional<User> userOptional = repo.findById(userId);
+        if (userOptional.isEmpty())
+            throw new NoSuchContentException();
+        User user = userOptional.get();
+
+        user.setBirth(birthday);
+        return repo.save(user);
+    }
+
+    public User setProfilePic(String userId, MultipartFile profilePic)
+        throws NoSuchContentException, IOException
+    {
+        Optional<User> userOptional = repo.findById(userId);
+        if (userOptional.isEmpty())
+            throw new NoSuchContentException();
+        User user = userOptional.get();
+
+        String url = cloudinaryService.upload(profilePic);
+        user.setProfilePicUrl(url);
+        return repo.save(user);
+    }
 }

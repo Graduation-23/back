@@ -1,11 +1,10 @@
 package graduation.spendiary.domain.diary;
 
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +19,7 @@ public class Diary {
     @Transient
     public static final String SEQUENCE_NAME = "diary_sequence";
 
-    @Field("diary_id")
+    @MongoId
     private Long id;
 
     @Field("user_id")
@@ -32,12 +31,14 @@ public class Diary {
     @Field("diary_content")
     private String content;
 
-    @CreatedDate
-    @Field("diary_create")
-    private LocalDate created;
+    @Field("diary_date")
+    private LocalDate date;
 
-    @Field("diary_image")
-    private List<String> images;
+    @Field("diary_image_urls")
+    private List<String> imageUrls;
+
+    @Field("diary_thumbnail_idx")
+    private Long thumbnailIdx;
 
     @Field("diary_weather")
     private String weather;

@@ -1,21 +1,19 @@
 package graduation.spendiary.controller;
 
-import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
-import graduation.spendiary.domain.diary.Diary;
+import graduation.spendiary.domain.diary.DiaryDto;
 import graduation.spendiary.domain.diary.DiaryEditVo;
-import graduation.spendiary.domain.diary.DiarySaveVo;
 import graduation.spendiary.domain.diary.DiaryService;
-import graduation.spendiary.domain.user.User;
-import graduation.spendiary.security.jwt.Authorization;
+import graduation.spendiary.exception.DiaryDuplicatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -27,46 +25,46 @@ public class DiaryController {
     private DiaryService diaryService;
 
     @GetMapping
-    public List<Diary> diarys(Model model) {
-        List<Diary> diarys = diaryService.getAll();
-        model.addAttribute("diarys", diarys);
-        return diarys;
+    public List<DiaryDto> getAll(@AuthenticationPrincipal String userId) {
+        return diaryService.getAllOfUser(userId);
     }
 
-    @GetMapping("/{diaryId}")
-    public Diary getDiaryById(@PathVariable Long diaryId, Model model) {
-        Diary diary = diaryService.getById(diaryId);
-        model.addAttribute("diary", diary);
-        return diary;
+    @GetMapping(value = "/{diaryId}")
+    public DiaryDto getDiaryById(@PathVariable Long diaryId, Model model) {
+        DiaryDto diaryDto = diaryService.getDtoById(diaryId);
+        model.addAttribute("diary", diaryDto);
+        return diaryDto;
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary addDiary(@AuthenticationPrincipal String userId, @ModelAttribute DiarySaveVo vo)
-            throws IOException
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Long saveEmptyDiary(
+            @AuthenticationPrincipal String userId,
+            @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate diaryDate
+    ) throws DiaryDuplicatedException
     {
-        return diaryService.save(vo, userId);
+        return diaryService.saveEmptyDiary(userId, diaryDate);
     }
 
-    @GetMapping("/last-week")
-    public List<Diary> getOfLastWeek(@AuthenticationPrincipal String userId) {
+    @GetMapping(value = "/last-week")
+    public List<DiaryDto> getOfLastWeek(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastWeek(userId);
     }
 
-    @GetMapping("/last-month")
-    public List<Diary> getOfLastMonth(@AuthenticationPrincipal String userId) {
+    @GetMapping(value = "/last-month")
+    public List<DiaryDto> getOfLastMonth(@AuthenticationPrincipal String userId) {
         return diaryService.getOfLastMonth(userId);
     }
 
-    @GetMapping("/date/{year}")
-    public List<Diary> getOfYear(
+    @GetMapping(value = "/date/{year}")
+    public List<DiaryDto> getOfYear(
             @AuthenticationPrincipal String userId,
             @PathVariable int year
     ) {
         return diaryService.getOfYear(userId, year);
     }
 
-    @GetMapping("/date/{year}/{month}")
-    public List<Diary> getOfMonth(
+    @GetMapping(value = "/date/{year}/{month}")
+    public List<DiaryDto> getOfMonth(
             @AuthenticationPrincipal String userId,
             @PathVariable int year,
             @PathVariable int month
@@ -75,12 +73,17 @@ public class DiaryController {
     }
 
     @PutMapping(value = "/{diaryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Diary put(
+    public DiaryDto put(
             @AuthenticationPrincipal String userId,
             @PathVariable long diaryId,
             @ModelAttribute DiaryEditVo vo
-    ) throws IOException
-    {
+    ) throws IOException {
         return diaryService.edit(diaryId, vo, userId);
+    }
+
+    @DeleteMapping
+    public Message deleteDiary(@AuthenticationPrincipal String userId, @RequestParam("diaryId") Long diaryid) {
+        diaryService.deleteDiary(userId, diaryid);
+        return new Message("삭제 완료", true);
     }
 }
