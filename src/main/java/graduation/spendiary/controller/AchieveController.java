@@ -5,9 +5,7 @@ import graduation.spendiary.domain.achieve.AchieveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,8 +22,19 @@ public class AchieveController {
         return achieveService.getAllAchieve(userId);
     }
 
+    @PostMapping
+    public Message create(@AuthenticationPrincipal String userId, @RequestBody Achieve achieve) {
+        boolean success = achieveService.createAchieve(userId, achieve);
+        return new Message(
+                success ? "생성 완료" : "생성 실패; 이미 생성하였습니다", success
+        );
+    }
+
     @GetMapping("/month")
-    public long monthAchieve(@AuthenticationPrincipal String userId){
-        return achieveService.getMonthAchieve(userId);
+    public Message monthAchieve(@AuthenticationPrincipal String userId){
+        boolean success = achieveService.getMonthAchieve(userId);
+        return new Message(
+                success ? "완료" : "실패;", success
+        );
     }
 }

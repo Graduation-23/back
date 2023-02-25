@@ -61,7 +61,6 @@ public class GoalService {
             goalMonth.setState(state);
             goalMonth.setMonth(start.getMonthValue());
             goalMonth.setYear(start.getYear());
-            goalMonth.setWeekIds(null);
             monthRepo.save(goalMonth);
             return true;
         }else return false;
