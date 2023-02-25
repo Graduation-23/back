@@ -275,8 +275,6 @@ public class OpenBankService {
             throw new NullPointerException("Response is null");
         String rspCode = (String) response.get("rsp_code");
         String rspMessage = (String) response.get("rsp_message");
-        if (rspCode.equals("A0002")) // 참가기관 에러 [API업무처리시스템 - 시뮬레이터 응답전문 존재하지 않음]
-            return;
         if (!rspCode.equals("A0000"))
             throw new OpenBankRequestFailedException(rspCode, rspMessage);
     }
@@ -287,11 +285,12 @@ public class OpenBankService {
      * @return Transaction 객체
      */
     private List<Transaction> getTransactionsFromResponse(Map response) {
+        System.out.println(response);
         List<Map<String, String>> resList = (List<Map<String, String>>) response.get("res_list");
         return resList.stream()
                 .map(res -> Transaction.builder()
                         .bankName((String) response.get("bank_name"))
-                        .amount(Long.parseLong((String) res.get("balance_amt")))
+                        .amount(Long.parseLong((String) res.get("tran_amt")))
                         .transactionType(res.get("tran_type"))
                         .content(res.get("print_content"))
                         .build()
