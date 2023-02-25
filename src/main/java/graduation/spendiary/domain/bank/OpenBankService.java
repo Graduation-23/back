@@ -33,8 +33,14 @@ public class OpenBankService {
     private final String OPEN_BANK_TOKEN_URI = OPEN_BANK_URI + "/oauth/2.0/token";
     private final String OPEN_BANK_ACCOUNT_LIST_URI = OPEN_BANK_URI + "/v2.0/account/list";
     private final String OPEN_BANK_TRANSACTION_LIST_URI = OPEN_BANK_URI + "/v2.0/account/transaction_list/fin_num";
+    private final String OPEN_BANK_UNLINK_URL = OPEN_BANK_URI + "/v2.0/user/unlink";
 
 
+    /**
+     * 사용자 ID에 해당하는 금융결제원 인증 사이트 URI를 생성합니다.
+     * @param userId 사용자 ID
+     * @return 금융결제원 인증 URI
+     */
     public String getAuthUrl(String userId) {
         return UriComponentsBuilder.fromUriString(OPEN_BANK_AUTHORIZE_URI)
                 .queryParam("response_type", "code")
@@ -42,7 +48,7 @@ public class OpenBankService {
                 .queryParam("redirect_uri", config.getRedirectUri())
                 .queryParam("scope", "login inquiry")
                 .queryParam("client_info", userId)
-                .queryParam("state","b80BLsfigm9OokPTjy03elbJqRHOfGSY")
+                .queryParam("state","b80BLsfigm9OokPTjy03elbJqRHOfGSY") // todo: state 생성
                 .queryParam("auth_type", "0")
                 .queryParam("cellphone_cert_yn", "Y")
                 .queryParam("authorized_cert_yn", "Y")
@@ -51,6 +57,21 @@ public class OpenBankService {
                 .encode().build().toUriString();
     }
 
+    /**
+     * 사용자가 금융결제원 인증을 완료했는지 확인합니다.
+     * @param userId 사용자 ID
+     * @return 완료 여부
+     */
+    public boolean checkAuth(String userId) {
+        return repo.findById(userId).isPresent();
+    }
+
+    /**
+     * 금융결제원에 사용자 인증(회원가입)을 완료합니다.
+     * @param userId
+     * @param code
+     * @param state
+     */
     public void register(String userId, String code, String state) {
         // todo: state 유효성 확인
 
@@ -66,6 +87,19 @@ public class OpenBankService {
                 .userSeqNo((String) response.get("user_seq_no"))
                 .build();
         repo.save(info);
+    }
+
+    /**
+     * 금융결제원에서 탈퇴합니다.
+     * 금융결제원과의 연결을 해지하고 관련 정보를 파기합니다.
+     * @param userId 사용자 ID
+     * @throws NoSuchContentException 이미 연결이 해지되었거나 연결되지 않음
+     */
+    public void unregister(String userId)
+            throws NoSuchContentException
+    {
+        unlink(userId);
+        repo.deleteById(userId);
     }
 
     /**
@@ -157,6 +191,29 @@ public class OpenBankService {
         repo.save(info);
     }
 
+    /**
+     * 금융결제원과의 연결을 해지합니다.
+     * @param userId 사용자 ID
+     */
+    private void unlink(String userId) {
+        OpenBankInfo info = this.getInfo(userId);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(info.getAccessToken());
+
+        Map<String, String> body = new HashMap<>();
+        body.put("client_use_code", config.getTranId());
+        body.put("user_seq_no", info.getUserSeqNo());
+
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(body, headers);
+        Map response = restTemplate.postForEntity(OPEN_BANK_UNLINK_URL, requestEntity, Map.class).getBody();
+        restTemplate.postForObject(OPEN_BANK_UNLINK_URL, requestEntity, Map.class);
+
+        checkResponse(response);
+    }
 
     /**
      * 금융결제원으로부터 등록된 계좌를 조회하여 DB에 저장합니다.
@@ -275,8 +332,6 @@ public class OpenBankService {
             throw new NullPointerException("Response is null");
         String rspCode = (String) response.get("rsp_code");
         String rspMessage = (String) response.get("rsp_message");
-        if (rspCode.equals("A0002")) // 참가기관 에러 [API업무처리시스템 - 시뮬레이터 응답전문 존재하지 않음]
-            return;
         if (!rspCode.equals("A0000"))
             throw new OpenBankRequestFailedException(rspCode, rspMessage);
     }
@@ -287,11 +342,12 @@ public class OpenBankService {
      * @return Transaction 객체
      */
     private List<Transaction> getTransactionsFromResponse(Map response) {
+        System.out.println(response);
         List<Map<String, String>> resList = (List<Map<String, String>>) response.get("res_list");
         return resList.stream()
                 .map(res -> Transaction.builder()
                         .bankName((String) response.get("bank_name"))
-                        .amount(Long.parseLong((String) res.get("balance_amt")))
+                        .amount(Long.parseLong((String) res.get("tran_amt")))
                         .transactionType(res.get("tran_type"))
                         .content(res.get("print_content"))
                         .build()

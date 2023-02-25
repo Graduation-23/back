@@ -1,5 +1,6 @@
 package graduation.spendiary.controller;
 
+import graduation.spendiary.domain.bank.OpenBankService;
 import graduation.spendiary.domain.user.User;
 import graduation.spendiary.domain.user.UserService;
 import graduation.spendiary.security.google.GoogleOAuthHelper;
@@ -14,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 
 @RestController
@@ -28,11 +31,15 @@ public class AuthController {
     @Autowired
     private UserService userService;
     @Autowired
+    private OpenBankService openBankService;
+    @Autowired
     private JwtProvider jwtProvider;
     @Autowired
     private GoogleOAuthHelper googleOAuthHelper;
 
-    private final String GOOGLE_APP_AUTH_URL = "paiary-app://authenticate";
+    private final String URI_APP_SCHEME = "paiary-app://";
+    private final String HOME_URL = URI_APP_SCHEME + "home";
+    private final String GOOGLE_APP_AUTH_URL = URI_APP_SCHEME + "authenticate";
 
     /// region Login based Application
     @PostMapping("/signup")
@@ -95,6 +102,36 @@ public class AuthController {
 
     /// endregion
 
+    /// region Openbank register
+    @GetMapping("/openbank/uri")
+    public ResponseEntity getAuthUri(@RequestParam("user-id") String userId)
+            throws URISyntaxException
+    {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(new URI(openBankService.getAuthUrl(userId)));
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
+    }
+
+    @GetMapping("/openbank")
+    public ResponseEntity getAuth(
+            @RequestParam("code") String code,
+            @RequestParam("client_info") String userId,
+            @RequestParam("state") String state
+    )   throws URISyntaxException
+    {
+        try {
+            openBankService.register(userId, code, state);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(new URI(HOME_URL));
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
+    }
+
+    /// endregion
+
     @PostMapping("/authenticate")
     public ResponseEntity<Token> authenticate(@RequestBody Authorization authorization) {
 
@@ -122,5 +159,4 @@ public class AuthController {
         }
         return ResponseEntity.badRequest().build();
     }
-
 }

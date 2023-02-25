@@ -25,7 +25,9 @@ public class GoalService {
     private SpendingWidgetRepository spendRepo;
     @Autowired
     private SpendingWidgetService widgetService;
-    private String state = "proceeding";
+    private final String proceeding = "진행 중";
+    private final String achieve = "달성";
+    private final String fail = "실패";
 
     public List<GoalMonth> getAll(String userId) {
         return monthRepo.findByUser(userId);
@@ -58,10 +60,9 @@ public class GoalService {
             goalMonth.setStart(start);
             goalMonth.setEnd(end);
             goalMonth.setUser(userId);
-            goalMonth.setState(state);
+            goalMonth.setState(proceeding);
             goalMonth.setMonth(start.getMonthValue());
             goalMonth.setYear(start.getYear());
-            goalMonth.setWeekIds(null);
             monthRepo.save(goalMonth);
             return true;
         }else return false;
@@ -85,7 +86,7 @@ public class GoalService {
             goalWeek.setStart(start);
             goalWeek.setEnd(end);
             goalWeek.setGoalMonth(monthId);
-            goalWeek.setState(state);
+            goalWeek.setState(proceeding);
             weekRepo.save(goalWeek);
             return true;
         } else return false;
@@ -97,9 +98,12 @@ public class GoalService {
         monthRepo.save(goalMonth);
     }
 
-    public boolean checkMonthState(String userId) {
-        LocalDate start = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-        LocalDate end = LocalDate.now().minusMonths(1).withDayOfMonth(start.lengthOfMonth());
+    public boolean checkMonthState(String userId, Long monthId) {
+        GoalMonth goalMonth = monthRepo.findById(monthId).get();
+
+        LocalDate start = goalMonth.getStart();
+        LocalDate end = goalMonth.getEnd();
+        LocalDate now = LocalDate.now();
 
         List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end).stream()
                 .map(widgetService::getDto)
@@ -112,24 +116,34 @@ public class GoalService {
                 .collect(Collectors.toList());
         long monthAmount = goalMonthAmount.stream().mapToLong(Long::longValue).sum();
 
-        GoalMonth goalMonth = monthRepo.findByUserAndGoalMonth(userId, start);
-        String achieved = "달성";
-        String failed = "실패";
-
-        if(total_cost <= monthAmount) {
-            goalMonth.setState(achieved);
-            monthRepo.save(goalMonth);
-        }
-        else {
-            goalMonth.setState(failed);
-            monthRepo.save(goalMonth);
+        if(end.isBefore(now)) {
+            if(total_cost <= monthAmount) {
+                goalMonth.setState(achieve);
+                monthRepo.save(goalMonth);
+            }
+            else {
+                goalMonth.setState(fail);
+                monthRepo.save(goalMonth);
+            }
+        } else {
+            if(total_cost <= monthAmount) {
+                goalMonth.setState(proceeding);
+                monthRepo.save(goalMonth);
+            }
+            else {
+                goalMonth.setState(fail);
+                monthRepo.save(goalMonth);
+            }
         }
         return true;
     }
 
-    public boolean checkWeekState(String userId) {
+    public boolean checkWeekState(String userId, Long weekId) {
+        GoalWeek goalWeek = weekRepo.findById(weekId).get();
+
         LocalDate start = LocalDate.now().minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate end = start.plusDays(6);
+        LocalDate now = LocalDate.now();
 
         List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end).stream()
                 .map(widgetService::getDto)
@@ -143,16 +157,24 @@ public class GoalService {
                 .collect(Collectors.toList());
         long weekAmount = goalWeekAmount.stream().mapToLong(Long::longValue).sum();
 
-        GoalWeek goalWeek = weekRepo.findByUserAndWeek(monthId, start);
-        String achieved = "달성";
-        String failed = "실패";
-
-        if(total_cost <= weekAmount) {
-            goalWeek.setState(achieved);
-            weekRepo.save(goalWeek);
+        if(end.isBefore(now)) {
+            if(total_cost <= weekAmount) {
+                goalWeek.setState(achieve);
+                weekRepo.save(goalWeek);
+            }
+            else {
+                goalWeek.setState(fail);
+                weekRepo.save(goalWeek);
+            }
         } else {
-            goalWeek.setState(failed);
-            weekRepo.save(goalWeek);
+            if(total_cost <= weekAmount) {
+                goalWeek.setState(proceeding);
+                weekRepo.save(goalWeek);
+            }
+            else {
+                goalWeek.setState(fail);
+                weekRepo.save(goalWeek);
+            }
         }
         return true;
     }
