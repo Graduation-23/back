@@ -28,6 +28,8 @@ public class GoalService {
     private final String proceeding = "진행 중";
     private final String achieve = "달성";
     private final String fail = "실패";
+    private final String month = "월간";
+    private final String week = "주간";
 
     public List<GoalMonth> getAll(String userId) {
         return monthRepo.findByUser(userId);
@@ -61,6 +63,7 @@ public class GoalService {
             goalMonth.setEnd(end);
             goalMonth.setUser(userId);
             goalMonth.setState(proceeding);
+            goalMonth.setName(month);
             goalMonth.setMonth(start.getMonthValue());
             goalMonth.setYear(start.getYear());
             monthRepo.save(goalMonth);
@@ -87,6 +90,7 @@ public class GoalService {
             goalWeek.setEnd(end);
             goalWeek.setGoalMonth(monthId);
             goalWeek.setState(proceeding);
+            goalWeek.setName(week);
             weekRepo.save(goalWeek);
             return true;
         } else return false;
