@@ -35,6 +35,9 @@ public class GoalWeek {
     @Field("goal_week_state")
     private String state;
 
+    @Field("goal_week")
+    private int week;
+
     @Field("goal_week_start")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @DateTimeFormat(pattern = "yyyy-MM-DD")

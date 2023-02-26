@@ -25,7 +25,7 @@ public class GoalService {
     private SpendingWidgetRepository spendRepo;
     @Autowired
     private SpendingWidgetService widgetService;
-    private final String proceeding = "진행 중";
+    private final String proceeding = "진행중";
     private final String achieve = "달성";
     private final String fail = "실패";
     private final String month = "월간";
@@ -91,6 +91,7 @@ public class GoalService {
             goalWeek.setGoalMonth(monthId);
             goalWeek.setState(proceeding);
             goalWeek.setName(week);
+            goalWeek.setWeek(whatWeek);
             weekRepo.save(goalWeek);
             return true;
         } else return false;
