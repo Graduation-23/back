@@ -261,18 +261,21 @@ public class OpenBankService {
         String dateFormatted = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
+        String baseUrl = UriComponentsBuilder.fromUriString(OPEN_BANK_TRANSACTION_LIST_URI)
+                .queryParam("inquiry_type", "O")
+                .queryParam("inquiry_base", "D")
+                .queryParam("from_date", dateFormatted)
+                .queryParam("to_date", dateFormatted)
+                .queryParam("sort_order", "A")
+                .queryParam("tran_dtime", nowFormatted)
+                .encode().build().toUriString();
+
         // 각 핀테크이용번호로 거래내역을 가져와 합침
         List<Transaction> result = new ArrayList<>();
         for (String fintechNum: info.getFintechNums()) {
-            String url = UriComponentsBuilder.fromUriString(OPEN_BANK_TRANSACTION_LIST_URI)
+            String url = UriComponentsBuilder.fromUriString(baseUrl)
                     .queryParam("bank_tran_id", this.generateBankTranId())
                     .queryParam("fintech_use_num", fintechNum)
-                    .queryParam("inquiry_type", "O")
-                    .queryParam("inquiry_base", "D")
-                    .queryParam("from_date", dateFormatted)
-                    .queryParam("to_date", dateFormatted)
-                    .queryParam("sort_order", "A")
-                    .queryParam("tran_dtime", nowFormatted)
                     .encode().build().toUriString();
 
             HttpHeaders headers = new HttpHeaders();
@@ -284,17 +287,19 @@ public class OpenBankService {
             checkResponse(response);
             result.addAll(this.getTransactionsFromResponse(response));
 
-            if (response.get("next_page_yn").equals("Y")) {
+            int i =0;
+            while (response.get("next_page_yn").equals("Y")) {
+                i++;
+                System.out.println(i);
                 url = UriComponentsBuilder
-                        .fromUriString(url)
+                        .fromUriString(baseUrl)
+                        .queryParam("bank_tran_id", this.generateBankTranId())
+                        .queryParam("fintech_use_num", fintechNum)
                         .queryParam("befor_inquiry_trace_info", response.get("befor_inquiry_trace_info"))
                         .encode().build().toUriString();
-
-                while (response.get("next_page_yn").equals("Y")) {
-                    response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Map.class).getBody();
-                    checkResponse(response);
-                    result.addAll(this.getTransactionsFromResponse(response));
-                }
+                response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Map.class).getBody();
+                checkResponse(response);
+                result.addAll(this.getTransactionsFromResponse(response));
             }
         }
         return result;
@@ -332,6 +337,8 @@ public class OpenBankService {
             throw new NullPointerException("Response is null");
         String rspCode = (String) response.get("rsp_code");
         String rspMessage = (String) response.get("rsp_message");
+        if (rspCode.equals("A0002"))
+            return; // 응답 전문 없음
         if (!rspCode.equals("A0000"))
             throw new OpenBankRequestFailedException(rspCode, rspMessage);
     }
