@@ -356,7 +356,6 @@ public class OpenBankService {
      * @return Transaction 객체
      */
     private List<Transaction> getTransactionsFromResponse(Map response, String dateFormatted) {
-        System.out.println(response);
         List<Map<String, String>> resList = (List<Map<String, String>>) response.get("res_list");
         return resList.stream()
                 .filter(res -> dateFormatted.equals(res.get("tran_date"))) // 임시
