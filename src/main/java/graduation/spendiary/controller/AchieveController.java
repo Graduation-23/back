@@ -31,11 +31,8 @@ public class AchieveController {
     }
 
     @GetMapping("/month")
-    public Message monthAchieve(@AuthenticationPrincipal String userId){
-        boolean success = achieveService.getMonthAchieve(userId);
-        return new Message(
-                success ? "완료" : "실패;", success
-        );
+    public long monthAchieve(@AuthenticationPrincipal String userId){
+        return achieveService.getMonthAchieve(userId);
     }
 
     @GetMapping("/week")

@@ -110,7 +110,7 @@ public class GoalService {
         LocalDate end = goalMonth.getEnd();
         LocalDate now = LocalDate.now();
 
-        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end).stream()
+        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(widgetService::getDto)
                 .map(SpendingWidgetDto::getTotalCost)
                 .collect(Collectors.toList());
@@ -150,17 +150,18 @@ public class GoalService {
         LocalDate end = goalWeek.getEnd();
         LocalDate now = LocalDate.now();
 
-        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end).stream()
+        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(widgetService::getDto)
                 .map(SpendingWidgetDto::getTotalCost)
                 .collect(Collectors.toList());
         long total_cost = spendingWidget.stream().mapToLong(Long::longValue).sum();
+
         Long monthId = goalWeek.getGoalMonth();
         List<Long> goalWeekAmount = weekRepo.findByUserAndDate(monthId, start).stream()
                 .map(GoalWeek::getAmount)
                 .collect(Collectors.toList());
         long weekAmount = goalWeekAmount.stream().mapToLong(Long::longValue).sum();
-
+        
         if(end.isBefore(now)) {
             if(total_cost <= weekAmount) {
                 goalWeek.setState(achieve);
