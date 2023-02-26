@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.List;
 
 @RestController
@@ -51,14 +53,14 @@ public class GoalController {
 
     //@Scheduled(cron = "0 10 00 1 *") // 매월 1일 오전 00시 00분에 실행
     @GetMapping("/month/state")
-    public Message monthState(@AuthenticationPrincipal String userId){
-        goalService.checkMonthState(userId);
+    public Message monthState(@AuthenticationPrincipal String userId, @RequestParam Long monthId){
+        goalService.checkMonthState(userId, monthId);
         return new Message("상태 변경", true);
     }
     //@Scheduled(cron = "0 0 0 ? * MON") //매주 월요일마다
     @GetMapping("/week/state")
-    public Message weekState(@AuthenticationPrincipal String userId){
-        goalService.checkWeekState(userId);
+    public Message weekState(@AuthenticationPrincipal String userId, @RequestParam Long weekId){
+        goalService.checkWeekState(userId, weekId);
         return new Message("상태 변경", true);
     }
 
