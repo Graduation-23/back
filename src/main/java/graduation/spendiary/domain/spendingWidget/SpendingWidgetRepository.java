@@ -11,6 +11,6 @@ import java.util.List;
 public interface SpendingWidgetRepository extends MongoRepository<SpendingWidget, Long> {
     List<SpendingWidget> findByUser(String userId);
 
-    @Query(value = "{'user_id': ?0, 'date': {$gte: ?1, $lte: ?2, $tz:'Asia/Seoul'}}")
+    @Query(value = "{'user_id': ?0, 'date': {$gte: ?1, $lte: ?2}}")
     List<SpendingWidget> findByUserAndDateBetween(String userId, LocalDate start, LocalDate end);
 }
