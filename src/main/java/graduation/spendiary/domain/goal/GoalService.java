@@ -145,8 +145,8 @@ public class GoalService {
     public boolean checkWeekState(String userId, Long weekId) {
         GoalWeek goalWeek = weekRepo.findById(weekId).get();
 
-        LocalDate start = LocalDate.now().minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate end = start.plusDays(6);
+        LocalDate start = goalWeek.getStart();
+        LocalDate end = goalWeek.getEnd();
         LocalDate now = LocalDate.now();
 
         List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end).stream()
@@ -154,8 +154,7 @@ public class GoalService {
                 .map(SpendingWidgetDto::getTotalCost)
                 .collect(Collectors.toList());
         long total_cost = spendingWidget.stream().mapToLong(Long::longValue).sum();
-
-        Long monthId = monthRepo.findByUserAndGoalMonth(userId, start.with(TemporalAdjusters.firstDayOfMonth())).getId();
+        Long monthId = goalWeek.getGoalMonth();
         List<Long> goalWeekAmount = weekRepo.findByUserAndDate(monthId, start).stream()
                 .map(GoalWeek::getAmount)
                 .collect(Collectors.toList());
