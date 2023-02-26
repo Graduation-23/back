@@ -287,10 +287,7 @@ public class OpenBankService {
             checkResponse(response);
             result.addAll(this.getTransactionsFromResponse(response));
 
-            int i =0;
-            while (response.get("next_page_yn").equals("Y")) {
-                i++;
-                System.out.println(i);
+            while (!((String) response.get("befor_inquiry_trace_info")).isEmpty()) {
                 url = UriComponentsBuilder
                         .fromUriString(baseUrl)
                         .queryParam("bank_tran_id", this.generateBankTranId())
