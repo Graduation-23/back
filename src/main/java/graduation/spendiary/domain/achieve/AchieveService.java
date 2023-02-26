@@ -41,7 +41,7 @@ public class AchieveService {
         return false;
     }
 
-    public boolean getMonthAchieve(String userId) {
+    public long getMonthAchieve(String userId) {
         Achieve achieve = repo.findById(userId);
         long monthCnt = goalMonthRepo.findByUser(userId).stream()
                 .map(GoalMonth::getState)
@@ -49,7 +49,7 @@ public class AchieveService {
                 .count();
         achieve.setMonthAchieve(monthCnt);
         repo.save(achieve);
-        return true;
+        return monthCnt;
     }
 
     public long getWeekAchieve(String userId) {
