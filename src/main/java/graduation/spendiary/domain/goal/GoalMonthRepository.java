@@ -14,7 +14,4 @@ public interface GoalMonthRepository extends MongoRepository<GoalMonth, Long> {
     @Query(value = "{'user_id': ?0, 'goal_month_start': ?1}")
     List<GoalMonth> findByUserAndDate(String userId, LocalDate date);
 
-    @Query(value = "{'user_id': ?0, 'goal_month_start': ?1}")
-    GoalMonth findByUserAndGoalMonth(String userId, LocalDate date);
-
 }

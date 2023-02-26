@@ -83,7 +83,8 @@ public class DiaryService {
     }
 
     public List<DiaryDto> getDtoByDateRange(String userId, LocalDate start, LocalDate end) {
-        return repo.findByUserAndDateBetween(userId, start, end).stream()
+        // todo: timezone 오류 해결
+        return repo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(this::getDto)
                 .collect(Collectors.toList());
     }
