@@ -155,13 +155,13 @@ public class GoalService {
                 .map(SpendingWidgetDto::getTotalCost)
                 .collect(Collectors.toList());
         long total_cost = spendingWidget.stream().mapToLong(Long::longValue).sum();
-        System.out.println("이번주 총 합 "+total_cost);
+
         Long monthId = goalWeek.getGoalMonth();
         List<Long> goalWeekAmount = weekRepo.findByUserAndDate(monthId, start).stream()
                 .map(GoalWeek::getAmount)
                 .collect(Collectors.toList());
         long weekAmount = goalWeekAmount.stream().mapToLong(Long::longValue).sum();
-        System.out.println("이번주 목표 금액 "+weekAmount);
+        
         if(end.isBefore(now)) {
             if(total_cost <= weekAmount) {
                 goalWeek.setState(achieve);
