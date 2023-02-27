@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * 월간/주간 소비량 목표를 관리하는 클래스입니다.
+ * @author 구본웅, 정민영
+ */
 @Service
 public class GoalService {
     @Autowired
@@ -56,6 +60,13 @@ public class GoalService {
 
     /**
      * 월간 목표
+     */
+    
+    /**
+     * 현재 시간에 해당하는 월간 목표를 만듭니다.
+     * @param userId
+     * @param goalMonth
+     * @return
      */
     public boolean monthGoal(String userId, GoalMonth goalMonth) {
         LocalDate start = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
@@ -100,6 +111,12 @@ public class GoalService {
             weekRepo.save(goalWeek);
             return true;
         } else return false;
+    }
+
+    public GoalMonth createEmptyMonthGoal(String userId, int year, int month) {
+        LocalDate firstDay = LocalDate.of(year, month, 1);
+        LocalDate lastDay = LocalDate.of(year, month + 1, 1).minusDays(1);
+
     }
 
     public void insertWeekId(Long monthId, GoalWeek goalWeek) {
