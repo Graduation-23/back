@@ -49,6 +49,11 @@ public class GoalService {
         return goalMonth.get();
     }
 
+    public List<GoalMonth> getGoalMonthOf(String userId, int year, int month) {
+        LocalDate monthStart = LocalDate.of(year, month, 1);
+        return monthRepo.findByUserAndDate(userId, monthStart);
+    }
+
     /**
      * 월간 목표
      */
