@@ -53,9 +53,13 @@ public class GoalService {
         return goalMonth.get();
     }
 
-    public List<GoalMonth> getGoalMonthOf(String userId, int year, int month) {
+    public GoalMonth getGoalMonthOf(String userId, int year, int month) {
         LocalDate monthStart = LocalDate.of(year, month, 1);
-        return monthRepo.findByUserAndDate(userId, monthStart);
+        List<GoalMonth> monthGoals = monthRepo.findByUserAndDate(userId, monthStart);
+        if (monthGoals.size() == 0)
+            return null;
+        else
+            return monthGoals.get(0);
     }
 
     /**

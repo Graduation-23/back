@@ -72,8 +72,8 @@ public class GoalController {
     @GetMapping("/month/{year}/{month}")
     public List<GoalMonth> getMonthByDate(
             @AuthenticationPrincipal String userId,
-            @RequestParam int year,
-            @RequestParam int month
+            @PathVariable("year") int year,
+            @PathVariable("month") int month
     ) {
         return goalService.getGoalMonthOf(userId, year, month);
     }
