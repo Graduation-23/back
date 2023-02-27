@@ -160,4 +160,14 @@ public class SpendingWidgetService {
         }
         return getDtoByDateRange(userId, firstDay, lastDay);
     }
+
+    /**
+     * SpendingWidget을 삭제합니다.
+     * @param id 삭제할 SpendingWidget ID
+     */
+    public void delete(Long id) {
+        if (!repo.existsById(id))
+            throw new NoSuchContentException();
+        repo.deleteById(id);
+    }
 }

@@ -71,4 +71,11 @@ public class SpendingWidgetController {
         return service.edit(userId, dto);
     }
 
+    @DeleteMapping
+    public void delete(
+            @AuthenticationPrincipal String userId,
+            @RequestParam Long id
+    ) {
+        service.delete(id);
+    }
 }
