@@ -74,7 +74,7 @@ public class DiaryService {
                 .imageUrls(Collections.emptyList())
                 .date(diaryDate)
                 .thumbnailIdx((long) -1)
-                .weather("")
+                .weather("sunny")
                 .build();
         diary.setId(SequenceGeneratorService.generateSequence(Diary.SEQUENCE_NAME));
 
