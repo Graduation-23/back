@@ -24,8 +24,13 @@ public class GoalController {
     }
 
     @GetMapping(value = "/month/{goalId}")
-    public GoalMonth getById(@PathVariable Long goalId) {
+    public GoalMonth getMonthGoalById(@PathVariable Long goalId) {
         return goalService.getMonthById(goalId);
+    }
+
+    @GetMapping(value = "/week/{goalId}")
+    public GoalWeek getWeekById(@PathVariable Long goalId) {
+        return goalService.getWeekById(goalId);
     }
 
     @PostMapping("/month")
@@ -62,6 +67,15 @@ public class GoalController {
     public Message weekState(@AuthenticationPrincipal String userId, @RequestParam Long weekId){
         goalService.checkWeekState(userId, weekId);
         return new Message("상태 변경", true);
+    }
+
+    @GetMapping("/month/{year}/{month}")
+    public List<GoalMonth> getMonthByDate(
+            @AuthenticationPrincipal String userId,
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        return goalService.getGoalMonthOf(userId, year, month);
     }
 
 }
