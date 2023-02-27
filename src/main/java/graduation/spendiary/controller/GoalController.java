@@ -70,7 +70,7 @@ public class GoalController {
     }
 
     @GetMapping("/month/{year}/{month}")
-    public List<GoalMonth> getMonthByDate(
+    public GoalMonth getMonthByDate(
             @AuthenticationPrincipal String userId,
             @PathVariable("year") int year,
             @PathVariable("month") int month
