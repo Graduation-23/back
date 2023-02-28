@@ -123,6 +123,12 @@ public class GoalService {
         } else return -1L;
     }
 
+    public void insertWeekId(Long monthId, GoalWeek goalWeek) {
+        GoalMonth goalMonth = monthRepo.findById(monthId).get();
+        goalMonth.getWeekIds().add(goalWeek.getId());
+        monthRepo.save(goalMonth);
+    }
+
     /**
      * 현재 시간을 기준으로 새 월간 목표를 만듭니다.
      * @param userId 사용자 ID
@@ -144,10 +150,14 @@ public class GoalService {
         return monthGoalId;
     }
 
-    public void insertWeekId(Long monthId, GoalWeek goalWeek) {
-        GoalMonth goalMonth = monthRepo.findById(monthId).get();
-        goalMonth.getWeekIds().add(goalWeek.getId());
-        monthRepo.save(goalMonth);
+    /**
+     * 주간 목표를 수정합니다.
+     * @param id 주간 목표 ID
+     * @param goal 수정할 주간 목표 정보
+     */
+    public void editWeekGoal(Long id, GoalWeek goal) {
+        goal.setId(id);
+        weekRepo.save(goal);
     }
 
     public boolean checkMonthState(String userId, Long monthId) {

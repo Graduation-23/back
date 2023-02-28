@@ -48,13 +48,9 @@ public class GoalController {
         return goalService.getThisGoal(goalMonthId);
     }
 
-    @PostMapping(value = "/week", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Message weekGoalAdd(@RequestParam Long goalMonthId, @RequestBody GoalWeek goalWeek) {
-        Long weekGoalId = goalService.weekGoal(goalMonthId, goalWeek);
-        if(weekGoalId != -1) goalService.insertWeekId(goalMonthId, goalWeek);
-        return new Message(
-                weekGoalId != -1 ? "생성 완료" : "생성 실패;", weekGoalId != -1
-        );
+    @PutMapping(value = "/week", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void weekGoalAdd(@RequestParam Long id, @RequestBody GoalWeek goalWeek) {
+        goalService.editWeekGoal(id, goalWeek);
     }
 
     //@Scheduled(cron = "0 10 00 1 *") // 매월 1일 오전 00시 00분에 실행
