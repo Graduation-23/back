@@ -5,13 +5,12 @@ import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetRepository;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import graduation.spendiary.exception.GoalAmountExceededException;
+import graduation.spendiary.util.DateUtil;
+import graduation.spendiary.util.LocalDatePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,11 +94,13 @@ public class GoalService {
      */
     public Long weekGoal(Long monthId, GoalWeek goalWeek) {
         int week = goalWeek.getWeek();
-        LocalDate monthFirstDay = getMonthById(monthId).getStart();
-        LocalDate start = monthFirstDay.with(TemporalAdjusters.dayOfWeekInMonth(week - 1, DayOfWeek.MONDAY)); //특정 주차의 월요일 날짜
-        LocalDate end = monthFirstDay.with(TemporalAdjusters.dayOfWeekInMonth(week, DayOfWeek.SUNDAY)); //일요일 날짜
+        GoalMonth goalMonth = getMonthById(monthId);
 
-        GoalMonth goalMonth = monthRepo.findById(monthId).get();
+        LocalDatePeriod period = DateUtil.getDatePeriod(goalMonth.getYear(), goalMonth.getMonth(), week);
+        assert period != null;
+        LocalDate start = period.getStart();
+        LocalDate end = period.getEnd();
+
         long monthAmount = goalMonth.getAmount();
         long weekAmountSum = this.getWeekGoalAmountSum(goalMonth);
         weekAmountSum += goalWeek.getAmount();
