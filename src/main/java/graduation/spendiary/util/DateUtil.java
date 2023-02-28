@@ -14,23 +14,13 @@ public class DateUtil {
     private DateUtil() {}
 
     /**
-     * 주어진 날짜가 (목표 상에서) 몇 주차인지 구합니다.
-     * (1~7일: 1주차, 8~14일: 2주차, ..., 22~말일: 4주차)
+     * 주어진 날짜가 (목표 상에서) 그 달의 몇 주차인지 구합니다.
+     * (1일~그 달 첫번째 일요일: 1주차, 그 달 마지막 )
      * @param date
      * @return
      */
     public static int getWeek(LocalDate date) {
         return Math.min((date.getDayOfMonth() + 6) / 7, 4);
-    }
-
-    /**
-     * 날짜 간격을 나타내는 객체입니다. 시작일과 말일을 가지고 있습니다.
-     */
-    @AllArgsConstructor
-    @Getter
-    static class LocalDatePeriod {
-        LocalDate start;
-        LocalDate end;
     }
 
     /**

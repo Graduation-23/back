@@ -4,6 +4,8 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetRepository;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
+import graduation.spendiary.util.DateUtil;
+import graduation.spendiary.util.LocalDatePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -94,11 +96,13 @@ public class GoalService {
      */
     public Long weekGoal(Long monthId, GoalWeek goalWeek) {
         int week = goalWeek.getWeek();
-        LocalDate monthFirstDay = getMonthById(monthId).getStart();
-        LocalDate start = monthFirstDay.with(TemporalAdjusters.dayOfWeekInMonth(week - 1, DayOfWeek.MONDAY)); //특정 주차의 월요일 날짜
-        LocalDate end = monthFirstDay.with(TemporalAdjusters.dayOfWeekInMonth(week, DayOfWeek.SUNDAY)); //일요일 날짜
+        GoalMonth goalMonth = getMonthById(monthId);
 
-        GoalMonth goalMonth = monthRepo.findById(monthId).get();
+        LocalDatePeriod period = DateUtil.getDatePeriod(goalMonth.getYear(), goalMonth.getMonth(), week);
+        assert period != null;
+        LocalDate start = period.getStart();
+        LocalDate end = period.getEnd();
+
         long monthAmount = goalMonth.getAmount();
         long weekAmountSum = goalMonth.getWeekIds().stream()
                 .map(this::getWeekById)
