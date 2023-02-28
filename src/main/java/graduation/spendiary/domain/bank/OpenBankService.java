@@ -252,11 +252,22 @@ public class OpenBankService {
         repo.save(info);
     }
 
+    /**
+     * 사용자의 출금 내역을 가져옵니다.
+     * @param userId 사용자 ID
+     * @param date 출금 내역을 조회할 날짜
+     * @return 출금 내역 리스트, 사용자 계좌가 DB에 없다면 빈 리스트
+     * @throws OpenBankRequestFailedException 금융결제원에 요청 실패
+     */
     public List<Transaction> getWithdrawTransactionAt(String userId, LocalDate date)
-        throws NoSuchContentException, OpenBankRequestFailedException
+        throws OpenBankRequestFailedException
     {
-        OpenBankInfo info = this.getInfo(userId);
-
+        try {
+            OpenBankInfo info = this.getInfo(userId);
+        }
+        catch (NoSuchContentException e) {
+            return Collections.emptyList();
+        }
         RestTemplate restTemplate = new RestTemplate();
 
         String dateFormatted = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
