@@ -29,11 +29,11 @@ public class GoalService {
     private SpendingWidgetRepository spendRepo;
     @Autowired
     private SpendingWidgetService widgetService;
-    private final String proceeding = "진행중";
-    private final String achieve = "달성";
-    private final String fail = "실패";
-    private final String month = "월간";
-    private final String week = "주간";
+    private final String STATE_PROCEEDING = "진행중";
+    private final String STATE_ACHEIVED = "달성";
+    private final String STATE_FAILED = "실패";
+    private final String DEFAULT_NAME_MONTH = "월간";
+    private final String DEFAULT_NAME_WEEK = "주간";
 
     public List<GoalMonth> getAll(String userId) {
         return monthRepo.findByUser(userId);
@@ -61,40 +61,42 @@ public class GoalService {
         else
             return monthGoals.get(0);
     }
-
-    /**
-     * 월간 목표
-     */
     
     /**
-     * 현재 시간에 해당하는 월간 목표를 만듭니다.
+     * 주어진 월에 해당하는 월간 목표를 만듭니다.
      * @param userId
      * @param goalMonth
-     * @return
+     * @return 생성된 월간 목표 ID, 실패라면 -1.
      */
-    public boolean monthGoal(String userId, GoalMonth goalMonth) {
-        LocalDate start = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
-        LocalDate end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
+    public Long monthGoal(String userId, int year, int month, GoalMonth goalMonth) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = LocalDate.of(year, month + 1, 1).minusDays(1);
 
         if(monthRepo.findByUserAndDate(userId, start).isEmpty()){
-
             goalMonth.setId(SequenceGeneratorService.generateSequence(GoalMonth.SEQUENCE_NAME));
             goalMonth.setStart(start);
             goalMonth.setEnd(end);
             goalMonth.setUser(userId);
-            goalMonth.setState(proceeding);
-            goalMonth.setName(month);
-            goalMonth.setMonth(start.getMonthValue());
-            goalMonth.setYear(start.getYear());
-            monthRepo.save(goalMonth);
-            return true;
-        }else return false;
+            goalMonth.setState(STATE_PROCEEDING);
+            goalMonth.setName(DEFAULT_NAME_MONTH);
+            goalMonth.setMonth(month);
+            goalMonth.setYear(year);
+            GoalMonth savedGoal = monthRepo.save(goalMonth);
+            return savedGoal.getId();
+        }else return -1L;
     }
 
-    public boolean weekGoal(Long monthId, GoalWeek goalWeek) {
-        int whatWeek = LocalDate.now().get(WeekFields.ISO.weekOfMonth());
-        LocalDate start = LocalDate.now().with(TemporalAdjusters.dayOfWeekInMonth(whatWeek - 1, DayOfWeek.MONDAY)); //특정 주차의 월요일 날짜
-        LocalDate end = LocalDate.now().with(TemporalAdjusters.dayOfWeekInMonth(whatWeek, DayOfWeek.SUNDAY)); //일요일 날짜
+    /**
+     * 주어진 월간 목표의 달과 주에 해당하는 주간 목표를 만듭니다.
+     * @param monthId 월간 목표 ID
+     * @param goalWeek 주간 목표 정보
+     * @return 생성된 주간 목표의 ID, 저장 실패 시 -1.
+     */
+    public Long weekGoal(Long monthId, GoalWeek goalWeek) {
+        int week = goalWeek.getWeek();
+        LocalDate monthFirstDay = getMonthById(monthId).getStart();
+        LocalDate start = monthFirstDay.with(TemporalAdjusters.dayOfWeekInMonth(week - 1, DayOfWeek.MONDAY)); //특정 주차의 월요일 날짜
+        LocalDate end = monthFirstDay.with(TemporalAdjusters.dayOfWeekInMonth(week, DayOfWeek.SUNDAY)); //일요일 날짜
 
         GoalMonth goalMonth = monthRepo.findById(monthId).get();
         long monthAmount = goalMonth.getAmount();
@@ -109,19 +111,33 @@ public class GoalService {
             goalWeek.setStart(start);
             goalWeek.setEnd(end);
             goalWeek.setGoalMonth(monthId);
-            goalWeek.setState(proceeding);
-            goalWeek.setName(week);
-            goalWeek.setWeek(whatWeek);
-            weekRepo.save(goalWeek);
-            return true;
-        } else return false;
+            goalWeek.setState(STATE_PROCEEDING);
+            goalWeek.setName(DEFAULT_NAME_WEEK);
+            goalWeek.setWeek(week);
+            GoalWeek savedGoal = weekRepo.save(goalWeek);
+            return savedGoal.getId();
+        } else return -1L;
     }
 
-    public GoalMonth createEmptyMonthGoal(String userId, int year, int month) {
-        LocalDate firstDay = LocalDate.of(year, month, 1);
-        LocalDate lastDay = LocalDate.of(year, month + 1, 1).minusDays(1);
+    /**
+     * 현재 시간을 기준으로 새 월간 목표를 만듭니다.
+     * @param userId 사용자 ID
+     * @param goal 월간 목표 정보
+     * @return 성공 여부
+     */
+    public Long createMonthGoalOfNow(String userId, GoalMonth goal) {
+        LocalDate now = LocalDate.now();
+        Long monthGoalId = monthGoal(userId, now.getYear(), now.getMonthValue(), goal);
 
-        return null; //todo
+        for (int i=1; i<=4; i++) {
+            GoalWeek emptyGoalWeek = GoalWeek.builder()
+                    .week(i)
+                    .amount(0L)
+                    .build();
+            Long weekGoalId = weekGoal(monthGoalId, emptyGoalWeek);
+            insertWeekId(monthGoalId, getWeekById(weekGoalId));
+        }
+        return monthGoalId;
     }
 
     public void insertWeekId(Long monthId, GoalWeek goalWeek) {
@@ -150,20 +166,20 @@ public class GoalService {
 
         if(end.isBefore(now)) {
             if(total_cost <= monthAmount) {
-                goalMonth.setState(achieve);
+                goalMonth.setState(STATE_ACHEIVED);
                 monthRepo.save(goalMonth);
             }
             else {
-                goalMonth.setState(fail);
+                goalMonth.setState(STATE_FAILED);
                 monthRepo.save(goalMonth);
             }
         } else {
             if(total_cost <= monthAmount) {
-                goalMonth.setState(proceeding);
+                goalMonth.setState(STATE_PROCEEDING);
                 monthRepo.save(goalMonth);
             }
             else {
-                goalMonth.setState(fail);
+                goalMonth.setState(STATE_FAILED);
                 monthRepo.save(goalMonth);
             }
         }
@@ -191,20 +207,20 @@ public class GoalService {
         
         if(end.isBefore(now)) {
             if(total_cost <= weekAmount) {
-                goalWeek.setState(achieve);
+                goalWeek.setState(STATE_ACHEIVED);
                 weekRepo.save(goalWeek);
             }
             else {
-                goalWeek.setState(fail);
+                goalWeek.setState(STATE_FAILED);
                 weekRepo.save(goalWeek);
             }
         } else {
             if(total_cost <= weekAmount) {
-                goalWeek.setState(proceeding);
+                goalWeek.setState(STATE_PROCEEDING);
                 weekRepo.save(goalWeek);
             }
             else {
-                goalWeek.setState(fail);
+                goalWeek.setState(STATE_FAILED);
                 weekRepo.save(goalWeek);
             }
         }

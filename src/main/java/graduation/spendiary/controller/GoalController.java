@@ -3,6 +3,7 @@ package graduation.spendiary.controller;
 import graduation.spendiary.domain.goal.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,12 +34,12 @@ public class GoalController {
         return goalService.getWeekById(goalId);
     }
 
-    @PostMapping("/month")
+    @PostMapping(value = "/month", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Message monthGoalAdd(@AuthenticationPrincipal String userId, @RequestBody GoalMonth goalMonth) {
-        boolean success = goalService.monthGoal(userId, goalMonth);
+        Long monthGoalId = goalService.createMonthGoalOfNow(userId, goalMonth);
         return new Message(
-                success ? "생성 완료" : "생성 실패; 이미 존재합니다",
-                success
+                monthGoalId != -1L ? "생성 완료" : "생성 실패; 이미 존재합니다",
+                monthGoalId != -1L
         );
     }
 
@@ -47,12 +48,12 @@ public class GoalController {
         return goalService.getThisGoal(goalMonthId);
     }
 
-    @PostMapping("/week")
+    @PostMapping(value = "/week", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Message weekGoalAdd(@RequestParam Long goalMonthId, @RequestBody GoalWeek goalWeek) {
-        boolean success = goalService.weekGoal(goalMonthId, goalWeek);
-        if(success) goalService.insertWeekId(goalMonthId, goalWeek);
+        Long weekGoalId = goalService.weekGoal(goalMonthId, goalWeek);
+        if(weekGoalId != -1) goalService.insertWeekId(goalMonthId, goalWeek);
         return new Message(
-                success ? "생성 완료" : "생성 실패;", success
+                weekGoalId != -1 ? "생성 완료" : "생성 실패;", weekGoalId != -1
         );
     }
 
