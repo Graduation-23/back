@@ -243,7 +243,7 @@ public class GoalService {
 
     /**
      * 월간 목표에 포함된 주간 목표량의 합을 계산합니다.
-     * @param goalMonthId 월간 목표 ID
+     * @param goalMonth 월간 목표
      * @return 주간 목표량 합
      */
     private Long getWeekGoalAmountSum(GoalMonth goalMonth) {
