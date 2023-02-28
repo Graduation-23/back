@@ -49,8 +49,8 @@ public class GoalController {
     }
 
     @PutMapping(value = "/week", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void weekGoalAdd(@RequestParam Long id, @RequestBody GoalWeek goalWeek) {
-        goalService.editWeekGoal(id, goalWeek);
+    public void weekGoalAdd(@RequestParam Long id, @RequestParam Long amount) {
+        goalService.editWeekGoal(id, amount);
     }
 
     //@Scheduled(cron = "0 10 00 1 *") // 매월 1일 오전 00시 00분에 실행
