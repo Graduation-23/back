@@ -4,15 +4,13 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetRepository;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
+import graduation.spendiary.exception.GoalAmountExceededException;
 import graduation.spendiary.util.DateUtil;
 import graduation.spendiary.util.LocalDatePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -104,10 +102,7 @@ public class GoalService {
         LocalDate end = period.getEnd();
 
         long monthAmount = goalMonth.getAmount();
-        long weekAmountSum = goalMonth.getWeekIds().stream()
-                .map(this::getWeekById)
-                .map(GoalWeek::getAmount)
-                .mapToLong(Long::longValue).sum();
+        long weekAmountSum = this.getWeekGoalAmountSum(goalMonth);
         weekAmountSum += goalWeek.getAmount();
 
         if (weekRepo.findByUserAndDate(monthId, start).isEmpty() && monthAmount >= weekAmountSum) {
@@ -153,11 +148,17 @@ public class GoalService {
     /**
      * 주간 목표를 수정합니다.
      * @param id 주간 목표 ID
-     * @param goal 수정할 주간 목표 정보
+     * @param amount 주간 목표량
      */
-    public void editWeekGoal(Long id, GoalWeek goal) {
-        goal.setId(id);
-        weekRepo.save(goal);
+    public void editWeekGoal(Long id, Long amount) {
+        GoalWeek targetGoal = this.getWeekById(id);
+        GoalMonth parentGoal = this.getMonthById(targetGoal.getGoalMonth());
+        Long parentWeekSum = this.getWeekGoalAmountSum(parentGoal);
+        if (parentWeekSum - targetGoal.getAmount() + amount > parentGoal.getAmount())
+            throw new GoalAmountExceededException();
+
+        targetGoal.setAmount(amount);
+        weekRepo.save(targetGoal);
     }
 
     public boolean checkMonthState(String userId, Long monthId) {
@@ -239,5 +240,17 @@ public class GoalService {
             }
         }
         return true;
+    }
+
+    /**
+     * 월간 목표에 포함된 주간 목표량의 합을 계산합니다.
+     * @param goalMonth 월간 목표
+     * @return 주간 목표량 합
+     */
+    private Long getWeekGoalAmountSum(GoalMonth goalMonth) {
+        return goalMonth.getWeekIds().stream()
+                .map(this::getWeekById)
+                .map(GoalWeek::getAmount)
+                .mapToLong(Long::longValue).sum();
     }
 }
