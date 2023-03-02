@@ -4,13 +4,16 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetRepository;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
+import graduation.spendiary.exception.ContentAlreadyExistsException;
 import graduation.spendiary.exception.GoalAmountExceededException;
+import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.util.DateUtil;
 import graduation.spendiary.util.LocalDatePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,18 +75,19 @@ public class GoalService {
         LocalDate start = LocalDate.of(year, month, 1);
         LocalDate end = LocalDate.of(year, month + 1, 1).minusDays(1);
 
-        if(monthRepo.findByUserAndDate(userId, start).isEmpty()){
-            goalMonth.setId(SequenceGeneratorService.generateSequence(GoalMonth.SEQUENCE_NAME));
-            goalMonth.setStart(start);
-            goalMonth.setEnd(end);
-            goalMonth.setUser(userId);
-            goalMonth.setState(STATE_PROCEEDING);
-            goalMonth.setName(DEFAULT_NAME_MONTH);
-            goalMonth.setMonth(month);
-            goalMonth.setYear(year);
-            GoalMonth savedGoal = monthRepo.save(goalMonth);
-            return savedGoal.getId();
-        }else return -1L;
+        if (!monthRepo.findByUserAndDate(userId, start).isEmpty())
+            throw new NoSuchContentException();
+
+        goalMonth.setId(SequenceGeneratorService.generateSequence(GoalMonth.SEQUENCE_NAME));
+        goalMonth.setStart(start);
+        goalMonth.setEnd(end);
+        goalMonth.setUser(userId);
+        goalMonth.setState(STATE_PROCEEDING);
+        goalMonth.setName(DEFAULT_NAME_MONTH);
+        goalMonth.setMonth(month);
+        goalMonth.setYear(year);
+        GoalMonth savedGoal = monthRepo.save(goalMonth);
+        return savedGoal.getId();
     }
 
     /**
@@ -101,21 +105,21 @@ public class GoalService {
         LocalDate start = period.getStart();
         LocalDate end = period.getEnd();
 
-        long monthAmount = goalMonth.getAmount();
-        long weekAmountSum = this.getWeekGoalAmountSum(goalMonth);
-        weekAmountSum += goalWeek.getAmount();
+        if (!weekRepo.findByUserAndDate(monthId, start).isEmpty())
+            throw new ContentAlreadyExistsException();
 
-        if (weekRepo.findByUserAndDate(monthId, start).isEmpty() && monthAmount >= weekAmountSum) {
-            goalWeek.setId(SequenceGeneratorService.generateSequence(GoalMonth.SEQUENCE_NAME));
-            goalWeek.setStart(start);
-            goalWeek.setEnd(end);
-            goalWeek.setGoalMonth(monthId);
-            goalWeek.setState(STATE_PROCEEDING);
-            goalWeek.setName(DEFAULT_NAME_WEEK);
-            goalWeek.setWeek(week);
-            GoalWeek savedGoal = weekRepo.save(goalWeek);
-            return savedGoal.getId();
-        } else return -1L;
+        if (goalMonth.getAmount() < this.getWeekGoalAmountSum(goalMonth) + goalWeek.getAmount())
+            throw new GoalAmountExceededException();
+
+        goalWeek.setId(SequenceGeneratorService.generateSequence(GoalWeek.SEQUENCE_NAME));
+        goalWeek.setStart(start);
+        goalWeek.setEnd(end);
+        goalWeek.setGoalMonth(monthId);
+        goalWeek.setState(STATE_PROCEEDING);
+        goalWeek.setName(DEFAULT_NAME_WEEK);
+        goalWeek.setWeek(week);
+        GoalWeek savedGoal = weekRepo.save(goalWeek);
+        return savedGoal.getId();
     }
 
     public void insertWeekId(Long monthId, GoalWeek goalWeek) {
@@ -132,6 +136,8 @@ public class GoalService {
      */
     public Long createMonthGoalOfNow(String userId, GoalMonth goal) {
         LocalDate now = LocalDate.now();
+        if (goal.getWeekIds() == null)
+            goal.setWeekIds(Collections.emptyList());
         Long monthGoalId = monthGoal(userId, now.getYear(), now.getMonthValue(), goal);
 
         for (int i=1; i<=4; i++) {

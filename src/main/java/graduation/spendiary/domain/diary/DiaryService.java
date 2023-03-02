@@ -2,7 +2,7 @@ package graduation.spendiary.domain.diary;
 
 import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.cdn.CloudinaryService;
-import graduation.spendiary.exception.DiaryDuplicatedException;
+import graduation.spendiary.exception.ContentAlreadyExistsException;
 import graduation.spendiary.exception.TooLateDiaryException;
 import graduation.spendiary.exception.NoSuchContentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +55,13 @@ public class DiaryService {
      * @param diaryDate 다이어리의 날짜
      * @param userId 다이어리 작성자
      * @return 빈 다이어리
-     * @throws DiaryDuplicatedException 해당 날짜에 이미 다이어리가 있음
+     * @throws ContentAlreadyExistsException 해당 날짜에 이미 다이어리가 있음
      */
     public Long saveEmptyDiary(String userId, LocalDate diaryDate)
-        throws DiaryDuplicatedException
+        throws ContentAlreadyExistsException
     {
         if (!repo.findByUserAndDate(userId, diaryDate).isEmpty())
-            throw new DiaryDuplicatedException();
+            throw new ContentAlreadyExistsException();
 
         // 생성된 시간보다 3일 초과해서 지났다면 안됨
         if (!Period.between(diaryDate, LocalDate.now()).minusDays(3).isNegative())

@@ -1,6 +1,9 @@
 package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.goal.*;
+import graduation.spendiary.exception.ContentAlreadyExistsException;
+import graduation.spendiary.exception.GoalAmountExceededException;
+import graduation.spendiary.exception.NoSuchContentException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -36,11 +39,13 @@ public class GoalController {
 
     @PostMapping(value = "/month", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Message monthGoalAdd(@AuthenticationPrincipal String userId, @RequestBody GoalMonth goalMonth) {
-        Long monthGoalId = goalService.createMonthGoalOfNow(userId, goalMonth);
-        return new Message(
-                monthGoalId != -1L ? "생성 완료" : "생성 실패; 이미 존재합니다",
-                monthGoalId != -1L
-        );
+        try {
+            Long monthGoalId = goalService.createMonthGoalOfNow(userId, goalMonth);
+            return new Message("생성 완료", true);
+        }
+        catch (ContentAlreadyExistsException e) {
+            return new Message("생성 실패; 이미 존재합니다", false);
+        }
     }
 
     @GetMapping("/week")
