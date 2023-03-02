@@ -73,17 +73,4 @@ public class OpenBankController {
     ) {
         return openBankService.getWithdrawTransactionAt(userId, date);
     }
-
-    @ExceptionHandler
-    public Map<String, String> testexhandler(Exception e) {
-        e.printStackTrace();
-        if (e instanceof OpenBankRequestFailedException) {
-            OpenBankRequestFailedException ex = (OpenBankRequestFailedException) e;
-            Map<String, String> response = new HashMap<>();
-            response.put("code", ex.getCode());
-            response.put("message", ex.getMessage());
-            return response;
-        }
-        return null;
-    }
 }

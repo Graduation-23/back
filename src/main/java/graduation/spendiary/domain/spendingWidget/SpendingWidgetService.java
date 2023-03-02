@@ -3,6 +3,7 @@ package graduation.spendiary.domain.spendingWidget;
 import graduation.spendiary.domain.diary.DiaryDto;
 import graduation.spendiary.domain.diary.DiaryService;
 import graduation.spendiary.exception.NoSuchContentException;
+import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -118,7 +119,8 @@ public class SpendingWidgetService {
     }
 
     public List<SpendingWidgetDto> getDtoByDateRange(String userId, LocalDate start, LocalDate end) {
-        return repo.findByUserAndDateBetween(userId, start, end).stream()
+        // todo: timezone 오류 해결
+        return repo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(this::getDto)
                 .collect(Collectors.toList());
     }
@@ -157,5 +159,15 @@ public class SpendingWidgetService {
             return Collections.emptyList();
         }
         return getDtoByDateRange(userId, firstDay, lastDay);
+    }
+
+    /**
+     * SpendingWidget을 삭제합니다.
+     * @param id 삭제할 SpendingWidget ID
+     */
+    public void delete(Long id) {
+        if (!repo.existsById(id))
+            throw new NoSuchContentException();
+        repo.deleteById(id);
     }
 }
