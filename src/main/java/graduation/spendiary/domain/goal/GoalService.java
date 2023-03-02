@@ -253,4 +253,28 @@ public class GoalService {
                 .map(GoalWeek::getAmount)
                 .mapToLong(Long::longValue).sum();
     }
+
+    public long getMonthAchieve(String userId) {
+        long monthCnt = monthRepo.findByUser(userId).stream()
+                .map(GoalMonth::getState)
+                .filter(n -> n.contains("달성"))
+                .count();
+        return monthCnt;
+    }
+
+    public long getWeekAchieve(String userId) {
+        List<List<Long>> weekIds = monthRepo.findByUser(userId).stream()
+                .map(GoalMonth::getWeekIds)
+                .collect(Collectors.toList());
+
+        long weekCnt = 0;
+        for (List<Long> n : weekIds) {
+            weekCnt += n.stream()
+                    .map(this::getWeekById)
+                    .map(GoalWeek::getState)
+                    .filter(a -> ((String) a).contains("달성"))
+                    .count();
+        }
+        return weekCnt;
+    }
 }

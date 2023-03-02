@@ -75,4 +75,13 @@ public class GoalController {
         return goalService.getGoalMonthOf(userId, year, month);
     }
 
+    @GetMapping("/month/achieve")
+    public long monthAchieve(@AuthenticationPrincipal String userId) {
+        return goalService.getMonthAchieve(userId);
+        }
+
+    @GetMapping("/week/achieve")
+    public long weekAchievee(@AuthenticationPrincipal String userId) {
+        return goalService.getWeekAchieve(userId);
+    }
 }
