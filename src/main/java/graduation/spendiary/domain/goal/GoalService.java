@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -135,6 +136,8 @@ public class GoalService {
      */
     public Long createMonthGoalOfNow(String userId, GoalMonth goal) {
         LocalDate now = LocalDate.now();
+        if (goal.getWeekIds() == null)
+            goal.setWeekIds(Collections.emptyList());
         Long monthGoalId = monthGoal(userId, now.getYear(), now.getMonthValue(), goal);
 
         for (int i=1; i<=4; i++) {
