@@ -23,6 +23,8 @@ public class SpendingWidgetService {
     @Autowired
     private SpendingWidgetRepository repo;
     @Autowired
+    private SpendingWidgetItemRepository itemRepo;
+    @Autowired
     private SpendingWidgetItemService itemService;
 
     /**
@@ -169,5 +171,23 @@ public class SpendingWidgetService {
         if (!repo.existsById(id))
             throw new NoSuchContentException();
         repo.deleteById(id);
+    }
+
+    public boolean deleteSpendingWidgetAll(String userId) {
+        List<SpendingWidget> spendingWidgetList = repo.findByUser(userId);
+        List<List<Long>> itemIds = repo.findByUser(userId).stream()
+                .map(SpendingWidget::getItemIds)
+                .collect(Collectors.toList());
+
+        if(spendingWidgetList == null) {
+            return false;
+        }
+        for(List<Long> n : itemIds) {
+            itemRepo.deleteAllById(n);
+        }
+        for(SpendingWidget n : spendingWidgetList) {
+            repo.delete(n);
+        }
+        return true;
     }
 }

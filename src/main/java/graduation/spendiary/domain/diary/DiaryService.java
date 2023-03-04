@@ -175,4 +175,15 @@ public class DiaryService {
         repo.deleteById(deleteDiary.getId());
         return true;
     }
+
+    public boolean deleteDiaryAll(String userId) {
+        List<Diary> diaryList = repo.findByUser(userId);
+        if(diaryList == null) {
+            return false;
+        }
+        for(Diary n : diaryList) {
+            repo.delete(n);
+        }
+        return true;
+    }
 }

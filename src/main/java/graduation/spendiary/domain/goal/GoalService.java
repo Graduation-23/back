@@ -283,4 +283,22 @@ public class GoalService {
         }
         return weekCnt;
     }
+
+    public boolean deleteGoalAll(String userId) {
+        List<GoalMonth> goalMonthList = monthRepo.findByUser(userId);
+        List<List<Long>> weekIds = monthRepo.findByUser(userId).stream()
+                .map(GoalMonth::getWeekIds)
+                .collect(Collectors.toList());
+
+        if(goalMonthList == null) {
+            return false;
+        }
+        for (List<Long> n : weekIds) {
+            weekRepo.deleteAllById(n);
+        }
+        for(GoalMonth n : goalMonthList) {
+            monthRepo.delete(n);
+        }
+        return true;
+    }
 }
