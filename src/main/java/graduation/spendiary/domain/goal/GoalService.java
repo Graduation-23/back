@@ -47,13 +47,17 @@ public class GoalService {
     }
 
     public GoalWeek getWeekById(Long id) {
-        Optional<GoalWeek> goalWeeks = weekRepo.findById(id);
-        return goalWeeks.get();
+        Optional<GoalWeek> goalWeekOptional = weekRepo.findById(id);
+        if (goalWeekOptional.isEmpty())
+            throw new NoSuchContentException();
+        return goalWeekOptional.get();
     }
 
     public GoalMonth getMonthById(Long id) {
-        Optional<GoalMonth> goalMonth = monthRepo.findById(id);
-        return goalMonth.get();
+        Optional<GoalMonth> goalMonthOptional = monthRepo.findById(id);
+        if (goalMonthOptional.isEmpty())
+            throw new NoSuchContentException();
+        return goalMonthOptional.get();
     }
 
     public GoalMonth getGoalMonthOf(String userId, int year, int month) {
