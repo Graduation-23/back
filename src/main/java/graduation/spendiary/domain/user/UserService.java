@@ -79,6 +79,10 @@ public class UserService {
         return repo.findById(userId).get();
     }
 
+    public boolean validateUser(String userId, String password) {
+        return repo.findByIdAndPw(userId, password) != null;
+    }
+
     public boolean deleteUser(String userId, String password) {
         User user = repo.findByIdAndPw(userId, password);
         if(user == null) {

@@ -5,6 +5,7 @@ import graduation.spendiary.domain.finance.FinanceService;
 import graduation.spendiary.domain.goal.GoalService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import graduation.spendiary.domain.user.UserService;
+import graduation.spendiary.exception.NoSuchContentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +33,9 @@ public class Delete {
 
     @DeleteMapping
     public Message deleteInfo(@AuthenticationPrincipal String userId, String password) {
+        if (!userService.validateUser(userId, password))
+            throw new NoSuchContentException();
+
         boolean user = userService.deleteUser(userId, password);
         boolean diary = diaryService.deleteDiaryAll(userId);
         boolean finance = financeService.deleteFinanceAll(userId);
