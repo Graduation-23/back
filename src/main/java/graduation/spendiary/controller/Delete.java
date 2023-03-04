@@ -2,7 +2,6 @@ package graduation.spendiary.controller;
 
 import graduation.spendiary.domain.diary.DiaryService;
 import graduation.spendiary.domain.finance.FinanceService;
-import graduation.spendiary.domain.goal.GoalMonth;
 import graduation.spendiary.domain.goal.GoalService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
 import graduation.spendiary.domain.user.UserService;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/delete")
-public class DeleteUser {
+public class Delete {
 
     @Autowired
     private UserService userService;
