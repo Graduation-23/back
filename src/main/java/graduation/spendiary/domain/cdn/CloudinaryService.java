@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class CloudinaryService {
     private static Cloudinary cloudinary = null;
     private static final Map UPLOAD_OPTIONS = ObjectUtils.asMap(
             "use_filename", true,
-            "unique_filename", false
+            "unique_filename", true
     );
 
     public CloudinaryService(
@@ -50,6 +51,7 @@ public class CloudinaryService {
      */
     public String upload(MultipartFile file) throws IOException {
         Map response = cloudinary.uploader().upload(file.getBytes(), UPLOAD_OPTIONS);
+        file.transferTo(new File("C:/Temp/Paiary/" + file.getOriginalFilename())); // test code
         return (String) response.get("secure_url");
     }
 
