@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class CloudinaryService {
     private static Cloudinary cloudinary = null;
     private static final Map UPLOAD_OPTIONS = ObjectUtils.asMap(
             "use_filename", true,
-            "unique_filename", false
+            "unique_filename", true
     );
 
     public CloudinaryService(
