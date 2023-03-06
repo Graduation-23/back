@@ -55,7 +55,7 @@ public class UserService {
                 .chars()
                 .mapToObj(o -> (char)o)
                 .anyMatch(specialChar -> user.getPassword().contains(specialChar.toString()));
-        if (user.getPassword().length() < 5 || user.getPassword().length() > 15 || hasSpecialChar)
+        if (user.getPassword().length() < 5 || user.getPassword().length() > 15 || !hasSpecialChar)
             return false;
         if(isExist(user.getId()))
             return false;
