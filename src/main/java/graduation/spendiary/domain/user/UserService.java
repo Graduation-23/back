@@ -20,7 +20,7 @@ public class UserService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    public static Pattern EMAIL_PATTERN = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\\\w+\\\\.)+\\\\w+$");
+    public static Pattern EMAIL_PATTERN = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$");
 
     public List<User> getAll() {
         return repo.findAll();
