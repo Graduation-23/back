@@ -172,6 +172,12 @@ public class GoalService {
         weekRepo.save(targetGoal);
     }
 
+    /**
+     * 사용자의 월간 목표 상태를 확인하고 DB를 업데이트합니다.
+     * @param userId 사용자 ID
+     * @param monthId 월간 목표 ID
+     * @return 성공 여부
+     */
     public boolean checkMonthState(String userId, Long monthId) {
         GoalMonth goalMonth = monthRepo.findById(monthId).get();
 
@@ -199,6 +205,12 @@ public class GoalService {
         return true;
     }
 
+    /**
+     * 사용자의 월간 목표 상태를 확인하고 DB를 업데이트합니다.
+     * @param userId 사용자 ID
+     * @param weekId 주간 목표 ID
+     * @return 성공 여부
+     */
     public boolean checkWeekState(String userId, Long weekId) {
         GoalWeek goalWeek = getWeekById(weekId);
 
