@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -178,77 +179,52 @@ public class GoalService {
         LocalDate end = goalMonth.getEnd();
         LocalDate now = LocalDate.now();
 
-        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
+        long totalCost = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(widgetService::getDto)
                 .map(SpendingWidgetDto::getTotalCost)
-                .collect(Collectors.toList());
-        long total_cost = spendingWidget.stream().mapToLong(Long::longValue).sum();
+                .mapToLong(Long::longValue)
+                .sum();
 
-        List<Long> goalMonthAmount = monthRepo.findByUserAndDate(userId, start).stream()
+        long monthAmountSum = monthRepo.findByUserAndDate(userId, start).stream()
                 .map(GoalMonth::getAmount)
-                .collect(Collectors.toList());
-        long monthAmount = goalMonthAmount.stream().mapToLong(Long::longValue).sum();
+                .mapToLong(Long::longValue).sum();
 
-        if(end.isBefore(now)) {
-            if(total_cost <= monthAmount) {
-                goalMonth.setState(STATE_ACHEIVED);
-                monthRepo.save(goalMonth);
-            }
-            else {
-                goalMonth.setState(STATE_FAILED);
-                monthRepo.save(goalMonth);
-            }
-        } else {
-            if(total_cost <= monthAmount) {
-                goalMonth.setState(STATE_PROCEEDING);
-                monthRepo.save(goalMonth);
-            }
-            else {
-                goalMonth.setState(STATE_FAILED);
-                monthRepo.save(goalMonth);
-            }
-        }
+        if (totalCost > monthAmountSum)
+            goalMonth.setState(STATE_FAILED);
+        else if (end.isBefore(now))
+            goalMonth.setState(STATE_ACHEIVED);
+        else
+            goalMonth.setState(STATE_PROCEEDING);
+        monthRepo.save(goalMonth);
         return true;
     }
 
     public boolean checkWeekState(String userId, Long weekId) {
-        GoalWeek goalWeek = weekRepo.findById(weekId).get();
+        GoalWeek goalWeek = getWeekById(weekId);
 
         LocalDate start = goalWeek.getStart();
         LocalDate end = goalWeek.getEnd();
         LocalDate now = LocalDate.now();
 
-        List<Long> spendingWidget = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
+        long totalCost = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(widgetService::getDto)
                 .map(SpendingWidgetDto::getTotalCost)
-                .collect(Collectors.toList());
-        long total_cost = spendingWidget.stream().mapToLong(Long::longValue).sum();
+                .mapToLong(Long::longValue)
+                .sum();
 
         Long monthId = goalWeek.getGoalMonth();
-        List<Long> goalWeekAmount = weekRepo.findByUserAndDate(monthId, start).stream()
+        long weekAmountSum = weekRepo.findByUserAndDate(monthId, start).stream()
                 .map(GoalWeek::getAmount)
-                .collect(Collectors.toList());
-        long weekAmount = goalWeekAmount.stream().mapToLong(Long::longValue).sum();
-        
-        if(end.isBefore(now)) {
-            if(total_cost <= weekAmount) {
-                goalWeek.setState(STATE_ACHEIVED);
-                weekRepo.save(goalWeek);
-            }
-            else {
-                goalWeek.setState(STATE_FAILED);
-                weekRepo.save(goalWeek);
-            }
-        } else {
-            if(total_cost <= weekAmount) {
-                goalWeek.setState(STATE_PROCEEDING);
-                weekRepo.save(goalWeek);
-            }
-            else {
-                goalWeek.setState(STATE_FAILED);
-                weekRepo.save(goalWeek);
-            }
-        }
+                .mapToLong(Long::longValue)
+                .sum();
+
+        if (totalCost > weekAmountSum)
+            goalWeek.setState(STATE_FAILED);
+        else if (end.isBefore(now))
+            goalWeek.setState(STATE_ACHEIVED);
+        else
+            goalWeek.setState(STATE_PROCEEDING);
+        weekRepo.save(goalWeek);
         return true;
     }
 
@@ -264,30 +240,37 @@ public class GoalService {
                 .mapToLong(Long::longValue).sum();
     }
 
+    /**
+     * 사용자가 달성한 월간 목표의 개수를 반환합니다.
+     * @param userId 사용자 ID
+     * @return 사용자가 달성한 월간 목표의 개수
+     */
     public long getMonthAchieve(String userId) {
-        long monthCnt = monthRepo.findByUser(userId).stream()
+        return monthRepo.findByUser(userId).stream()
                 .map(GoalMonth::getState)
-                .filter(n -> n.contains("달성"))
+                .filter(n -> n.contains(STATE_ACHEIVED))
                 .count();
-        return monthCnt;
     }
 
+    /**
+     * 사용자가 달성한 주간 목표의 개수를 반환합니다.
+     * @param userId 사용자 ID
+     * @return 사용자가 달성한 주간 목표의 개수
+     */
     public long getWeekAchieve(String userId) {
-        List<List<Long>> weekIds = monthRepo.findByUser(userId).stream()
+        return monthRepo.findByUser(userId).stream()
                 .map(GoalMonth::getWeekIds)
-                .collect(Collectors.toList());
-
-        long weekCnt = 0;
-        for (List<Long> n : weekIds) {
-            weekCnt += n.stream()
-                    .map(this::getWeekById)
-                    .map(GoalWeek::getState)
-                    .filter(a -> ((String) a).contains("달성"))
-                    .count();
-        }
-        return weekCnt;
+                .flatMap(List::stream)
+                .map(this::getWeekById)
+                .filter(weekGoal -> weekGoal.getState().equals(STATE_ACHEIVED))
+                .count();
     }
-
+    
+    /**
+     * 사용자의 모든 목표를 지웁니다.
+     * @param userId 사용자 ID
+     * @return 성공 여부
+     */
     public boolean deleteGoalAll(String userId) {
         List<GoalMonth> goalMonthList = monthRepo.findByUser(userId);
         List<List<Long>> weekIds = monthRepo.findByUser(userId).stream()
