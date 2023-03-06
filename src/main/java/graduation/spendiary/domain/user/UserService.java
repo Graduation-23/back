@@ -4,15 +4,14 @@ import graduation.spendiary.domain.cdn.CloudinaryService;
 import graduation.spendiary.exception.NoSuchContentException;
 import graduation.spendiary.security.google.GoogleUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
@@ -20,6 +19,8 @@ public class UserService {
     private UserRepository repo;
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    public static Pattern EMAIL_PATTERN = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\\\w+\\\\.)+\\\\w+$");
 
     public List<User> getAll() {
         return repo.findAll();
@@ -44,8 +45,20 @@ public class UserService {
     }
 
     public boolean signUpRaw(User user) {
-
-        if(isExist(user.getId())) return false;
+        if (!EMAIL_PATTERN.matcher(user.getId()).matches())
+            return false;
+        if (user.getId().length() < 5)
+            return false;
+        if (user.getNickname().length() < 3 || user.getNickname().length() > 7)
+            return false;
+        boolean hasSpecialChar = "!@#$%^&*()-_=+"
+                .chars()
+                .mapToObj(o -> (char)o)
+                .anyMatch(specialChar -> user.getPassword().contains(specialChar.toString()));
+        if (user.getPassword().length() < 5 || user.getPassword().length() > 15 || hasSpecialChar)
+            return false;
+        if(isExist(user.getId()))
+            return false;
 
         User member = repo.save(User.builder()
                 .nickname(user.getNickname()).id(user.getId())
