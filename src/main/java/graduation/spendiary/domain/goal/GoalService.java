@@ -4,6 +4,7 @@ import graduation.spendiary.domain.DatabaseSequence.SequenceGeneratorService;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetDto;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetRepository;
 import graduation.spendiary.domain.spendingWidget.SpendingWidgetService;
+import graduation.spendiary.domain.user.UserService;
 import graduation.spendiary.exception.ContentAlreadyExistsException;
 import graduation.spendiary.exception.GoalAmountExceededException;
 import graduation.spendiary.exception.NoSuchContentException;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +33,9 @@ public class GoalService {
     private SpendingWidgetRepository spendRepo;
     @Autowired
     private SpendingWidgetService widgetService;
+    @Autowired
+    private UserService userService;
+
     private final String STATE_PROCEEDING = "진행중";
     private final String STATE_ACHEIVED = "달성";
     private final String STATE_FAILED = "실패";
@@ -184,6 +187,7 @@ public class GoalService {
         LocalDate start = goalMonth.getStart();
         LocalDate end = goalMonth.getEnd();
         LocalDate now = LocalDate.now();
+        LocalDate userCreated = userService.getUser(userId).getCreated();
 
         long totalCost = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(widgetService::getDto)
@@ -195,7 +199,9 @@ public class GoalService {
                 .map(GoalMonth::getAmount)
                 .mapToLong(Long::longValue).sum();
 
-        if (totalCost > monthAmountSum)
+        if (userCreated.isAfter(end))
+            goalMonth.setState(STATE_FAILED);
+        else if (totalCost > monthAmountSum)
             goalMonth.setState(STATE_FAILED);
         else if (end.isBefore(now))
             goalMonth.setState(STATE_ACHEIVED);
@@ -217,6 +223,7 @@ public class GoalService {
         LocalDate start = goalWeek.getStart();
         LocalDate end = goalWeek.getEnd();
         LocalDate now = LocalDate.now();
+        LocalDate userCreated = userService.getUser(userId).getCreated();
 
         long totalCost = spendRepo.findByUserAndDateBetween(userId, start, end.plusDays(1)).stream()
                 .map(widgetService::getDto)
@@ -230,7 +237,9 @@ public class GoalService {
                 .mapToLong(Long::longValue)
                 .sum();
 
-        if (totalCost > weekAmountSum)
+        if (userCreated.isAfter(end))
+            goalWeek.setState(STATE_FAILED);
+        else if (totalCost > weekAmountSum)
             goalWeek.setState(STATE_FAILED);
         else if (end.isBefore(now))
             goalWeek.setState(STATE_ACHEIVED);
