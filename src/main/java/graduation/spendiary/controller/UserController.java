@@ -25,17 +25,6 @@ public class UserController {
         return userService.getUser(userId);
     }
 
-    @DeleteMapping
-    public Message deleteInformation(@AuthenticationPrincipal String userId, @RequestParam("password") String password) {
-
-        boolean success = userService.deleteUser(userId, password);
-
-        return new Message(
-                success ? "탈퇴 완료" : "탈퇴 실패; 패스워드를 확인하세요",
-                success
-        );
-    }
-
     @PutMapping (value = "/birth")
     public User putBirthday(
             @AuthenticationPrincipal String userId,
