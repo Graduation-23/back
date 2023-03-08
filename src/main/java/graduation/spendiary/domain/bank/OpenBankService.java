@@ -269,6 +269,12 @@ public class OpenBankService {
         catch (NoSuchContentException e) {
             return Collections.emptyList();
         }
+        // info에 정보가 없으면 금결원에서 불러옴
+        if (info.getFintechNums().isEmpty()) {
+            this.inquiryAccount(userId);
+            info = this.getInfo(userId);
+
+        }
         RestTemplate restTemplate = new RestTemplate();
 
         String dateFormatted = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
