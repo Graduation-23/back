@@ -3,7 +3,7 @@ package graduation.spendiary.controller;
 import graduation.spendiary.domain.diary.DiaryDto;
 import graduation.spendiary.domain.diary.DiaryEditVo;
 import graduation.spendiary.domain.diary.DiaryService;
-import graduation.spendiary.exception.DiaryDuplicatedException;
+import graduation.spendiary.exception.ContentAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -40,7 +40,7 @@ public class DiaryController {
     public Long saveEmptyDiary(
             @AuthenticationPrincipal String userId,
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate diaryDate
-    ) throws DiaryDuplicatedException
+    ) throws ContentAlreadyExistsException
     {
         return diaryService.saveEmptyDiary(userId, diaryDate);
     }

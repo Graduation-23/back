@@ -39,12 +39,10 @@ public class GoalWeek {
     private int week;
 
     @Field("goal_week_start")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate start;
 
     @Field("goal_week_end")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @DateTimeFormat(pattern = "yyyy-MM-DD")
     private LocalDate end;
 

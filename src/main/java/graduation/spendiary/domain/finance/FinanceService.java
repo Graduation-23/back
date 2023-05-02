@@ -49,4 +49,15 @@ public class FinanceService {
         repo.deleteById(deleteFinance.getId());
         return true;
     }
+
+    public boolean deleteFinanceAll(String userId) {
+        List<Finance> financeList = repo.findByUser(userId);
+        if(financeList == null) {
+            return false;
+        }
+        for(Finance n : financeList) {
+            repo.delete(n);
+        }
+        return true;
+    }
 }
